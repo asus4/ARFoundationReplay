@@ -1,0 +1,12 @@
+{
+  "name": "com.github.asus4.arfoundationrecorder",
+  "displayName": "AR Foundation Recorder",
+  "author": "Koki Ibukuro",
+  "description": "Record AR and Playback AR in Editor",
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "version": "0.1.0",
+  "type": "library",
+  "hideInEditor": false
+}

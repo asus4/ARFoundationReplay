@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.github.asus4.arfoundationrecorder": {
+      "version": "file:com.github.asus4.arfoundationrecorder",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "1.7.3",
       "depth": 1,
