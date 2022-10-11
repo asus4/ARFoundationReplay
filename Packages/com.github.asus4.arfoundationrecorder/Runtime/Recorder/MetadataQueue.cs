@@ -1,10 +1,10 @@
-namespace ARFRecorder
-{
-    using System.Collections.Generic;
-    using Unity.Collections;
-    using UnityEngine;
+using System.Collections.Generic;
+using Unity.Collections;
+using UnityEngine;
 
-    internal sealed class MetaQueue : System.IDisposable
+namespace ARFoundationRecorder
+{
+    internal sealed class MetadataQueue : System.IDisposable
     {
         private readonly Queue<double> _times = new();
         private readonly Queue<NativeArray<byte>> _buffers = new();

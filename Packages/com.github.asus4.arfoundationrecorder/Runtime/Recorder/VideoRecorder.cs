@@ -1,4 +1,4 @@
-namespace ARFRecorder
+namespace ARFoundationRecorder
 {
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -41,7 +41,7 @@ namespace ARFRecorder
         public void Update(NativeArray<byte> metadata)
         {
             if (!IsRecording) { return; }
-            if (!_metaQueue.TryEnqueueNow(metadata)) { return; }
+            if (!_metadataQueue.TryEnqueueNow(metadata)) { return; }
 
             Graphics.Blit(_source, _buffer, new Vector2(1, -1), new Vector2(0, 1));
             AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
@@ -52,7 +52,7 @@ namespace ARFRecorder
             var path = PathUtil.GetTemporaryFilePath();
             Avfi.StartRecording(path, _source.width, _source.height);
 
-            _metaQueue.Clear();
+            _metadataQueue.Clear();
             IsRecording = true;
         }
 
@@ -68,7 +68,7 @@ namespace ARFRecorder
         #region Private objects
 
         private RenderTexture _buffer;
-        private readonly MetaQueue _metaQueue = new();
+        private readonly MetadataQueue _metadataQueue = new();
 
         private void ChangeSource(RenderTexture rt)
         {
@@ -102,7 +102,7 @@ namespace ARFRecorder
             var data = request.GetData<byte>(0);
             var ptr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(data);
 
-            var (time, metadata) = _metaQueue.Dequeue();
+            var (time, metadata) = _metadataQueue.Dequeue();
             if (metadata.IsCreated)
             {
                 var metadataPtr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(metadata);

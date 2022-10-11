@@ -1,13 +1,12 @@
-namespace ARFRecorder
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using IntPtr = System.IntPtr;
+
+namespace ARFoundationRecorder
 {
-    using Unity.Collections;
-    using Unity.Collections.LowLevel.Unsafe;
-    using IntPtr = System.IntPtr;
-
-
     public class MetadataPlayer : System.IDisposable
     {
-        NativeArray<byte> _buffer;
+        private NativeArray<byte> _buffer;
 
         public MetadataPlayer(string path)
         {

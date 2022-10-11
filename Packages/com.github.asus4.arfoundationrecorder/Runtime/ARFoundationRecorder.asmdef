@@ -1,7 +1,9 @@
 {
-    "name": "com.github.asus4.arfoundationrecorder.runtime",
+    "name": "ARFoundationRecorder",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:a9420e37d7990b54abdef6688edbe313"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
