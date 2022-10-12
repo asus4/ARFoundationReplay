@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
 
 namespace ARFoundationRecorder
 {
     [RequireComponent(typeof(Button))]
-    public class ARRecordButton : MonoBehaviour
+    public sealed class ARRecordButton : MonoBehaviour
     {
         [SerializeField]
         private bool _hideInReleaseBuild = true;
@@ -20,19 +21,27 @@ namespace ARFoundationRecorder
 
         private void Awake()
         {
-            bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
-            if (needHidden)
+            var origin = FindObjectOfType<ARSessionOrigin>();
+            if (origin == null)
             {
+                Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
                 gameObject.SetActive(false);
+                return;
             }
+            _recorder = new ARRecorder(origin);
+
+            bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
+            gameObject.SetActive(!needHidden);
+        }
+
+        private void OnDestroy()
+        {
+            _recorder?.Dispose();
+            _recorder = null;
         }
 
         private void OnEnable()
         {
-            if (_recorder == null)
-            {
-                _recorder = gameObject.AddComponent<ARRecorder>();
-            }
             _button = GetComponent<Button>();
             _button.image.sprite = _iconStart;
             _button.onClick.AddListener(OnRecordButtonClicked);
@@ -40,6 +49,7 @@ namespace ARFoundationRecorder
 
         private void OnDisable()
         {
+            if (_button == null) { return; }
             _button.onClick.RemoveListener(OnRecordButtonClicked);
         }
 

@@ -8,5 +8,8 @@
   "unityRelease": "0f1",
   "version": "0.1.0",
   "type": "library",
-  "hideInEditor": false
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.xr.arfoundation": "4.2.6"
+  }
 }

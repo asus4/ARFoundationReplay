@@ -1,13 +1,12 @@
 {
-    "name": "ARFoundationRecorder",
+    "name": "ARFoundationRecorder.Editor",
     "rootNamespace": "",
-    "references": [
-        "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:a9420e37d7990b54abdef6688edbe313"
+    "references": [],
+    "includePlatforms": [
+        "Editor"
     ],
-    "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

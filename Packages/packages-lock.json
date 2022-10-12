@@ -4,7 +4,9 @@
       "version": "file:com.github.asus4.arfoundationrecorder",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.xr.arfoundation": "4.2.6"
+      }
     },
     "com.unity.burst": {
       "version": "1.7.3",

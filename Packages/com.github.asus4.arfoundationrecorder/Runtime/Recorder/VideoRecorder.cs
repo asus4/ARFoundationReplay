@@ -1,11 +1,11 @@
+using UnityEngine;
+using UnityEngine.Rendering;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using IntPtr = System.IntPtr;
+
 namespace ARFoundationRecorder
 {
-    using UnityEngine;
-    using UnityEngine.Rendering;
-    using Unity.Collections;
-    using Unity.Collections.LowLevel.Unsafe;
-    using IntPtr = System.IntPtr;
-
     public sealed class VideoRecorder : System.IDisposable
     {
         #region Editable attributes

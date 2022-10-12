@@ -1,34 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
 namespace ARFoundationRecorder
 {
-    public sealed class ARRecorder : MonoBehaviour
+    public sealed class ARRecorder : System.IDisposable
     {
-        private ARCameraManager _cameraManager;
+        private readonly ARSessionOrigin _origin;
+        private readonly ARCameraManager _cameraManager;
+        private readonly VideoRecorder _videoRecorder;
+        private readonly RenderTexture _renderTexture;
 
-        public bool IsRecording { get; private set; }
+        public bool IsRecording => _videoRecorder.IsRecording;
 
-        private void OnEnable()
+        public ARRecorder(ARSessionOrigin origin)
         {
-            _cameraManager = GameObject.FindObjectOfType<ARCameraManager>();
+            _origin = origin;
+            _cameraManager = _origin.camera.GetComponent<ARCameraManager>();
+            _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            _videoRecorder = new VideoRecorder(_renderTexture);
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             if (IsRecording)
             {
                 StopRecording();
             }
+            Object.Destroy(_renderTexture);
+            _videoRecorder.Dispose();
         }
 
         public void StartRecording()
         {
             if (IsRecording) { return; }
             Debug.Log("StartRecording");
-            IsRecording = true;
+            _videoRecorder.StartRecording();
             _cameraManager.frameReceived += OnFrameReceived;
         }
 
@@ -37,12 +44,25 @@ namespace ARFoundationRecorder
             if (!IsRecording) { return; }
             Debug.Log("StopRecording");
             _cameraManager.frameReceived -= OnFrameReceived;
-            IsRecording = false;
+            _videoRecorder.EndRecording();
         }
 
         private void OnFrameReceived(ARCameraFrameEventArgs args)
         {
-            Debug.Log($"OnFrameReceived: {args}");
+            if (!IsRecording) { return; }
+
+            Graphics.Blit(null, _renderTexture, _cameraManager.cameraMaterial);
+            var packet = new Packet()
+            {
+                cameraFrame = new Packet.CameraFrameEvent()
+                {
+                    timestampNs = args.timestampNs.Value,
+                    projectionMatrix = args.projectionMatrix.Value,
+                    displayMatrix = args.displayMatrix.Value
+                }
+            };
+            using var binary = new NativeArray<byte>(packet.Serialize(), Allocator.Temp);
+            _videoRecorder.Update(binary);
         }
     }
 }
