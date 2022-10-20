@@ -10,6 +10,8 @@ namespace ARFoundationRecorder
         private readonly ARCameraManager _cameraManager;
         private readonly VideoRecorder _videoRecorder;
         private readonly RenderTexture _renderTexture;
+        private readonly Material _bufferMaterial;
+
 
         public bool IsRecording => _videoRecorder.IsRecording;
 
@@ -18,6 +20,7 @@ namespace ARFoundationRecorder
             _origin = origin;
             _cameraManager = _origin.camera.GetComponent<ARCameraManager>();
             _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            _bufferMaterial = new Material(Shader.Find("Hidden/ARKitRecordingEncoder"));
             _videoRecorder = new VideoRecorder(_renderTexture);
         }
 
@@ -51,7 +54,14 @@ namespace ARFoundationRecorder
         {
             if (!IsRecording) { return; }
 
-            Graphics.Blit(null, _renderTexture, _cameraManager.cameraMaterial);
+            // Set texture
+            var count = args.textures.Count;
+            for (int i = 0; i < count; i++)
+            {
+                _bufferMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
+            }
+
+            Graphics.Blit(null, _renderTexture, _bufferMaterial);
             var packet = new Packet()
             {
                 cameraFrame = new Packet.CameraFrameEvent()

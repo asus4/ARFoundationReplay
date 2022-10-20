@@ -15,8 +15,8 @@ namespace ARFoundationRecorder
 
         public byte[] Serialize()
         {
-            // Should make custom serialization 
-            // instead of using BinaryFormatter
+            // TODO: Should make custom serialization 
+            // instead of using BinaryFormatter?
             lock (stream)
             {
                 stream.Position = 0;

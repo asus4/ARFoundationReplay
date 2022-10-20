@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using DateTime = System.DateTime;
 using IntPtr = System.IntPtr;
+
 
 namespace ARFoundationRecorder
 {
@@ -49,7 +51,7 @@ namespace ARFoundationRecorder
 
         public void StartRecording()
         {
-            var path = PathUtil.GetTemporaryFilePath();
+            var path = GetTemporaryFilePath();
             Avfi.StartRecording(path, _source.width, _source.height);
 
             _metadataQueue.Clear();
@@ -85,6 +87,14 @@ namespace ARFoundationRecorder
 
             _source = rt;
             _buffer = new RenderTexture(rt.width, rt.height, 0);
+        }
+
+        private static string GetTemporaryFilePath()
+        {
+            string dir = Application.platform == RuntimePlatform.IPhonePlayer
+                ? Application.temporaryCachePath : ".";
+            string fileName = $"Record_{DateTime.Now:MMdd_HHmm_ss}.mp4";
+            return $"{dir}/{fileName}";
         }
 
         #endregion

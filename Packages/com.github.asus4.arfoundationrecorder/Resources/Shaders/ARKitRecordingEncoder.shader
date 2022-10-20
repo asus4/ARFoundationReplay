@@ -1,4 +1,4 @@
-Shader "Unlit/ARKitEncoder"
+Shader "Hidden/ARKitRecordingEncoder"
 {
     Properties
     {
@@ -122,7 +122,7 @@ Shader "Unlit/ARKitEncoder"
 #endif // ARKIT_HUMAN_SEGMENTATION_ENABLED
 
 
-            fragment_output frag (v2f i)
+            float4 frag (v2f i): SV_Target
             {
                 // Sample the video textures (in YCbCr).
                 real4 ycbcr = real4(ARKIT_SAMPLE_TEXTURE2D(_textureY, sampler_textureY, i.texcoord).r,
@@ -158,10 +158,10 @@ Shader "Unlit/ARKitEncoder"
                 }
 #endif // ARKIT_HUMAN_SEGMENTATION_ENABLED
 
-                fragment_output o;
-                o.color = videoColor;
-                o.depth = depthValue;
-                return o;
+                // fragment_output o;
+                // o.color = videoColor;
+                // o.depth = depthValue;
+                return videoColor;
             }
 
             ENDHLSL
