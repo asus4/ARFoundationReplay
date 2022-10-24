@@ -1,12 +1,13 @@
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
 
 namespace ARFoundationRecorder
 {
     public sealed class ARRecorder : System.IDisposable
     {
-        private readonly ARSessionOrigin _origin;
+        private readonly XROrigin _origin;
         private readonly ARCameraManager _cameraManager;
         private readonly VideoRecorder _videoRecorder;
         private readonly RenderTexture _renderTexture;
@@ -15,10 +16,10 @@ namespace ARFoundationRecorder
 
         public bool IsRecording => _videoRecorder.IsRecording;
 
-        public ARRecorder(ARSessionOrigin origin)
+        public ARRecorder(XROrigin origin)
         {
             _origin = origin;
-            _cameraManager = _origin.camera.GetComponent<ARCameraManager>();
+            _cameraManager = _origin.Camera.GetComponent<ARCameraManager>();
             _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
             _bufferMaterial = new Material(Shader.Find("Hidden/ARKitRecordingEncoder"));
             _videoRecorder = new VideoRecorder(_renderTexture);

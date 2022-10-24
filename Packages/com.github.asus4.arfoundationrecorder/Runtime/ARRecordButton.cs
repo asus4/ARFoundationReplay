@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
 
 namespace ARFoundationRecorder
 {
@@ -21,7 +21,7 @@ namespace ARFoundationRecorder
 
         private void Awake()
         {
-            var origin = FindObjectOfType<ARSessionOrigin>();
+            var origin = FindObjectOfType<XROrigin>();
             if (origin == null)
             {
                 Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
