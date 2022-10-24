@@ -9,6 +9,8 @@ EditorBuildSettings:
     path: Assets/Samples/BlankAR.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
+    ARFoundationRecorder.ARRecorderSetting: {fileID: 11400000, guid: f453301bce77e43998b90a4429be88eb,
+      type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: b5c3a8c771bbe489dbcfea75307477f7,
       type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 47a94564f83a4418ea50fc41896f878f,

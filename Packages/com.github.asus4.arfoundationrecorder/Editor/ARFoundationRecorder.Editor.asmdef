@@ -1,7 +1,10 @@
 {
     "name": "ARFoundationRecorder.Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:f1ed49755fe9f45d792b80e95cb3e57e",
+        "GUID:f9fe0089ec81f4079af78eb2287a6163"
+    ],
     "includePlatforms": [
         "Editor"
     ],
