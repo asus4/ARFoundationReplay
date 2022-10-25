@@ -5,6 +5,7 @@ using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.Video;
 using Object = UnityEngine.Object;
+using System.Collections.Generic;
 
 namespace ARFoundationRecorder
 {
@@ -19,7 +20,7 @@ namespace ARFoundationRecorder
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            XRCameraSubsystemCinfo cameraSubsystemCinfo = new XRCameraSubsystemCinfo
+            var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
             {
                 id = ID,
                 providerType = typeof(ARRecorderProvider),
@@ -45,24 +46,31 @@ namespace ARFoundationRecorder
             {
                 Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
             }
+            else
+            {
+                Debug.Log($"Register {ID} subsystem");
+            }
         }
 
         class ARRecorderProvider : Provider
         {
-            private static readonly int _TEXTURE_MAIN = Shader.PropertyToID("_MainTex");
-            private Material _material;
-            private VideoPlayer _player;
-            
-            public override Material cameraMaterial => _material;
+            static readonly int _TEXTURE_MAIN = Shader.PropertyToID("_MainTex");
+            Material _material;
+            VideoPlayer _player;
 
+            public override Material cameraMaterial
+            {
+                get
+                {
+                    return _material ??= CreateCameraMaterial("Unlit/WebcamBackground");
+                }
+            }
+
+            public override bool permissionGranted => true;
 
             public override void Start()
             {
                 base.Start();
-                if (_material == null)
-                {
-                    _material = CreateCameraMaterial("Unlit/WebcamBackground");
-                }
 #if UNITY_EDITOR
                 var setting = ARRecorderSettings.currentSettings;
                 string path = setting.GetRecordPath();
@@ -109,11 +117,28 @@ namespace ARFoundationRecorder
                 }
             }
 
+            public override XRCameraBackgroundRenderingMode currentBackgroundRenderingMode
+                => requestedBackgroundRenderingMode switch
+                {
+                    XRSupportedCameraBackgroundRenderingMode.Any => XRCameraBackgroundRenderingMode.AfterOpaques,
+                    // Don't support BeforeOpaques at the moment
+                    XRSupportedCameraBackgroundRenderingMode.BeforeOpaques => XRCameraBackgroundRenderingMode.BeforeOpaques,
+                    XRSupportedCameraBackgroundRenderingMode.AfterOpaques => XRCameraBackgroundRenderingMode.AfterOpaques,
+                    XRSupportedCameraBackgroundRenderingMode.None => XRCameraBackgroundRenderingMode.None,
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+
+            public override XRSupportedCameraBackgroundRenderingMode requestedBackgroundRenderingMode { get; set; }
+                = XRSupportedCameraBackgroundRenderingMode.AfterOpaques;
+
+            public override XRSupportedCameraBackgroundRenderingMode supportedBackgroundRenderingMode
+                => XRSupportedCameraBackgroundRenderingMode.AfterOpaques;
+
             public override bool TryGetFrame(XRCameraParams cameraParams, out XRCameraFrame cameraFrame)
             {
                 if (!Application.isPlaying || !_player.isPrepared)
                 {
-                    cameraFrame = default(XRCameraFrame);
+                    cameraFrame = default;
                     return false;
                 }
 
@@ -177,12 +202,15 @@ namespace ARFoundationRecorder
                 var arr = new NativeArray<XRTextureDescriptor>(1, allocator);
                 arr[0] = new TextureDescriptor(_player.texture, _TEXTURE_MAIN);
 
-                // var tex = _player.texture;
-                // Debug.Log($"{_player.isPlaying}: {tex.width}x{tex.height}");
                 return arr;
             }
 
-            private static VideoPlayer CreateVideoPlayer(string path)
+            public override void GetMaterialKeywords(out List<string> enabledKeywords, out List<string> disabledKeywords)
+            {
+                base.GetMaterialKeywords(out enabledKeywords, out disabledKeywords);
+            }
+
+            static VideoPlayer CreateVideoPlayer(string path)
             {
                 var gameObject = new GameObject(typeof(ARRecorderCameraSubsystem).ToString());
                 Object.DontDestroyOnLoad(gameObject);

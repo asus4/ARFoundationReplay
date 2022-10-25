@@ -13,50 +13,83 @@
             "ForceNoShadowCasting" = "True"
         }
 
-        LOD 100
-
         Pass
         {
-            CGPROGRAM
+            Cull Off
+            // ZTest GEqual
+            ZTest Always
+            ZWrite On
+            Lighting Off
+            LOD 100
+            Tags
+            {
+                "LightMode" = "Always"
+            }
+
+            HLSLPROGRAM
+
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
             struct appdata
             {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float3 position : POSITION;
+                float2 texcoord : TEXCOORD0;
             };
 
             struct v2f
             {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
+                float4 position : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+                float2 depthTexCoord : TEXCOORD1;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float4x4 _UnityDisplayTransform;
+            struct fragment_output
+            {
+                real4 color : SV_Target;
+                float depth : SV_Depth;
+            };
 
+            CBUFFER_START(UnityARFoundationPerFrame)
+                float4x4 _UnityDisplayTransform;
+                float _UnityCameraForwardScale;
+            CBUFFER_END
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.position = TransformObjectToHClip(v.position);
 
-                float2 uv = mul(float3(v.uv, 1.0f), _UnityDisplayTransform).xy;
-                o.uv = uv + float2(_UnityDisplayTransform[0].w, _UnityDisplayTransform[1].w);
+                float2 texcoord = mul(float3(v.texcoord, 1.0f), _UnityDisplayTransform).xy;
+                o.texcoord = texcoord + float2(_UnityDisplayTransform[0].w, _UnityDisplayTransform[1].w);
+                o.depthTexCoord = v.texcoord;
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            TEXTURE2D(_MainTex) ;
+            SAMPLER(sampler_MainTex);
+
+            fragment_output frag (v2f i)
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                return col;
+                real4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
+
+                float cameraDepthValue = SampleSceneDepth(i.depthTexCoord);
+                if (cameraDepthValue >= depthValue)
+                {
+                    // discard;
+                }
+
+                fragment_output o;
+                o.color = color;
+                o.depth = depthValue;
+                return o;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

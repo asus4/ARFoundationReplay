@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.Management;
 
@@ -8,9 +7,8 @@ namespace ARFoundationRecorder
 {
     public sealed class ARRecorderLoader : XRLoaderHelper
     {
-        static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new List<XRSessionSubsystemDescriptor>();
-        static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new List<XRCameraSubsystemDescriptor>();
-
+        private static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
+        private static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();
 
         public override bool Initialize()
         {
