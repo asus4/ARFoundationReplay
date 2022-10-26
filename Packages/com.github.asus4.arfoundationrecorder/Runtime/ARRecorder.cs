@@ -1,5 +1,6 @@
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.XR.ARFoundation;
 using Unity.XR.CoreUtils;
 
@@ -21,7 +22,9 @@ namespace ARFoundationRecorder
             _origin = origin;
             _cameraManager = _origin.Camera.GetComponent<ARCameraManager>();
             _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-            _bufferMaterial = new Material(Shader.Find("Hidden/ARKitRecordingEncoder"));
+            var shader = Shader.Find("Hidden/ARRecording/ARKitEncoder");
+            Assert.IsNotNull(shader);
+            _bufferMaterial = new Material(shader);
             _videoRecorder = new VideoRecorder(_renderTexture);
         }
 

@@ -1,4 +1,4 @@
-Shader "Hidden/ARKitRecordingEncoder"
+Shader "Hidden/ARRecording/ARKitEncoder"
 {
     Properties
     {
