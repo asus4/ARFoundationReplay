@@ -7,7 +7,7 @@
 using DllImportAttribute = System.Runtime.InteropServices.DllImportAttribute;
 using IntPtr = System.IntPtr;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     static internal class Avfi
     {

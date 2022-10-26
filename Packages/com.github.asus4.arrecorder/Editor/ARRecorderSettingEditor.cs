@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     [CustomEditor(typeof(ARRecorderSettings))]
     public class ARRecorderSettingEditor : Editor

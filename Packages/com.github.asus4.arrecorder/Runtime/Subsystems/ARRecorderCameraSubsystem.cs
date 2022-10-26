@@ -7,7 +7,7 @@ using UnityEngine.Video;
 using Object = UnityEngine.Object;
 using System.Collections.Generic;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     /// <summary>
     /// The camera subsystem for ARRecorder.

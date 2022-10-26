@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.XR.CoreUtils;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     [RequireComponent(typeof(Button))]
     public sealed class ARRecordButton : MonoBehaviour

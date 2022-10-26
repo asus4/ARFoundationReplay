@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     internal sealed class MetadataQueue : System.IDisposable
     {

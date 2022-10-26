@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     [Serializable]
     internal partial class Packet

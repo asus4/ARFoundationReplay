@@ -5,7 +5,7 @@ using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 using System.IO;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     // Xcode project file modifier for iOS support
     public class PbxModifier

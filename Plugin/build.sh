@@ -23,6 +23,6 @@ lipo -create -output Avfi.bundle x86_64.so arm64.so
 
 ar -crv libAvfi.a Avfi.o AvfiMetaPlayer.o
 
-DST="../Packages/com.github.asus4.arfoundationrecorder/Plugins"
+DST="../Packages/com.github.asus4.ARRecorder/Plugins"
 cp Avfi.bundle $DST
 cp libAvfi.a $DST

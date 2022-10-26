@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     class XRPackage : IXRPackage
     {
@@ -27,14 +27,14 @@ namespace ARFoundationRecorder
 
         private static IXRPackageMetadata s_Metadata = new ARRecorderPackageMetadata()
         {
-            packageName = "ARRecorder",
-            packageId = "com.github.asus4.arfoundationrecorder",
+            packageName = "AR Recorder",
+            packageId = "com.github.asus4.ARRecorder",
             settingsType = typeof(ARRecorderSettings).FullName,
             loaderMetadata = new List<IXRLoaderMetadata>()
             {
                 new ARRecorderLoaderMetadata()
                 {
-                    loaderName = "ARRecorder",
+                    loaderName = "AR Recorder",
                     loaderType = typeof(ARRecorderLoader).FullName,
                     supportedBuildTargets = new List<BuildTargetGroup>()
                     {

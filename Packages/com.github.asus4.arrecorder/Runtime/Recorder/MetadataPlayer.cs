@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using IntPtr = System.IntPtr;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     public class MetadataPlayer : System.IDisposable
     {

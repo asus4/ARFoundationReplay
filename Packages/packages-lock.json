@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.github.asus4.arfoundationrecorder": {
-      "version": "file:com.github.asus4.arfoundationrecorder",
+    "com.github.asus4.arrecorder": {
+      "version": "file:com.github.asus4.arrecorder",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

@@ -6,7 +6,7 @@ using DateTime = System.DateTime;
 using IntPtr = System.IntPtr;
 
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     public sealed class VideoRecorder : System.IDisposable
     {

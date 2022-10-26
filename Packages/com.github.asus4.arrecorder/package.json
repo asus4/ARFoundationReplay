@@ -1,6 +1,6 @@
 {
-  "name": "com.github.asus4.arfoundationrecorder",
-  "displayName": "AR Foundation Recorder",
+  "name": "com.github.asus4.arrecorder",
+  "displayName": "AR Recorder",
   "author": "Koki Ibukuro",
   "description": "Record AR and Playback AR in Editor",
   "license": "SEE LICENSE IN LICENSE",

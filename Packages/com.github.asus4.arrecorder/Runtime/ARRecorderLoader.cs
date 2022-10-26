@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.Management;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     public sealed class ARRecorderLoader : XRLoaderHelper
     {

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     /// <summary>
     /// The session subsystem for ARRecorder.

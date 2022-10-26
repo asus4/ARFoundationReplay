@@ -5,13 +5,13 @@ using UnityEngine.XR.Management;
 using UnityEditor;
 #endif
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     /// <summary>
     /// Setting for ARRecorder.
     /// </summary>
     [System.Serializable]
-    [XRConfigurationData("ARRecorder", "ARFoundationRecorder.ARRecorderSetting")]
+    [XRConfigurationData("ARRecorder", "ARRecorder.ARRecorderSetting")]
     public sealed class ARRecorderSettings : ScriptableObject
     {
         [SerializeField]
@@ -45,6 +45,6 @@ namespace ARFoundationRecorder
         }
 #endif // UNITY_EDITOR
 
-        private const string k_SettingsKey = "ARFoundationRecorder.ARRecorderSetting";
+        private const string k_SettingsKey = "ARRecorder.ARRecorderSetting";
     }
 }

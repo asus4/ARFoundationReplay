@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.ARSubsystems;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct CameraFrame : IEquatable<CameraFrame>

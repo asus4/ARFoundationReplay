@@ -1,7 +1,7 @@
 using System;
 using Unity.Mathematics;
 
-namespace ARFoundationRecorder
+namespace ARRecorder
 {
 
     internal partial class Packet
