@@ -1,1 +1,1 @@
-Packages/com.github.asus4.arfoundationrecorder/README.md
+Packages/com.github.asus4.arrecorder/README.md
