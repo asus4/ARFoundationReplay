@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.XR.ARFoundation;
-using Unity.Collections;
 using Unity.XR.CoreUtils;
 
 namespace ARRecorder
@@ -15,7 +14,6 @@ namespace ARRecorder
         private readonly RenderTexture _renderTexture;
         private readonly Material _bufferMaterial;
 
-        private int _updatedFrame;
         private Packet _packet;
         public bool IsRecording => _videoRecorder.IsRecording;
 
@@ -46,6 +44,7 @@ namespace ARRecorder
         {
             if (IsRecording) { return; }
             Debug.Log("StartRecording");
+            _packet = new Packet();
             _videoRecorder.StartRecording();
             _cameraManager.frameReceived += OnCameraFrameReceived;
             if (_occlusionManager != null)
@@ -77,14 +76,11 @@ namespace ARRecorder
                 _bufferMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
 
-            _packet = new Packet()
+            _packet.cameraFrame = new Packet.CameraFrameEvent()
             {
-                cameraFrame = new Packet.CameraFrameEvent()
-                {
-                    timestampNs = args.timestampNs.Value,
-                    projectionMatrix = args.projectionMatrix.Value,
-                    displayMatrix = args.displayMatrix.Value
-                }
+                timestampNs = args.timestampNs.Value,
+                projectionMatrix = args.projectionMatrix.Value,
+                displayMatrix = args.displayMatrix.Value
             };
 
             // Update if occlusion is not available
