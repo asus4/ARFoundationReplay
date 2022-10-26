@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARRecorder
 {
@@ -33,10 +35,10 @@ namespace ARRecorder
             return (_times.Dequeue(), _buffers.Dequeue());
         }
 
-        public bool TryEnqueueNow(NativeArray<byte> metadata)
+        public unsafe bool TryEnqueueNow(ReadOnlySpan<byte> metadata)
         {
             // Copy native array
-            var buffer = new NativeArray<byte>(metadata, Allocator.Persistent);
+            var buffer = metadata.CopyToNativeArray(Allocator.Persistent);
 
             if (_start == 0)
             {

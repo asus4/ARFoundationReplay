@@ -11,9 +11,9 @@ namespace ARRecorder
 
         private static readonly BinaryFormatter formatter = new BinaryFormatter();
         private static readonly MemoryStream stream = new MemoryStream();
-        private static byte[] buffer = new byte[0];
+        private static byte[] buffer = new byte[8192];
 
-        public byte[] Serialize()
+        public ReadOnlySpan<byte> Serialize()
         {
             // TODO: Should make custom serialization 
             // instead of using BinaryFormatter?
@@ -22,14 +22,16 @@ namespace ARRecorder
                 stream.Position = 0;
                 formatter.Serialize(stream, this);
                 int length = (int)stream.Position;
-                if (buffer.Length != length)
+                if (buffer.Length < length)
                 {
                     buffer = new byte[length];
                 }
+                var span = new Span<byte>(buffer, 0, length);
+
                 stream.Position = 0;
-                stream.Read(buffer, 0, length);
+                stream.Read(span);
+                return span;
             }
-            return buffer;
         }
 
         public static Packet Deserialize(byte[] data)

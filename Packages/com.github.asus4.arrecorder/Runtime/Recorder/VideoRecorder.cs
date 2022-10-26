@@ -1,10 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using DateTime = System.DateTime;
 using IntPtr = System.IntPtr;
-
 
 namespace ARRecorder
 {
@@ -37,15 +37,15 @@ namespace ARRecorder
             {
                 EndRecording();
             }
-            Object.Destroy(_buffer);
+            UnityEngine.Object.Destroy(_buffer);
         }
 
-        public void Update(NativeArray<byte> metadata)
+        public void Update(ReadOnlySpan<byte> metadata)
         {
             if (!IsRecording) { return; }
             if (!_metadataQueue.TryEnqueueNow(metadata)) { return; }
 
-            Graphics.Blit(_source, _buffer, new Vector2(1, -1), new Vector2(0, 1));
+            Graphics.Blit(_source, _buffer);
             AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
         }
 
@@ -82,7 +82,7 @@ namespace ARRecorder
 
             if (_buffer != null)
             {
-                Object.Destroy(_buffer);
+                UnityEngine.Object.Destroy(_buffer);
             }
 
             _source = rt;
