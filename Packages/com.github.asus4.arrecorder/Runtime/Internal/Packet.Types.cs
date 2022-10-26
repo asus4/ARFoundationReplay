@@ -4,7 +4,7 @@ using Unity.Mathematics;
 namespace ARRecorder
 {
 
-    internal partial class Packet
+    public partial class Packet
     {
         [Serializable]
         public struct CameraFrameEvent : IEquatable<CameraFrameEvent>

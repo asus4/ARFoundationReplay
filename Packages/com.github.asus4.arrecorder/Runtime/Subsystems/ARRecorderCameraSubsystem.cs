@@ -1,11 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.Video;
-using Object = UnityEngine.Object;
-using System.Collections.Generic;
 
 namespace ARRecorder
 {
@@ -55,14 +54,22 @@ namespace ARRecorder
         class ARRecorderProvider : Provider
         {
             static readonly int _TEXTURE_MAIN = Shader.PropertyToID("_MainTex");
-            Material _material;
+            Material _beforeOpaquesCameraMaterial;
+            Material _afterOpaquesCameraMaterial;
             VideoPlayer _player;
 
             public override Material cameraMaterial
             {
                 get
                 {
-                    return _material ??= CreateCameraMaterial("Unlit/WebcamBackground");
+                    return currentBackgroundRenderingMode switch
+                    {
+                        XRCameraBackgroundRenderingMode.BeforeOpaques
+                            => _beforeOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/WebcamBackground"),
+                        XRCameraBackgroundRenderingMode.AfterOpaques
+                            => _afterOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/WebcamBackground"),
+                        _ => null,
+                    };
                 }
             }
 
@@ -97,11 +104,11 @@ namespace ARRecorder
                     _player.Stop();
                     if (Application.isEditor)
                     {
-                        Object.DestroyImmediate(_player);
+                        UnityEngine.Object.DestroyImmediate(_player);
                     }
                     else
                     {
-                        Object.Destroy(_player);
+                        UnityEngine.Object.Destroy(_player);
                     }
                 }
                 base.Destroy();
@@ -213,11 +220,10 @@ namespace ARRecorder
             static VideoPlayer CreateVideoPlayer(string path)
             {
                 var gameObject = new GameObject(typeof(ARRecorderCameraSubsystem).ToString());
-                Object.DontDestroyOnLoad(gameObject);
 
                 var player = gameObject.AddComponent<VideoPlayer>();
                 player.source = VideoSource.Url;
-                player.url = "file://" + path;
+                player.url = $"file://{path}";
                 player.playOnAwake = true;
                 player.isLooping = true;
                 player.skipOnDrop = true;

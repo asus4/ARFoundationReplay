@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace ARRecorder
 {
     [Serializable]
-    internal partial class Packet
+    public partial class Packet
     {
         public CameraFrameEvent cameraFrame;
 
@@ -34,12 +34,12 @@ namespace ARRecorder
             }
         }
 
-        public static Packet Deserialize(byte[] data)
+        public static Packet Deserialize(ReadOnlySpan<byte> data)
         {
             lock (stream)
             {
                 stream.Position = 0;
-                stream.Write(data, 0, data.Length);
+                stream.Write(data);
                 stream.Position = 0;
                 return formatter.Deserialize(stream) as Packet;
             }
