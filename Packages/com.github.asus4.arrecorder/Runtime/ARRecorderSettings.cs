@@ -11,7 +11,7 @@ namespace ARRecorder
     /// Setting for ARRecorder.
     /// </summary>
     [System.Serializable]
-    [XRConfigurationData("ARRecorder", "ARRecorder.ARRecorderSetting")]
+    [XRConfigurationData("AR Recorder", k_SettingsKey)]
     public sealed class ARRecorderSettings : ScriptableObject
     {
         [SerializeField]
@@ -45,6 +45,6 @@ namespace ARRecorder
         }
 #endif // UNITY_EDITOR
 
-        private const string k_SettingsKey = "ARRecorder.ARRecorderSetting";
+        private const string k_SettingsKey = "ARRecorder.ARRecorderSettings";
     }
 }

@@ -78,6 +78,7 @@
                 // sample the texture
                 real4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
 
+                float depthValue = 0.0;
                 float cameraDepthValue = SampleSceneDepth(i.depthTexCoord);
                 if (cameraDepthValue >= depthValue)
                 {

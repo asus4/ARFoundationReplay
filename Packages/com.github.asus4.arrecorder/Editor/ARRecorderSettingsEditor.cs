@@ -4,7 +4,7 @@ using UnityEditor;
 namespace ARRecorder
 {
     [CustomEditor(typeof(ARRecorderSettings))]
-    public class ARRecorderSettingEditor : Editor
+    public class ARRecorderSettingsEditor : Editor
     {
         private SerializedProperty _recordPath;
         

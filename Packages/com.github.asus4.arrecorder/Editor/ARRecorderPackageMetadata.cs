@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -28,7 +27,7 @@ namespace ARRecorder
         private static IXRPackageMetadata s_Metadata = new ARRecorderPackageMetadata()
         {
             packageName = "AR Recorder",
-            packageId = "com.github.asus4.ARRecorder",
+            packageId = "com.github.asus4.arrecorder",
             settingsType = typeof(ARRecorderSettings).FullName,
             loaderMetadata = new List<IXRLoaderMetadata>()
             {
