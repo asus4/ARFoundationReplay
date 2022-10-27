@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
-using Unity.Collections;
-using ARRecorder;
+using ARFoundationReplay;
 
 [RequireComponent(typeof(VideoPlayer))]
 public class MetadataPlayerTest : MonoBehaviour
@@ -37,6 +34,7 @@ public class MetadataPlayerTest : MonoBehaviour
             return;
         }
 
+        // Skip the same frame
         long frame = _videoPlayer.frame;
         if (frame == _lastFrame)
         {

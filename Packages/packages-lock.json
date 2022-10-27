@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.github.asus4.arrecorder": {
-      "version": "file:com.github.asus4.arrecorder",
+    "com.github.asus4.arfoundationreplay": {
+      "version": "file:com.github.asus4.arfoundationreplay",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

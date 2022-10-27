@@ -1,0 +1,15 @@
+{
+  "name": "com.github.asus4.arfoundationreplay",
+  "displayName": "AR Foundation Replay",
+  "author": "Koki Ibukuro",
+  "description": "Record AR and Playback in Editor on AR Foundation",
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2022.1",
+  "unityRelease": "0f1",
+  "version": "0.1.0",
+  "type": "library",
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.xr.arfoundation": "5.0.2"
+  }
+}
