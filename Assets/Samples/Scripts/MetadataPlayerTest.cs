@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.Video;
 using ARFoundationReplay;
@@ -14,11 +15,14 @@ public class MetadataPlayerTest : MonoBehaviour
 
     private void Start()
     {
+        string path = Path.IsPathRooted(_path) 
+            ? _path
+            : Path.Combine(Application.dataPath, "..", _path);
         _videoPlayer = GetComponent<VideoPlayer>();
         _videoPlayer.source = VideoSource.Url;
-        _videoPlayer.url = $"file://{_path}";
+        _videoPlayer.url = $"file://{path}";
 
-        _metadataPlayer = new MetadataPlayer(_path);
+        _metadataPlayer = new MetadataPlayer(path);
     }
 
     private void OnDestroy()

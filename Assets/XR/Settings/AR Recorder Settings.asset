@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54f1fef4036c148dab5a8025d1f22d3b, type: 3}
   m_Name: AR Recorder Settings
   m_EditorClassIdentifier: 
-  _recordPath: /Users/ibu/Projects/AR/ARFoundationRecorder/record-001.mp4
+  _recordPath: record-001.mp4

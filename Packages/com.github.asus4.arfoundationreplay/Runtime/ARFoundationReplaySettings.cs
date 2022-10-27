@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.XR.Management;
 
@@ -17,9 +18,16 @@ namespace ARFoundationReplay
         [SerializeField]
         private string _recordPath;
 
+        public static string ProjectRootPath
+            => Path.GetDirectoryName(Application.dataPath);
+
         internal string GetRecordPath()
         {
-            return _recordPath;
+            if (Path.IsPathRooted(_recordPath))
+            {
+                return _recordPath;
+            }
+            return Path.Combine(ProjectRootPath, _recordPath);
         }
 
 #if UNITY_EDITOR
