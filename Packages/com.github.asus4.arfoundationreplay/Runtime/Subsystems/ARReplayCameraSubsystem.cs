@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Scripting;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.Video;
 
 namespace ARFoundationReplay
 {
     /// <summary>
-    /// The camera subsystem for ARFoundationReplay.
+    /// The camera subsystem which decodes recorded video into ARKit textures (Y + CbCr).
+    /// TODO: Support only Apple ARKit for now. ARCore is planned.
     /// </summary>
     [Preserve]
     internal sealed class ARReplayCameraSubsystem : XRCameraSubsystem
@@ -55,9 +56,19 @@ namespace ARFoundationReplay
         class ARRecorderProvider : Provider
         {
             static readonly int _TEXTURE_MAIN = Shader.PropertyToID("_MainTex");
+            static readonly int k_InputTextureID = Shader.PropertyToID("_InputTexture");
+            static readonly int k_TextureYID = Shader.PropertyToID("_textureY");
+            static readonly int k_TextureCbCrID = Shader.PropertyToID("_textureCbCr");
+
+            static readonly List<string> k_URPEnabledMaterialKeywords = new() { "ARKIT_BACKGROUND_URP" };
+
             Material _beforeOpaquesCameraMaterial;
             Material _afterOpaquesCameraMaterial;
-            VideoPlayer _player;
+            int _kernel;
+            ComputeShader _computeShader;
+            RenderTexture _yTexture;
+            RenderTexture _cbCrTexture;
+            bool IsReplayAvailable => Application.isPlaying && ARReplay.Current != null;
 
             public override Material cameraMaterial
             {
@@ -66,54 +77,15 @@ namespace ARFoundationReplay
                     return currentBackgroundRenderingMode switch
                     {
                         XRCameraBackgroundRenderingMode.BeforeOpaques
-                            => _beforeOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/WebcamBackground"),
+                            => _beforeOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/ARKitBackground"),
                         XRCameraBackgroundRenderingMode.AfterOpaques
-                            => _afterOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/WebcamBackground"),
+                            => _afterOpaquesCameraMaterial ??= CreateCameraMaterial("Unlit/ARKitBackground/AfterOpaques"),
                         _ => null,
                     };
                 }
             }
 
             public override bool permissionGranted => true;
-
-            public override void Start()
-            {
-                base.Start();
-#if UNITY_EDITOR
-                var setting = ARFoundationReplaySettings.currentSettings;
-                string path = setting.GetRecordPath();
-#else
-                string path = "";
-#endif
-                Debug.Log($"Start {ID}: {path}");
-                _player = CreateVideoPlayer(path);
-            }
-
-            public override void Stop()
-            {
-                if (_player != null)
-                {
-                    _player.Stop();
-                }
-                base.Stop();
-            }
-
-            public override void Destroy()
-            {
-                if (_player != null)
-                {
-                    _player.Stop();
-                    if (Application.isEditor)
-                    {
-                        UnityEngine.Object.DestroyImmediate(_player);
-                    }
-                    else
-                    {
-                        UnityEngine.Object.Destroy(_player);
-                    }
-                }
-                base.Destroy();
-            }
 
             public override Feature currentCamera => Feature.AnyCamera;
             public override Feature requestedCamera
@@ -142,9 +114,29 @@ namespace ARFoundationReplay
             public override XRSupportedCameraBackgroundRenderingMode supportedBackgroundRenderingMode
                 => XRSupportedCameraBackgroundRenderingMode.AfterOpaques;
 
+            public override void Start()
+            {
+                _computeShader = Resources.Load<ComputeShader>("Shaders/ARKitDecoder");
+                var size = Config.RecordResolution;
+                _computeShader.SetInts("_TextureSize", size.x, size.y);
+                _kernel = _computeShader.FindKernel("DecodeYCbCr");
+                _yTexture = CreateRenderTexture(Config.RecordResolution, RenderTextureFormat.R8);
+                _cbCrTexture = CreateRenderTexture(Config.RecordResolution, RenderTextureFormat.RG16);
+                Debug.Log($"shader {_computeShader}");
+            }
+
+            public override void Destroy()
+            {
+                DisposeUtil.Dispose(_beforeOpaquesCameraMaterial);
+                DisposeUtil.Dispose(_afterOpaquesCameraMaterial);
+                DisposeUtil.Dispose(_yTexture);
+                DisposeUtil.Dispose(_cbCrTexture);
+            }
+
             public override bool TryGetFrame(XRCameraParams cameraParams, out XRCameraFrame cameraFrame)
             {
-                if (!Application.isPlaying || !_player.isPrepared)
+                var replay = ARReplay.Current;
+                if (!IsReplayAvailable || !replay.DidUpdateThisFrame)
                 {
                     cameraFrame = default;
                     return false;
@@ -152,17 +144,19 @@ namespace ARFoundationReplay
 
                 const XRCameraFrameProperties properties =
                     XRCameraFrameProperties.Timestamp
-                    // | XRCameraFrameProperties.ProjectionMatrix
+                    | XRCameraFrameProperties.ProjectionMatrix
                     | XRCameraFrameProperties.DisplayMatrix;
+
+                var received = replay.Packet.cameraFrame;
 
                 cameraFrame = (XRCameraFrame)new CameraFrame()
                 {
-                    timestampNs = DateTime.Now.Ticks,
+                    timestampNs = received.timestampNs,
                     averageBrightness = 0,
                     averageColorTemperature = 0,
                     colorCorrection = default,
-                    projectionMatrix = Matrix4x4.identity,
-                    displayMatrix = Matrix4x4.identity,
+                    projectionMatrix = received.projectionMatrix,
+                    displayMatrix = received.displayMatrix,
                     trackingState = TrackingState.Tracking,
                     nativePtr = IntPtr.Zero,
                     properties = properties,
@@ -202,38 +196,49 @@ namespace ARFoundationReplay
 
             public override NativeArray<XRTextureDescriptor> GetTextureDescriptors(XRTextureDescriptor defaultDescriptor, Allocator allocator)
             {
-                if (!Application.isPlaying || !_player.isPrepared)
+                var replay = ARReplay.Current;
+                if (!IsReplayAvailable || !replay.DidUpdateThisFrame)
                 {
                     return new NativeArray<XRTextureDescriptor>(0, allocator);
                 }
 
-                var arr = new NativeArray<XRTextureDescriptor>(1, allocator);
-                arr[0] = new TextureDescriptor(_player.texture, _TEXTURE_MAIN);
+                // Decode Y + CbCr texture from video
+                _computeShader.SetTexture(_kernel, k_InputTextureID, replay.Texture);
+                _computeShader.SetTexture(_kernel, k_TextureYID, _yTexture);
+                _computeShader.SetTexture(_kernel, k_TextureCbCrID, _cbCrTexture);
+                _computeShader.Dispatch(_kernel, Config.RecordResolution.x / 8, Config.RecordResolution.y / 8, 1);
 
+                var arr = new NativeArray<XRTextureDescriptor>(2, allocator);
+                arr[0] = new TextureDescriptor(_yTexture, k_TextureYID);
+                arr[1] = new TextureDescriptor(_cbCrTexture, k_TextureCbCrID);
                 return arr;
             }
 
             public override void GetMaterialKeywords(out List<string> enabledKeywords, out List<string> disabledKeywords)
             {
-                base.GetMaterialKeywords(out enabledKeywords, out disabledKeywords);
+                // Only supports URP for now
+                if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset)
+                {
+                    enabledKeywords = k_URPEnabledMaterialKeywords;
+                    disabledKeywords = null;
+                }
+                else
+                {
+                    Debug.LogWarning($"Unsupported render pipeline: {GraphicsSettings.currentRenderPipeline}");
+                    enabledKeywords = null;
+                    disabledKeywords = null;
+                }
             }
 
-            static VideoPlayer CreateVideoPlayer(string path)
+            static RenderTexture CreateRenderTexture(Vector2Int size, RenderTextureFormat format)
             {
-                var gameObject = new GameObject(typeof(ARReplayCameraSubsystem).ToString());
-
-                var player = gameObject.AddComponent<VideoPlayer>();
-                player.source = VideoSource.Url;
-                player.url = $"file://{path}";
-                player.playOnAwake = true;
-                player.isLooping = true;
-                player.skipOnDrop = true;
-                player.renderMode = VideoRenderMode.APIOnly;
-                player.audioOutputMode = VideoAudioOutputMode.None;
-                player.SetDirectAudioMute(0, true);
-                player.playbackSpeed = 1;
-
-                return player;
+                var rt = new RenderTexture(new RenderTextureDescriptor(size.x, size.y, format)
+                {
+                    enableRandomWrite = true,
+                    useMipMap = false,
+                });
+                rt.Create();
+                return rt;
             }
         }
     }

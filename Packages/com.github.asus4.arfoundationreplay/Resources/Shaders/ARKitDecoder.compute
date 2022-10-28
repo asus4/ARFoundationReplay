@@ -1,0 +1,35 @@
+#pragma kernel DecodeYCbCr
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+#include "Packages/com.github.asus4.arfoundationreplay/Resources/Shaders/Common.hlsl"
+
+int2 _TextureSize;
+Texture2D<float4> _InputTexture;
+
+RWTexture2D<float> _textureY;
+RWTexture2D<float2> _textureCbCr;
+
+SamplerState linearClampSampler;
+
+// Inverse matrix of s_YCbCrToSRGB
+static const float4x4 s_SRGBToYCbCr = float4x4(
+    0.298993, 0.587016, 0.1139911, 2.112563E-08,
+    -0.1687319, -0.3312732, 0.5000051, 0.5000001,
+    0.5000051, -0.4186991, -0.08130606, 0.5000001,
+    0.0, 0.0, 0.0, 1.0
+);
+
+[numthreads(8,8,1)]
+void DecodeYCbCr (uint2 id : SV_DispatchThreadID)
+{
+    float2 uv = (float2)id / (float2)_TextureSize;
+    
+    float2 uv_c = UV_ColorToFull(uv);
+    float4 srgb = _InputTexture.SampleLevel(linearClampSampler, uv_c, 0);
+#ifndef UNITY_COLORSPACE_GAMMA
+    srgb.xyz = FastLinearToSRGB(srgb.xyz);
+#endif
+    float4 ycbcr = mul(s_SRGBToYCbCr, srgb);
+    _textureY[id] = ycbcr.r;
+    _textureCbCr[id] = ycbcr.gb;
+}

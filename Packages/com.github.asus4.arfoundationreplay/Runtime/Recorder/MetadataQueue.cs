@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
-    internal sealed class MetadataQueue : System.IDisposable
+    internal sealed class MetadataQueue : IDisposable
     {
         private readonly Queue<double> _times = new();
         private readonly Queue<NativeArray<byte>> _buffers = new();

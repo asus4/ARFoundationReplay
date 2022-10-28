@@ -100,7 +100,6 @@ Shader "Hidden/ARFoundationReplay/ARKitEncoder"
                     SAMPLE_TEXTURE2D(_textureY, sampler_textureY, uv_c).x,
                     SAMPLE_TEXTURE2D(_textureCbCr, sampler_textureCbCr, uv_c).xy
                 );
-                
                 // Hue-encoded depth
                 float depth = SAMPLE_TEXTURE2D(_EnvironmentDepth, sampler_EnvironmentDepth, UV_FullToDepth(i.texcoord)).x;
                 float2 _DepthRange = float2(0.5, 10);

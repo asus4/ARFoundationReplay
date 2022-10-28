@@ -8,7 +8,7 @@ namespace ARFoundationReplay
 {
     /// <summary>
     /// HACK: Need the unsafe struct cast
-    /// since XRTextureDescriptor is private struct!
+    /// since XRTextureDescriptor is private struct
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct TextureDescriptor : IEquatable<TextureDescriptor>
