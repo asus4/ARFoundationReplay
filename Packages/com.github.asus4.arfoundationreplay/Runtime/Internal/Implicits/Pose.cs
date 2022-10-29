@@ -9,7 +9,7 @@ namespace ARFoundationReplay
                          IEquatable<UnityEngine.Pose>
     {
         public float3 position;
-        public float4 rotation;
+        public quaternion rotation;
 
         public bool Equals(Pose o)
         {
@@ -33,22 +33,21 @@ namespace ARFoundationReplay
             return new Pose()
             {
                 position = p.position,
-                rotation = p.rotation.ToFloat4(),
+                rotation = p.rotation,
             };
         }
 
         public static implicit operator UnityEngine.Pose(Pose p)
         {
-            return new UnityEngine.Pose(p.position, new quaternion(p.rotation));
+            return new UnityEngine.Pose(p.position, p.rotation);
         }
 
         public static Pose FromTransform(Transform t)
         {
-            var q = t.localRotation;
             return new Pose()
             {
                 position = t.localPosition,
-                rotation = q.ToFloat4(),
+                rotation = t.localRotation,
             };
         }
     }

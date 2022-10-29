@@ -70,6 +70,7 @@ namespace ARFoundationReplay
             _encoders = new IEncoder[]
                 {
                     new CameraEncoder(),
+                    new TrackedPoseEncoder(),
                     new OcclusionEncoder(),
                 }
                 .Where(encoder =>

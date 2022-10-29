@@ -43,11 +43,6 @@ namespace ARFoundationReplay
 
         private void OnCameraFrameReceived(ARCameraFrameEventArgs args)
         {
-            if (_packet == null || _material == null)
-            {
-                return;
-            }
-
             // Set texture
             var count = args.textures.Count;
             for (int i = 0; i < count; i++)

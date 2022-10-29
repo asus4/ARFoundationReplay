@@ -28,7 +28,7 @@ namespace UnityEngine.XR.ARKit
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterLayouts()
         {
-
+            Debug.Log("InputLayoutLoader.RegisterLayouts");
             Inputs.RegisterLayout<HandheldARInputDevice>(
                 matches: new InputDeviceMatcher()
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
