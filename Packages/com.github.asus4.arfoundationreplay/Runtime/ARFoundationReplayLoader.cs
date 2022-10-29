@@ -10,7 +10,6 @@ namespace ARFoundationReplay
     {
         static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
         static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();
-        static readonly List<XRInputSubsystemDescriptor> s_InputSubsystemDescriptors = new();
 
         public override bool Initialize()
         {

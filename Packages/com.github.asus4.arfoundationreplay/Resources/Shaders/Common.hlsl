@@ -105,6 +105,7 @@ float2 UV_DepthToFull(float2 uv)
 float2 UV_ColorToFull(float2 uv)
 {
     uv.x = lerp(0.5, 1, uv.x);
+    uv.y = 1.0 - uv.y;
     return uv;
 }
 

@@ -19,7 +19,7 @@ namespace ARFoundationReplay
             XRSessionSubsystemDescriptor.RegisterDescriptor(new XRSessionSubsystemDescriptor.Cinfo
             {
                 id = ID,
-                providerType = typeof(ARRecorderProvider),
+                providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplaySessionSubsystem),
                 supportsInstall = false,
                 supportsMatchFrameRate = false
@@ -27,7 +27,7 @@ namespace ARFoundationReplay
             Debug.Log($"Register {ID} subsystem");
         }
 
-        class ARRecorderProvider : Provider
+        class ARReplayProvider : Provider
         {
             private ARReplay _replay;
 
@@ -48,6 +48,7 @@ namespace ARFoundationReplay
 #endif
                 _replay = new ARReplay(setting);
             }
+
             public override void Stop()
             {
                 _replay.Dispose();

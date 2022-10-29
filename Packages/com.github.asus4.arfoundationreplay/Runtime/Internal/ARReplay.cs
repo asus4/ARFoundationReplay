@@ -13,6 +13,7 @@ namespace ARFoundationReplay
         private readonly VideoPlayer _video;
         private readonly MetadataPlayer _metadata;
         private long _lastFrame = long.MinValue;
+        private ARReplayInputSubsystem _input;
 
         public bool DidUpdateThisFrame { get; private set; } = false;
         public Texture Texture => _video.texture;
@@ -28,12 +29,14 @@ namespace ARFoundationReplay
             string path = settings.GetRecordPath();
             _video = CreateVideoPlayer(path);
             _metadata = new MetadataPlayer(path);
+            _input = new ARReplayInputSubsystem();
 
             Current = this;
         }
 
         public void Dispose()
         {
+            _input.Dispose();
             _metadata?.Dispose();
             if (_video != null)
             {
@@ -71,6 +74,8 @@ namespace ARFoundationReplay
 
             _lastFrame = _video.frame;
             DidUpdateThisFrame = true;
+
+            _input.Update(Packet);
         }
 
         static VideoPlayer CreateVideoPlayer(string path)

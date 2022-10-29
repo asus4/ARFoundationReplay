@@ -58,8 +58,6 @@ Shader "Hidden/ARFoundationReplay/ARKitEncoder"
 
 
             CBUFFER_START(UnityARFoundationPerFrame)
-            // Device display transform is provided by the AR Foundation camera background renderer.
-            float4x4 _UnityDisplayTransform;
             float _UnityCameraForwardScale;
             CBUFFER_END
 

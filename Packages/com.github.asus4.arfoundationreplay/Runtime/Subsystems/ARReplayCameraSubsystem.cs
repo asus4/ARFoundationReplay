@@ -24,7 +24,7 @@ namespace ARFoundationReplay
             var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
             {
                 id = ID,
-                providerType = typeof(ARRecorderProvider),
+                providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplayCameraSubsystem),
                 supportsAverageBrightness = false,
                 supportsAverageColorTemperature = true,
@@ -53,7 +53,7 @@ namespace ARFoundationReplay
             }
         }
 
-        class ARRecorderProvider : Provider
+        class ARReplayProvider : Provider
         {
             static readonly int k_InputTextureID = Shader.PropertyToID("_InputTexture");
             static readonly int k_TextureYID = Shader.PropertyToID("_textureY");
