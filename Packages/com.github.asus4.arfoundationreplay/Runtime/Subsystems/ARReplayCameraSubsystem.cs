@@ -55,7 +55,6 @@ namespace ARFoundationReplay
 
         class ARRecorderProvider : Provider
         {
-            static readonly int _TEXTURE_MAIN = Shader.PropertyToID("_MainTex");
             static readonly int k_InputTextureID = Shader.PropertyToID("_InputTexture");
             static readonly int k_TextureYID = Shader.PropertyToID("_textureY");
             static readonly int k_TextureCbCrID = Shader.PropertyToID("_textureCbCr");

@@ -28,7 +28,6 @@ namespace ARFoundationReplay
                 gameObject.SetActive(false);
                 return;
             }
-            _recorder = new ARRecorder(origin);
 
             bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
             gameObject.SetActive(!needHidden);
@@ -36,7 +35,6 @@ namespace ARFoundationReplay
 
         private void OnDestroy()
         {
-            _recorder?.Dispose();
             _recorder = null;
         }
 
@@ -55,6 +53,11 @@ namespace ARFoundationReplay
 
         private void OnRecordButtonClicked()
         {
+            if (_recorder == null)
+            {
+                _recorder = gameObject.AddComponent<ARRecorder>();
+            }
+
             if (_recorder.IsRecording)
             {
                 _recorder.StopRecording();

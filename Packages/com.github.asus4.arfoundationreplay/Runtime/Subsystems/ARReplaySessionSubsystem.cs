@@ -64,7 +64,7 @@ namespace ARFoundationReplay
             {
                 get
                 {
-                    return TrackingState.None;
+                    return TrackingState.Tracking;
                 }
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine;
 
 namespace ARFoundationReplay
 {
@@ -8,9 +9,10 @@ namespace ARFoundationReplay
     public partial class Packet
     {
         public CameraFrameEvent cameraFrame;
+        public Pose trackedPose;
 
-        private static readonly BinaryFormatter formatter = new BinaryFormatter();
-        private static readonly MemoryStream stream = new MemoryStream();
+        private static readonly BinaryFormatter formatter = new();
+        private static readonly MemoryStream stream = new();
         private static byte[] buffer = new byte[8192];
 
         public ReadOnlySpan<byte> Serialize()

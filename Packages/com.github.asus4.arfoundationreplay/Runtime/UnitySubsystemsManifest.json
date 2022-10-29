@@ -1,0 +1,13 @@
+{
+    "name": "UnityARFoundationReplay",
+    "version": "1.0.0",
+    "libraryName": "UnityARFoundationReplay",
+    "inputs": [
+    {
+        "id": "ARReplay-Input"
+    }],
+    "meshings": [
+    {
+        "id": "ARReplay-Meshing"
+    }]
+}

@@ -1,28 +1,32 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.XR.ARFoundation;
 using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
-    public sealed class ARRecorder : System.IDisposable
+    public sealed class ARRecorder : MonoBehaviour
     {
-        private readonly XROrigin _origin;
-        private readonly ARCameraManager _cameraManager;
-        private readonly AROcclusionManager _occlusionManager;
-        private readonly VideoRecorder _videoRecorder;
-        private readonly RenderTexture _renderTexture;
-        private readonly Material _bufferMaterial;
+        private XROrigin _origin;
+        private VideoRecorder _videoRecorder;
+        private RenderTexture _renderTexture;
+        private Material _bufferMaterial;
 
         private Packet _packet;
+        private IEncoder[] _encoders;
         public bool IsRecording => _videoRecorder.IsRecording;
 
-        public ARRecorder(XROrigin origin)
+        private void Awake()
         {
-            _origin = origin;
-            _cameraManager = _origin.Camera.GetComponent<ARCameraManager>();
+            _origin = FindObjectOfType<XROrigin>();
+            if (_origin == null)
+            {
+                Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
+                enabled = false;
+                return;
+            }
+
             // Nullable
-            _occlusionManager = _origin.GetComponentInChildren<AROcclusionManager>();
             _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
             var shader = Shader.Find("Hidden/ARFoundationReplay/ARKitEncoder");
             Assert.IsNotNull(shader);
@@ -30,14 +34,29 @@ namespace ARFoundationReplay
             _videoRecorder = new VideoRecorder(_renderTexture);
         }
 
-        public void Dispose()
+        private void OnDestroy()
         {
             if (IsRecording)
             {
                 StopRecording();
             }
-            Object.Destroy(_renderTexture);
-            _videoRecorder.Dispose();
+            DisposeUtil.Dispose(_bufferMaterial);
+            DisposeUtil.Dispose(_renderTexture);
+            _videoRecorder?.Dispose();
+        }
+
+        private void Update()
+        {
+            if (!IsRecording) { return; }
+
+            foreach (var encoder in _encoders)
+            {
+                encoder.Update();
+            }
+
+            Graphics.Blit(null, _renderTexture, _bufferMaterial);
+            var metadata = _packet.Serialize();
+            _videoRecorder.Update(metadata);
         }
 
         public void StartRecording()
@@ -46,69 +65,42 @@ namespace ARFoundationReplay
             Debug.Log("StartRecording");
             _packet = new Packet();
             _videoRecorder.StartRecording();
-            _cameraManager.frameReceived += OnCameraFrameReceived;
-            if (_occlusionManager != null)
-            {
-                _occlusionManager.frameReceived += OnOcclusionFrameReceived;
-            }
+
+            // Initialize available encoders
+            _encoders = new IEncoder[]
+                {
+                    new CameraEncoder(),
+                    new OcclusionEncoder(),
+                }
+                .Where(encoder =>
+                {
+                    bool available = encoder.Initialize(_origin, _packet, _bufferMaterial);
+                    if (!available)
+                    {
+                        encoder.Dispose();
+                    }
+                    return available;
+                })
+                .ToArray();
         }
 
         public void StopRecording()
         {
             if (!IsRecording) { return; }
             Debug.Log("StopRecording");
-            _cameraManager.frameReceived -= OnCameraFrameReceived;
-            if (_occlusionManager != null)
-            {
-                _occlusionManager.frameReceived -= OnOcclusionFrameReceived;
-            }
+
             _videoRecorder.EndRecording();
-        }
 
-        private void OnCameraFrameReceived(ARCameraFrameEventArgs args)
-        {
-            if (!IsRecording) { return; }
-
-            // Set texture
-            var count = args.textures.Count;
-            for (int i = 0; i < count; i++)
+            // Dispose encoders
+            if (_encoders != null)
             {
-                _bufferMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
-            }
-
-            _packet.cameraFrame = new Packet.CameraFrameEvent()
-            {
-                timestampNs = args.timestampNs.Value,
-                projectionMatrix = args.projectionMatrix.Value,
-                displayMatrix = args.displayMatrix.Value
-            };
-
-            // Update if occlusion is not available
-            if (_occlusionManager == null)
-            {
-                UpdateRecorder();
+                foreach (var encoder in _encoders)
+                {
+                    encoder.Dispose();
+                }
+                _encoders = null;
             }
         }
 
-        private void OnOcclusionFrameReceived(AROcclusionFrameEventArgs args)
-        {
-            if (!IsRecording) { return; }
-
-            // Set texture
-            var count = args.textures.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _bufferMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
-            }
-
-            UpdateRecorder();
-        }
-
-        private void UpdateRecorder()
-        {
-            Graphics.Blit(null, _renderTexture, _bufferMaterial);
-            var metadata = _packet.Serialize();
-            _videoRecorder.Update(metadata);
-        }
     }
 }

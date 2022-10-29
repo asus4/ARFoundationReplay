@@ -2,6 +2,7 @@
     "name": "ARFoundationReplay",
     "rootNamespace": "",
     "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:df380645f10b7bc4b97d4f5eb6303d95",
         "GUID:15fc0a57446b3144c949da3e2b9737a9",
@@ -22,6 +23,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "7.0.0",
             "define": "MODULE_URP_ENABLED"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "UNITY_INPUT_SYSTEM"
         }
     ],
     "noEngineReferences": false
