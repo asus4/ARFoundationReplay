@@ -1,23 +1,35 @@
 using UnityEngine;
-using Unity.XR.CoreUtils;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
     /// <summary>
-    /// XRInputSubsystem requires native plugin
-    /// Invoked from ARReplay as a workaround
+    /// XRInputSubsystem requires native plugin to register itself
+    /// It will be invoked from ARReplay as a workaround
     /// </summary>
     public class ARReplayInputSubsystem : System.IDisposable
     {
-        private Transform _target;
-        private TrackedPoseDriver _driver;
+        private readonly Transform _target;
+        private readonly Behaviour _driver;
 
         public ARReplayInputSubsystem()
         {
             _target = Object.FindObjectOfType<XROrigin>().Camera.transform;
-            // Disable overriding in XRInputSubsystem
-            if (_target.TryGetComponent(out _driver))
+
+            // Disable TrackedPoseDriver or ARPoseDriver
+            if (_target.TryGetComponent(out TrackedPoseDriver driver))
+            {
+                _driver = driver;
+            }
+#pragma warning disable 0618 // Obsolete support
+            else if (_target.TryGetComponent(out ARPoseDriver arDriver))
+            {
+                _driver = arDriver;
+            }
+#pragma warning restore 0618
+            if (_driver != null)
             {
                 _driver.enabled = false;
             }
