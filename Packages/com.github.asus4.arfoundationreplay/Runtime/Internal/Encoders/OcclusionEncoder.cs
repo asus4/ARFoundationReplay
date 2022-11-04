@@ -4,17 +4,13 @@ using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
-
     internal sealed class OcclusionEncoder : IEncoder
     {
-        private Packet _packet;
         private Material _material;
         private AROcclusionManager _occlusionManager;
 
-
         public bool Initialize(XROrigin origin, Packet packet, Material material)
         {
-            _packet = packet;
             _material = material;
             _occlusionManager = origin.GetComponentInChildren<AROcclusionManager>();
             if (_occlusionManager == null)
@@ -32,7 +28,6 @@ namespace ARFoundationReplay
                 _occlusionManager.frameReceived -= OnOcclusionFrameReceived;
             }
             _occlusionManager = null;
-            _packet = null;
             _material = null;
         }
 

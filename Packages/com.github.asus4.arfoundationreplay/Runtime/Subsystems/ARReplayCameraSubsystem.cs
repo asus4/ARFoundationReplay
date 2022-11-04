@@ -55,9 +55,9 @@ namespace ARFoundationReplay
 
         class ARReplayProvider : Provider
         {
-            static readonly int k_InputTextureID = Shader.PropertyToID("_InputTexture");
-            static readonly int k_TextureYID = Shader.PropertyToID("_textureY");
-            static readonly int k_TextureCbCrID = Shader.PropertyToID("_textureCbCr");
+            static readonly int k_InputTexture = Shader.PropertyToID("_InputTexture");
+            static readonly int k_TextureY = Shader.PropertyToID("_textureY");
+            static readonly int k_TextureCbCr = Shader.PropertyToID("_textureCbCr");
 
             static readonly List<string> k_URPEnabledMaterialKeywords = new() { "ARKIT_BACKGROUND_URP" };
 
@@ -67,7 +67,7 @@ namespace ARFoundationReplay
             ComputeShader _computeShader;
             RenderTexture _yTexture;
             RenderTexture _cbCrTexture;
-            bool IsReplayAvailable => Application.isPlaying && ARReplay.Current != null;
+
 
             public override Material cameraMaterial
             {
@@ -134,8 +134,7 @@ namespace ARFoundationReplay
 
             public override bool TryGetFrame(XRCameraParams cameraParams, out XRCameraFrame cameraFrame)
             {
-                var replay = ARReplay.Current;
-                if (!IsReplayAvailable || !replay.DidUpdateThisFrame)
+                if (!ARReplay.TryGetReplay(out var replay))
                 {
                     cameraFrame = default;
                     return false;
@@ -195,21 +194,20 @@ namespace ARFoundationReplay
 
             public override NativeArray<XRTextureDescriptor> GetTextureDescriptors(XRTextureDescriptor defaultDescriptor, Allocator allocator)
             {
-                var replay = ARReplay.Current;
-                if (!IsReplayAvailable || !replay.DidUpdateThisFrame)
+                if (!ARReplay.TryGetReplay(out var replay))
                 {
                     return new NativeArray<XRTextureDescriptor>(0, allocator);
                 }
 
                 // Decode Y + CbCr texture from video
-                _computeShader.SetTexture(_kernel, k_InputTextureID, replay.Texture);
-                _computeShader.SetTexture(_kernel, k_TextureYID, _yTexture);
-                _computeShader.SetTexture(_kernel, k_TextureCbCrID, _cbCrTexture);
+                _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
+                _computeShader.SetTexture(_kernel, k_TextureY, _yTexture);
+                _computeShader.SetTexture(_kernel, k_TextureCbCr, _cbCrTexture);
                 _computeShader.Dispatch(_kernel, Config.RecordResolution.x / 8, Config.RecordResolution.y / 8, 1);
 
                 var arr = new NativeArray<XRTextureDescriptor>(2, allocator);
-                arr[0] = new TextureDescriptor(_yTexture, k_TextureYID);
-                arr[1] = new TextureDescriptor(_cbCrTexture, k_TextureCbCrID);
+                arr[0] = new TextureDescriptor(_yTexture, k_TextureY);
+                arr[1] = new TextureDescriptor(_cbCrTexture, k_TextureCbCr);
                 return arr;
             }
 

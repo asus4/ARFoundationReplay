@@ -8,7 +8,17 @@ namespace ARFoundationReplay
     /// </summary>
     internal sealed class ARReplay : System.IDisposable
     {
-        public static ARReplay Current { get; private set; } = null;
+        private static ARReplay Current = null;
+        public static bool TryGetReplay(out ARReplay replay)
+        {
+            if (!Application.isPlaying || Current == null)
+            {
+                replay = null;
+                return false;
+            }
+            replay = Current;
+            return replay.DidUpdateThisFrame;
+        }
 
         private readonly VideoPlayer _video;
         private readonly MetadataPlayer _metadata;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ARFoundationReplay
 {
-    public static class DisposeUtil
+    internal static class DisposeUtil
     {
         public static void Dispose(Material o)
         {

@@ -8,6 +8,12 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
 Only iOS ARKit + macOS Editor. Android ARCore is planned.
 
+## Implemented Subsystems
+
+- [x] XRSessionSubsystem
+- [x] XRCameraSubsystem
+- [x] XRInputSubsystem: with workaround
+
 ## Acknowledgement
 
 - [keijiro/Bibcam - Unlicense](https://github.com/keijiro/Bibcam)
