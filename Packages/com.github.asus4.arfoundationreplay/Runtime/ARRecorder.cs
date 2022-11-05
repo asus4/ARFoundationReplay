@@ -25,7 +25,10 @@ namespace ARFoundationReplay
                 enabled = false;
                 return;
             }
+        }
 
+        private void Start()
+        {
             // Nullable
             _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
             var shader = Shader.Find("Hidden/ARFoundationReplay/ARKitEncoder");
@@ -62,17 +65,13 @@ namespace ARFoundationReplay
         public void StartRecording()
         {
             if (IsRecording) { return; }
-            Debug.Log("StartRecording");
+            Debug.Log($"ARRecorder.StartRecording");
+
             _packet = new Packet();
             _videoRecorder.StartRecording();
 
-            // Initialize available encoders
-            _encoders = new IEncoder[]
-                {
-                    new CameraEncoder(),
-                    new TrackedPoseEncoder(),
-                    new OcclusionEncoder(),
-                }
+            // Initialize encoders and filter unavailable out
+            _encoders = CreateAllEncoders()
                 .Where(encoder =>
                 {
                     bool available = encoder.Initialize(_origin, _packet, _bufferMaterial);
@@ -88,7 +87,7 @@ namespace ARFoundationReplay
         public void StopRecording()
         {
             if (!IsRecording) { return; }
-            Debug.Log("StopRecording");
+            Debug.Log("ARRecorder.StopRecording");
 
             _videoRecorder.EndRecording();
 
@@ -103,5 +102,12 @@ namespace ARFoundationReplay
             }
         }
 
+        private static IEncoder[] CreateAllEncoders()
+            => new IEncoder[]
+            {
+                new CameraEncoder(),
+                new TrackedPoseEncoder(),
+                new OcclusionEncoder(),
+            };
     }
 }

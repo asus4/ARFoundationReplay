@@ -8,22 +8,22 @@ namespace ARFoundationReplay
     /// </summary>
     internal sealed class ARReplay : System.IDisposable
     {
-        private static ARReplay Current = null;
+        private static ARReplay _sharedInstance = null;
         public static bool TryGetReplay(out ARReplay replay)
         {
-            if (!Application.isPlaying || Current == null)
+            if (!Application.isPlaying || _sharedInstance == null)
             {
                 replay = null;
                 return false;
             }
-            replay = Current;
+            replay = _sharedInstance;
             return replay.DidUpdateThisFrame;
         }
 
         private readonly VideoPlayer _video;
         private readonly MetadataPlayer _metadata;
+        private readonly ARReplayInputSubsystem _input;
         private long _lastFrame = long.MinValue;
-        private ARReplayInputSubsystem _input;
 
         public bool DidUpdateThisFrame { get; private set; } = false;
         public Texture Texture => _video.texture;
@@ -31,7 +31,7 @@ namespace ARFoundationReplay
 
         public ARReplay(ARFoundationReplaySettings settings)
         {
-            if (Current != null)
+            if (_sharedInstance != null)
             {
                 throw new System.InvalidOperationException("ARReplay is already initialized");
             }
@@ -41,7 +41,7 @@ namespace ARFoundationReplay
             _metadata = new MetadataPlayer(path);
             _input = new ARReplayInputSubsystem();
 
-            Current = this;
+            _sharedInstance = this;
         }
 
         public void Dispose()
@@ -59,7 +59,7 @@ namespace ARFoundationReplay
                     Object.Destroy(_video);
                 }
             }
-            Current = null;
+            _sharedInstance = null;
         }
 
         public void Update()

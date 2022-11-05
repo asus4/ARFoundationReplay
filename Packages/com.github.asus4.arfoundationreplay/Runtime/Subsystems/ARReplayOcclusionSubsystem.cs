@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Scripting;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
@@ -31,18 +29,29 @@ namespace ARFoundationReplay
                 environmentDepthConfidenceImageSupportedDelegate = DummySupported,
                 environmentDepthTemporalSmoothingSupportedDelegate = DummySupported,
             };
-            Register(cinfo);
+            if (Register(cinfo))
+            {
+                Debug.LogFormat("Registered the {0} subsystem", ID);
+            }
+            else
+            {
+                Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
+            }
         }
 
+        // TODO: Encode supported info into the packet?
         static Supported DummySupported() => Supported.Supported;
 
         class ARReplayProvider : Provider
         {
             #region Keywords
-            static readonly int _HumanStencil = Shader.PropertyToID("_HumanStencil");
-            static readonly int _HumanDepth = Shader.PropertyToID("_HumanDepth");
-            static readonly int _EnvironmentDepth = Shader.PropertyToID("_EnvironmentDepth");
-            static readonly int _EnvironmentDepthConfidence = Shader.PropertyToID("_EnvironmentDepthConfidence");
+            static readonly int k_InputTexture = Shader.PropertyToID("_InputTexture");
+            static readonly int k_TextureSize = Shader.PropertyToID("_TextureSize");
+            static readonly int k_HumanStencil = Shader.PropertyToID("_HumanStencil");
+            static readonly int k_HumanDepth = Shader.PropertyToID("_HumanDepth");
+            static readonly int k_EnvironmentDepth = Shader.PropertyToID("_EnvironmentDepth");
+            // Not used
+            // static readonly int k_EnvironmentDepthConfidence = Shader.PropertyToID("_EnvironmentDepthConfidence");
 
 
             const string k_HumanEnabledMaterialKeyword = "ARKIT_HUMAN_SEGMENTATION_ENABLED";
@@ -62,6 +71,12 @@ namespace ARFoundationReplay
             };
             #endregion // Keywords
 
+            ComputeShader _computeShader;
+            int _kernel;
+            RenderTexture _humanStencilTexture;
+            RenderTexture _humanDepthTexture;
+            RenderTexture _environmentDepthTexture;
+
             public ARReplayProvider()
             {
             }
@@ -69,16 +84,24 @@ namespace ARFoundationReplay
             public override void Start()
             {
                 Debug.Log("Start ARReplayOcclusionSubsystem");
+
+                _computeShader = Resources.Load<ComputeShader>("Shaders/ARKitDecoder");
+                Assert.IsNotNull(_computeShader);
+                _kernel = _computeShader.FindKernel("DecodeOcclusion");
+                Vector2Int size = Config.RecordResolution;
+                _computeShader.SetInts(k_TextureSize, size.x, size.y);
+                _humanStencilTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.R8);
+                _humanDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RHalf);
+                _environmentDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RHalf);
             }
 
-            public override void Stop()
-            {
-                Debug.Log("Stop ARReplayOcclusionSubsystem");
-            }
+            public override void Stop() { }
 
             public override void Destroy()
             {
-                Debug.Log("Destroy ARReplayOcclusionSubsystem");
+                DisposeUtil.Dispose(_humanStencilTexture);
+                DisposeUtil.Dispose(_humanDepthTexture);
+                DisposeUtil.Dispose(_environmentDepthTexture);
             }
 
             public override HumanSegmentationStencilMode requestedHumanStencilMode { get; set; }
@@ -91,45 +114,92 @@ namespace ARFoundationReplay
             public override bool environmentDepthTemporalSmoothingRequested { get; set; }
             public override bool environmentDepthTemporalSmoothingEnabled => environmentDepthTemporalSmoothingRequested;
 
-            public override OcclusionPreferenceMode requestedOcclusionPreferenceMode { get; set; }
+            public override OcclusionPreferenceMode requestedOcclusionPreferenceMode { get; set; } = OcclusionPreferenceMode.PreferEnvironmentOcclusion;
             public override OcclusionPreferenceMode currentOcclusionPreferenceMode => requestedOcclusionPreferenceMode;
 
             public override bool TryGetHumanStencil(out XRTextureDescriptor humanStencilDescriptor)
             {
-                // TODO
-                humanStencilDescriptor = default;
-                return false;
+                if (currentHumanStencilMode == HumanSegmentationStencilMode.Disabled)
+                {
+                    humanStencilDescriptor = default;
+                    return false;
+                }
+                else
+                {
+                    humanStencilDescriptor = _humanStencilTexture.ToTextureDescriptor(k_HumanStencil);
+                    return true;
+                }
             }
 
             public override bool TryGetHumanDepth(out XRTextureDescriptor humanDepthDescriptor)
             {
-                // TODO
-                humanDepthDescriptor = default;
-                return false;
+                if (currentHumanDepthMode == HumanSegmentationDepthMode.Disabled)
+                {
+                    humanDepthDescriptor = default;
+                    return false;
+                }
+                else
+                {
+                    humanDepthDescriptor = _humanDepthTexture.ToTextureDescriptor(k_HumanDepth);
+                    return true;
+                }
             }
 
             public override bool TryGetEnvironmentDepth(out XRTextureDescriptor environmentDepthDescriptor)
             {
-                // TODO
-                environmentDepthDescriptor = default;
-                return false;
+                if (currentEnvironmentDepthMode == EnvironmentDepthMode.Disabled)
+                {
+                    environmentDepthDescriptor = default;
+                    return false;
+                }
+                else
+                {
+                    environmentDepthDescriptor = _environmentDepthTexture.ToTextureDescriptor(k_EnvironmentDepth);
+                    return true;
+                }
             }
 
             public override bool TryGetEnvironmentDepthConfidence(out XRTextureDescriptor environmentDepthConfidenceDescriptor)
             {
                 // Not implemented yet
+                Debug.Log("TryGetEnvironmentDepthConfidence");
                 environmentDepthConfidenceDescriptor = default;
                 return false;
             }
 
-            public NativeArray<XRTextureDescriptor> GetTextureDescriptors(Allocator allocator)
+            private static readonly List<XRTextureDescriptor> _descriptors = new();
+            public override NativeArray<XRTextureDescriptor> GetTextureDescriptors(XRTextureDescriptor defaultDescriptor, Allocator allocator)
             {
-                var descriptors = new List<XRTextureDescriptor>();
+                if (!ARReplay.TryGetReplay(out var replay))
+                {
+                    return new NativeArray<XRTextureDescriptor>(0, allocator);
+                }
 
-                // TODO
-                return new NativeArray<XRTextureDescriptor>(0, allocator);
+                Debug.Log($"GetTextureDescriptors: {defaultDescriptor}");
+
+                // Decode the occlusion textures from video
+                Vector2Int size = Config.RecordResolution;
+                _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
+                _computeShader.SetTexture(_kernel, k_HumanStencil, _humanStencilTexture);
+                _computeShader.SetTexture(_kernel, k_HumanDepth, _humanDepthTexture);
+                _computeShader.SetTexture(_kernel, k_EnvironmentDepth, _environmentDepthTexture);
+                _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);
+
+                _descriptors.Clear();
+                if (TryGetHumanStencil(out var humanStencilDescriptor))
+                {
+                    _descriptors.Add(humanStencilDescriptor);
+                }
+                if (TryGetHumanDepth(out var humanDepthDescriptor))
+                {
+                    _descriptors.Add(humanDepthDescriptor);
+                }
+                if (TryGetEnvironmentDepth(out var environmentDepthDescriptor))
+                {
+                    _descriptors.Add(environmentDepthDescriptor);
+                }
+                return new NativeArray<XRTextureDescriptor>(_descriptors.ToArray(), allocator);
             }
-
 
 
             public override void GetMaterialKeywords(out List<string> enabledKeywords, out List<string> disabledKeywords)
@@ -153,7 +223,6 @@ namespace ARFoundationReplay
                     disabledKeywords = m_EnvironmentDepthEnabledMaterialKeywords;
                 }
             }
-
         }
     }
 }

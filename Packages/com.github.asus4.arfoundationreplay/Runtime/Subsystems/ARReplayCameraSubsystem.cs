@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -58,7 +59,7 @@ namespace ARFoundationReplay
             static readonly int k_InputTexture = Shader.PropertyToID("_InputTexture");
             static readonly int k_TextureY = Shader.PropertyToID("_textureY");
             static readonly int k_TextureCbCr = Shader.PropertyToID("_textureCbCr");
-
+            static readonly int k_TextureSize = Shader.PropertyToID("_TextureSize");
             static readonly List<string> k_URPEnabledMaterialKeywords = new() { "ARKIT_BACKGROUND_URP" };
 
             Material _beforeOpaquesCameraMaterial;
@@ -116,12 +117,13 @@ namespace ARFoundationReplay
             public override void Start()
             {
                 _computeShader = Resources.Load<ComputeShader>("Shaders/ARKitDecoder");
-                var size = Config.RecordResolution;
-                _computeShader.SetInts("_TextureSize", size.x, size.y);
+                Assert.IsNotNull(_computeShader);
                 _kernel = _computeShader.FindKernel("DecodeYCbCr");
-                _yTexture = CreateRenderTexture(Config.RecordResolution, RenderTextureFormat.R8);
-                _cbCrTexture = CreateRenderTexture(Config.RecordResolution, RenderTextureFormat.RG16);
-                Debug.Log($"shader {_computeShader}");
+
+                Vector2Int size = Config.RecordResolution;
+                _computeShader.SetInts(k_TextureSize, size.x, size.y);
+                _yTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.R8);
+                _cbCrTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RG16);
             }
 
             public override void Destroy()
@@ -200,14 +202,15 @@ namespace ARFoundationReplay
                 }
 
                 // Decode Y + CbCr texture from video
+                Vector2Int size = Config.RecordResolution;
                 _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
                 _computeShader.SetTexture(_kernel, k_TextureY, _yTexture);
                 _computeShader.SetTexture(_kernel, k_TextureCbCr, _cbCrTexture);
-                _computeShader.Dispatch(_kernel, Config.RecordResolution.x / 8, Config.RecordResolution.y / 8, 1);
+                _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);
 
                 var arr = new NativeArray<XRTextureDescriptor>(2, allocator);
-                arr[0] = new TextureDescriptor(_yTexture, k_TextureY);
-                arr[1] = new TextureDescriptor(_cbCrTexture, k_TextureCbCr);
+                arr[0] = _yTexture.ToTextureDescriptor(k_TextureY);
+                arr[1] = _cbCrTexture.ToTextureDescriptor(k_TextureCbCr);
                 return arr;
             }
 
@@ -225,17 +228,6 @@ namespace ARFoundationReplay
                     enabledKeywords = null;
                     disabledKeywords = null;
                 }
-            }
-
-            static RenderTexture CreateRenderTexture(Vector2Int size, RenderTextureFormat format)
-            {
-                var rt = new RenderTexture(new RenderTextureDescriptor(size.x, size.y, format)
-                {
-                    enableRandomWrite = true,
-                    useMipMap = false,
-                });
-                rt.Create();
-                return rt;
             }
         }
     }
