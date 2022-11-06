@@ -6,8 +6,10 @@ namespace ARFoundationReplay
 {
     internal sealed class OcclusionEncoder : IEncoder
     {
+        private static readonly int k_DepthRange = Shader.PropertyToID("_DepthRange");
         private Material _material;
         private AROcclusionManager _occlusionManager;
+        private readonly Vector2 _depthRange = Config.DepthRange;
 
         public bool Initialize(XROrigin origin, Packet packet, Material material)
         {
@@ -44,6 +46,8 @@ namespace ARFoundationReplay
             {
                 _material.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
+
+            _material.SetVector(k_DepthRange, _depthRange);
         }
     }
 }

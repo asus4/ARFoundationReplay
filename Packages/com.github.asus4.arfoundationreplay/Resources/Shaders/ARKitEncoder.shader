@@ -90,6 +90,14 @@ Shader "Hidden/ARFoundationReplay/ARKitEncoder"
             TEXTURE2D(_HumanDepth);
             SAMPLER(sampler_HumanDepth);
 
+            float2 _DepthRange;
+
+            // Multiplexer
+            float3 Multiplex(float2 uv, float3 color, float3 depth, float3 human)
+            {
+                return uv.x > 0.5  ? color : (uv.y > 0.5 ? depth : human);
+            }
+
             float4 frag (v2f i): SV_Target
             {
                 // Sample in YCbCr then convert to sRGB.
@@ -100,14 +108,16 @@ Shader "Hidden/ARFoundationReplay/ARKitEncoder"
                 );
                 // Hue-encoded depth
                 float depth = SAMPLE_TEXTURE2D(_EnvironmentDepth, sampler_EnvironmentDepth, UV_FullToDepth(i.texcoord)).x;
-                float2 _DepthRange = float2(0.5, 10);
                 float3 z = EncodeDepth(depth, _DepthRange);
 
-                // Human stencil
-                float s = SAMPLE_TEXTURE2D(_HumanStencil, sampler_HumanStencil, UV_FullToStencil(i.texcoord)).x;
+                // Human stencil and depth
+                float2 uv_human = UV_FullToStencil(i.texcoord);
+                float humanStencil = SAMPLE_TEXTURE2D(_HumanStencil, sampler_HumanStencil, uv_human).x;
+                float humanDepth = SAMPLE_TEXTURE2D(_HumanDepth, sampler_HumanDepth, uv_human).x;
+                float3 humanZ = EncodeDepth(humanDepth, _DepthRange) * humanStencil;
 
                 // Multiplexing
-                float3 rgb = BibcamMux(i.texcoord, 0.0, c, z, s);
+                float3 rgb = Multiplex(i.texcoord, c, z, humanZ);
 
                 // Linear color support
                 #ifndef UNITY_NO_LINEAR_COLORSPACE

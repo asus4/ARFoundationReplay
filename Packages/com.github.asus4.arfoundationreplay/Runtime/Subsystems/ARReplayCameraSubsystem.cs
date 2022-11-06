@@ -109,10 +109,10 @@ namespace ARFoundationReplay
                 };
 
             public override XRSupportedCameraBackgroundRenderingMode requestedBackgroundRenderingMode { get; set; }
-                = XRSupportedCameraBackgroundRenderingMode.AfterOpaques;
+                = XRSupportedCameraBackgroundRenderingMode.Any;
 
             public override XRSupportedCameraBackgroundRenderingMode supportedBackgroundRenderingMode
-                => XRSupportedCameraBackgroundRenderingMode.AfterOpaques;
+                => XRSupportedCameraBackgroundRenderingMode.Any;
 
             public override void Start()
             {
@@ -148,6 +148,13 @@ namespace ARFoundationReplay
                     | XRCameraFrameProperties.DisplayMatrix;
 
                 var received = replay.Packet.cameraFrame;
+
+                // Skip if timestamp is not set
+                if (received.timestampNs == 0)
+                {
+                    cameraFrame = default;
+                    return false;
+                }
 
                 cameraFrame = (XRCameraFrame)new CameraFrame()
                 {

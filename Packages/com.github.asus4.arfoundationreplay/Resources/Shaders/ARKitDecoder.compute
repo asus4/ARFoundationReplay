@@ -4,13 +4,20 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 #include "Packages/com.github.asus4.arfoundationreplay/Resources/Shaders/Common.hlsl"
 
+// Common
 int2 _TextureSize;
 Texture2D<float4> _InputTexture;
+SamplerState linearClampSampler;
 
+// For DecodeYCbCr
 RWTexture2D<float> _textureY;
 RWTexture2D<float2> _textureCbCr;
 
-SamplerState linearClampSampler;
+// For DecodeOcclusion
+RWTexture2D<float> _HumanStencil;
+RWTexture2D<float> _HumanDepth;
+RWTexture2D<float> _EnvironmentDepth;
+float2 _DepthRenge;
 
 // Inverse matrix of s_YCbCrToSRGB
 static const float4x4 s_SRGBToYCbCr = float4x4(
@@ -26,27 +33,29 @@ void DecodeYCbCr (uint2 id : SV_DispatchThreadID)
     float2 uv = (float2)id / (float2)_TextureSize;
     
     float2 uv_c = UV_ColorToFull(uv);
-    float4 srgb = _InputTexture.SampleLevel(linearClampSampler, uv_c, 0);
+    float4 rgb = _InputTexture.SampleLevel(linearClampSampler, uv_c, 0);
 #ifndef UNITY_COLORSPACE_GAMMA
-    srgb.xyz = FastLinearToSRGB(srgb.xyz);
+    rgb.xyz = FastLinearToSRGB(rgb.xyz);
 #endif
-    float4 ycbcr = mul(s_SRGBToYCbCr, srgb);
+    float4 ycbcr = mul(s_SRGBToYCbCr, rgb);
     _textureY[id] = ycbcr.r;
     _textureCbCr[id] = ycbcr.gb;
 }
-
 
 [numthreads(8,8,1)]
 void DecodeOcclusion (uint2 id : SV_DispatchThreadID)
 {
     float2 uv = (float2)id / (float2)_TextureSize;
     
-    float2 uv_c = UV_ColorToFull(uv);
-    float4 srgb = _InputTexture.SampleLevel(linearClampSampler, uv_c, 0);
+    float2 uv_s = UV_StencilToFull(uv);
+    float2 uv_d = UV_DepthToFull(uv);
+    float4 rgb_human = _InputTexture.SampleLevel(linearClampSampler, uv_s, 0);
+    float4 rgb_depth = _InputTexture.SampleLevel(linearClampSampler, uv_d, 0);
 #ifndef UNITY_COLORSPACE_GAMMA
-    srgb.xyz = FastLinearToSRGB(srgb.xyz);
+    rgb_human.xyz = FastLinearToSRGB(rgb_human.xyz);
+    rgb_depth.xyz = FastLinearToSRGB(rgb_depth.xyz);
 #endif
-    float4 ycbcr = mul(s_SRGBToYCbCr, srgb);
-    _textureY[id] = ycbcr.r;
-    _textureCbCr[id] = ycbcr.gb;
+    _HumanStencil[id] = step(RGB2Brightness(rgb_human.rgb), 0.9);
+    _HumanDepth[id] = DecodeDepth(rgb_human.rgb, _DepthRenge);
+    _EnvironmentDepth[id] = DecodeDepth(rgb_depth.rgb, _DepthRenge);
 }

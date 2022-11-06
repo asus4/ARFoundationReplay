@@ -53,6 +53,10 @@ float RGB2Hue(float3 c)
     return frac(d + 1 - DepthHuePadding / 2) + DepthHuePadding / 2;
 }
 
+float RGB2Brightness(float3 c) {
+    return max(c.r, max(c.g, c.b));
+}
+
 float DecodeDepth(float3 rgb, float2 range)
 {
     // Hue decoding
@@ -109,9 +113,3 @@ float2 UV_ColorToFull(float2 uv)
     return uv;
 }
 
-// Multiplexer
-
-float3 BibcamMux(float2 uv, float m, float3 c, float3 z, float s)
-{
-    return uv.x > 0.5 ? c : (uv.y > 0.5 ? z : float3(s, 0, m));
-}

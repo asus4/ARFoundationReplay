@@ -50,6 +50,7 @@ namespace ARFoundationReplay
             static readonly int k_HumanStencil = Shader.PropertyToID("_HumanStencil");
             static readonly int k_HumanDepth = Shader.PropertyToID("_HumanDepth");
             static readonly int k_EnvironmentDepth = Shader.PropertyToID("_EnvironmentDepth");
+            static readonly int k_DepthRange = Shader.PropertyToID("_DepthRange");
             // Not used
             // static readonly int k_EnvironmentDepthConfidence = Shader.PropertyToID("_EnvironmentDepthConfidence");
 
@@ -76,6 +77,7 @@ namespace ARFoundationReplay
             RenderTexture _humanStencilTexture;
             RenderTexture _humanDepthTexture;
             RenderTexture _environmentDepthTexture;
+            Vector2 _depthRange;
 
             public ARReplayProvider()
             {
@@ -91,8 +93,8 @@ namespace ARFoundationReplay
                 Vector2Int size = Config.RecordResolution;
                 _computeShader.SetInts(k_TextureSize, size.x, size.y);
                 _humanStencilTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.R8);
-                _humanDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RHalf);
-                _environmentDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RHalf);
+                _humanDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RFloat);
+                _environmentDepthTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RFloat);
             }
 
             public override void Stop() { }
@@ -175,14 +177,13 @@ namespace ARFoundationReplay
                     return new NativeArray<XRTextureDescriptor>(0, allocator);
                 }
 
-                Debug.Log($"GetTextureDescriptors: {defaultDescriptor}");
-
                 // Decode the occlusion textures from video
                 Vector2Int size = Config.RecordResolution;
                 _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
                 _computeShader.SetTexture(_kernel, k_HumanStencil, _humanStencilTexture);
                 _computeShader.SetTexture(_kernel, k_HumanDepth, _humanDepthTexture);
                 _computeShader.SetTexture(_kernel, k_EnvironmentDepth, _environmentDepthTexture);
+                _computeShader.SetFloats(k_DepthRange, _depthRange.x, _depthRange.y);
                 _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);
 
                 _descriptors.Clear();
@@ -209,16 +210,19 @@ namespace ARFoundationReplay
 
                 if ((currentOcclusionPreferenceMode == OcclusionPreferenceMode.NoOcclusion) || (!isEnvDepthEnabled && !isHumanDepthEnabled))
                 {
+                    // No occlusion
                     enabledKeywords = null;
                     disabledKeywords = m_AllDisabledMaterialKeywords;
                 }
                 else if (isEnvDepthEnabled && (!isHumanDepthEnabled || (currentOcclusionPreferenceMode == OcclusionPreferenceMode.PreferEnvironmentOcclusion)))
                 {
+                    // Environment depth only
                     enabledKeywords = m_EnvironmentDepthEnabledMaterialKeywords;
                     disabledKeywords = m_HumanEnabledMaterialKeywords;
                 }
                 else
                 {
+                    // Human depth only
                     enabledKeywords = m_HumanEnabledMaterialKeywords;
                     disabledKeywords = m_EnvironmentDepthEnabledMaterialKeywords;
                 }
