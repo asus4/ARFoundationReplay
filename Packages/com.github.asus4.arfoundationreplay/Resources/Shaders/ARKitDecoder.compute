@@ -17,7 +17,7 @@ RWTexture2D<float2> _textureCbCr;
 RWTexture2D<float> _HumanStencil;
 RWTexture2D<float> _HumanDepth;
 RWTexture2D<float> _EnvironmentDepth;
-float2 _DepthRenge;
+float2 _DepthRange;
 
 // Inverse matrix of s_YCbCrToSRGB
 static const float4x4 s_SRGBToYCbCr = float4x4(
@@ -55,7 +55,7 @@ void DecodeOcclusion (uint2 id : SV_DispatchThreadID)
     rgb_human.xyz = FastLinearToSRGB(rgb_human.xyz);
     rgb_depth.xyz = FastLinearToSRGB(rgb_depth.xyz);
 #endif
-    _HumanStencil[id] = step(RGB2Brightness(rgb_human.rgb), 0.9);
-    _HumanDepth[id] = DecodeDepth(rgb_human.rgb, _DepthRenge);
-    _EnvironmentDepth[id] = DecodeDepth(rgb_depth.rgb, _DepthRenge);
+    _HumanStencil[id] = RGB2Brightness(rgb_human.rgb);
+    _HumanDepth[id] = DecodeDepth(rgb_human.rgb, _DepthRange);
+    _EnvironmentDepth[id] = DecodeDepth(rgb_depth.rgb, _DepthRange);
 }

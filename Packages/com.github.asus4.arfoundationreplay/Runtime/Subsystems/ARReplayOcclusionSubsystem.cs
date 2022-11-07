@@ -77,7 +77,7 @@ namespace ARFoundationReplay
             RenderTexture _humanStencilTexture;
             RenderTexture _humanDepthTexture;
             RenderTexture _environmentDepthTexture;
-            Vector2 _depthRange;
+
 
             public ARReplayProvider()
             {
@@ -172,19 +172,23 @@ namespace ARFoundationReplay
             private static readonly List<XRTextureDescriptor> _descriptors = new();
             public override NativeArray<XRTextureDescriptor> GetTextureDescriptors(XRTextureDescriptor defaultDescriptor, Allocator allocator)
             {
-                if (!ARReplay.TryGetReplay(out var replay))
+                if (!running)
                 {
                     return new NativeArray<XRTextureDescriptor>(0, allocator);
                 }
 
-                // Decode the occlusion textures from video
-                Vector2Int size = Config.RecordResolution;
-                _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
-                _computeShader.SetTexture(_kernel, k_HumanStencil, _humanStencilTexture);
-                _computeShader.SetTexture(_kernel, k_HumanDepth, _humanDepthTexture);
-                _computeShader.SetTexture(_kernel, k_EnvironmentDepth, _environmentDepthTexture);
-                _computeShader.SetFloats(k_DepthRange, _depthRange.x, _depthRange.y);
-                _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);
+                if (ARReplay.TryGetReplay(out var replay))
+                {
+                    // Decode the occlusion textures from video
+                    Vector2Int size = Config.RecordResolution;
+                    Vector2 depthRange = Config.DepthRange;
+                    _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
+                    _computeShader.SetTexture(_kernel, k_HumanStencil, _humanStencilTexture);
+                    _computeShader.SetTexture(_kernel, k_HumanDepth, _humanDepthTexture);
+                    _computeShader.SetTexture(_kernel, k_EnvironmentDepth, _environmentDepthTexture);
+                    _computeShader.SetFloats(k_DepthRange, depthRange.x, depthRange.y);
+                    _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);
+                }
 
                 _descriptors.Clear();
                 if (TryGetHumanStencil(out var humanStencilDescriptor))
