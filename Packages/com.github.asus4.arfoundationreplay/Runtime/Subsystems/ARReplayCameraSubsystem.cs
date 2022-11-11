@@ -156,26 +156,26 @@ namespace ARFoundationReplay
                     return false;
                 }
 
-                cameraFrame = (XRCameraFrame)new CameraFrame()
-                {
-                    timestampNs = received.timestampNs,
-                    averageBrightness = 0,
-                    averageColorTemperature = 0,
-                    colorCorrection = default,
-                    projectionMatrix = received.projectionMatrix,
-                    displayMatrix = received.displayMatrix,
-                    trackingState = TrackingState.Tracking,
-                    nativePtr = IntPtr.Zero,
-                    properties = properties,
-                    averageIntensityInLumens = 0,
-                    exposureDuration = 0,
-                    exposureOffset = 0,
-                    mainLightIntensityLumens = 0,
-                    mainLightColor = default,
-                    ambientSphericalHarmonics = default,
-                    cameraGrain = default,
-                    noiseIntensity = 0,
-                };
+                cameraFrame = new XRCameraFrame(
+                    timestamp: received.timestampNs,
+                    averageBrightness: 0,
+                    averageColorTemperature: 0,
+                    colorCorrection: default,
+                    projectionMatrix: received.projectionMatrix,
+                    displayMatrix: received.displayMatrix,
+                    trackingState: TrackingState.Tracking,
+                    nativePtr: IntPtr.Zero,
+                    properties: properties,
+                    averageIntensityInLumens: 0,
+                    exposureDuration: 0,
+                    exposureOffset: 0,
+                    mainLightIntensityInLumens: 0,
+                    mainLightColor: default,
+                    mainLightDirection: default,
+                    ambientSphericalHarmonics: default,
+                    cameraGrain: default,
+                    noiseIntensity: 0
+                );
 
                 return true;
             }
