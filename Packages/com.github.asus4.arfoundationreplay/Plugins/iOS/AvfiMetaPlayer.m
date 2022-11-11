@@ -67,8 +67,8 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
             if ([item.identifier isEqualToString:kMETADATA_ID_RAW]) {
                 RawMetadata* rawMetadata = [[RawMetadata alloc] init];
                 rawMetadata.time = timeRange.start;
-                // rawMetadata.data = [NSData dataWithData:(NSData*) item.value];
-                rawMetadata.data = (NSData*) item.value;
+                rawMetadata.data = [NSData dataWithData:(NSData*) item.value];
+                // rawMetadata.data = (NSData*) item.value;
                 [_metadataBuffer addObject:rawMetadata];
             }
         }
