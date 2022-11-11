@@ -236,6 +236,12 @@ namespace ARFoundationReplay
                     disabledKeywords = null;
                 }
             }
+
+            public override void OnBeforeBackgroundRender(int id)
+            {
+                // Do nothing
+                // Debug.Log($"OnBeforeBackgroundRender: {id}");
+            }
         }
     }
 }
