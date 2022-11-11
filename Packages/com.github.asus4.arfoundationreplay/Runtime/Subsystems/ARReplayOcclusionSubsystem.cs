@@ -18,7 +18,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Register()
         {
-            var cinfo = new XROcclusionSubsystemCinfo()
+            var info = new XROcclusionSubsystemCinfo()
             {
                 id = ID,
                 providerType = typeof(ARReplayProvider),
@@ -29,7 +29,7 @@ namespace ARFoundationReplay
                 environmentDepthConfidenceImageSupportedDelegate = DummySupported,
                 environmentDepthTemporalSmoothingSupportedDelegate = DummySupported,
             };
-            if (Register(cinfo))
+            if (Register(info))
             {
                 Debug.LogFormat("Registered the {0} subsystem", ID);
             }

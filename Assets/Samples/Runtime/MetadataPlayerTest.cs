@@ -15,7 +15,7 @@ public class MetadataPlayerTest : MonoBehaviour
 
     private void Start()
     {
-        string path = Path.IsPathRooted(_path) 
+        string path = Path.IsPathRooted(_path)
             ? _path
             : Path.Combine(Application.dataPath, "..", _path);
         _videoPlayer = GetComponent<VideoPlayer>();
@@ -46,7 +46,7 @@ public class MetadataPlayerTest : MonoBehaviour
         }
 
         double time = _videoPlayer.time;
-        var metadata = _metadataPlayer.PeekMetadata(time).AsReadOnlySpan();
+        var metadata = _metadataPlayer.PeekMetadataAsSpan(time);
         var packet = Packet.Deserialize(metadata);
         Debug.Log($"f={frame}, t={time:0.00}, metadata={metadata.Length} frame={packet.cameraFrame}");
 

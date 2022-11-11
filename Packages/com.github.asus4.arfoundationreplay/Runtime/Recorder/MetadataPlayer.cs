@@ -1,10 +1,10 @@
+using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using IntPtr = System.IntPtr;
 
 namespace ARFoundationReplay
 {
-    public class MetadataPlayer : System.IDisposable
+    public class MetadataPlayer : IDisposable
     {
         private NativeArray<byte> _buffer;
 
@@ -26,6 +26,16 @@ namespace ARFoundationReplay
             var ptr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafePtr(_buffer);
             uint size = Avfi.PeekMetadata(time, ptr);
             return new NativeSlice<byte>(_buffer, 0, (int)size);
+        }
+
+        public unsafe ReadOnlySpan<byte> PeekMetadataAsSpan(double time)
+        {
+            var slice = PeekMetadata(time);
+            if (slice.Length == 0)
+            {
+                return ReadOnlySpan<byte>.Empty;
+            }
+            return slice.AsReadOnlySpan();
         }
     }
 }

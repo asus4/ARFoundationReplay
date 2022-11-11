@@ -13,6 +13,8 @@ namespace ARFoundationReplay
         private double _start;
         private double _last;
 
+        public int Count => _times.Count;
+
         public void Dispose()
         {
             Clear();

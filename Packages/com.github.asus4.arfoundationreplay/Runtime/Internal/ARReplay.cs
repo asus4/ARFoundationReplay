@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Video;
+using Unity.Profiling;
 
 namespace ARFoundationReplay
 {
@@ -8,7 +9,9 @@ namespace ARFoundationReplay
     /// </summary>
     internal sealed class ARReplay : System.IDisposable
     {
+        private static readonly ProfilerMarker kDeserializeMarker = new("ARReplay.Deserialize");
         private static ARReplay _sharedInstance = null;
+
         public static bool TryGetReplay(out ARReplay replay)
         {
             if (!Application.isPlaying || _sharedInstance == null)
@@ -79,16 +82,17 @@ namespace ARFoundationReplay
             }
 
             double time = _video.time;
-            var metadataSlice = _metadata.PeekMetadata(time);
-            if (metadataSlice.Length == 0)
+            var metadata = _metadata.PeekMetadataAsSpan(time);
+            if (metadata.IsEmpty)
             {
                 Debug.LogWarning($"Metadata not found, time:{time}");
                 DidUpdateThisFrame = false;
                 return;
             }
 
-            var metadata = metadataSlice.AsReadOnlySpan();
+            kDeserializeMarker.Begin();
             Packet = Packet.Deserialize(metadata);
+            kDeserializeMarker.End();
 
             _lastFrame = _video.frame;
             DidUpdateThisFrame = true;

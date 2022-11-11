@@ -1,12 +1,15 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Unity.Profiling;
 using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
     public sealed class ARRecorder : MonoBehaviour
     {
+        static readonly ProfilerMarker kSerializeMarker = new("ARRecorder.Serialize");
+
         private XROrigin _origin;
         private VideoRecorder _videoRecorder;
         private RenderTexture _renderTexture;
@@ -58,7 +61,9 @@ namespace ARFoundationReplay
             }
 
             Graphics.Blit(null, _renderTexture, _bufferMaterial);
+            kSerializeMarker.Begin();
             var metadata = _packet.Serialize();
+            kSerializeMarker.End();
             _videoRecorder.Update(metadata);
         }
 

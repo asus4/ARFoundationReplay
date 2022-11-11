@@ -3,12 +3,11 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using DateTime = System.DateTime;
-using IntPtr = System.IntPtr;
+using UnityEngine.Assertions;
 
 namespace ARFoundationReplay
 {
-    public sealed class VideoRecorder : System.IDisposable
+    public sealed class VideoRecorder : IDisposable
     {
         #region Editable attributes
 
@@ -107,6 +106,8 @@ namespace ARFoundationReplay
             {
                 return;
             }
+
+            Assert.AreNotEqual(_metadataQueue.Count, 0);
 
             // Get pixel buffer
             var data = request.GetData<byte>(0);
