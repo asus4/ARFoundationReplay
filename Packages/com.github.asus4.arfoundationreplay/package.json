@@ -10,6 +10,6 @@
   "type": "library",
   "hideInEditor": false,
   "dependencies": {
-    "com.unity.xr.arfoundation": "5.0.2"
+    "com.unity.xr.arfoundation": "5.1.0-pre.2"
   }
 }
