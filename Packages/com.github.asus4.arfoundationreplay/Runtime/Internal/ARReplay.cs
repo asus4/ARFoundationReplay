@@ -79,7 +79,15 @@ namespace ARFoundationReplay
             }
 
             double time = _video.time;
-            var metadata = _metadata.PeekMetadata(time).AsReadOnlySpan();
+            var metadataSlice = _metadata.PeekMetadata(time);
+            if (metadataSlice.Length == 0)
+            {
+                Debug.LogWarning($"Metadata not found, time:{time}");
+                DidUpdateThisFrame = false;
+                return;
+            }
+
+            var metadata = metadataSlice.AsReadOnlySpan();
             Packet = Packet.Deserialize(metadata);
 
             _lastFrame = _video.frame;

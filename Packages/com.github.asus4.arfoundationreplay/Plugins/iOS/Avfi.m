@@ -5,6 +5,9 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#define kMETADATA_ID_RAW @"mdta/com.github.asus4.avfi.raw"
+#define kTIMESCALE 240
+
 // Internal objects
 static AVAssetWriter* _writer;
 static AVAssetWriterInput* _writerVideoInput;
@@ -12,7 +15,6 @@ static AVAssetWriterInputPixelBufferAdaptor* _bufferAdaptor;
 static AVAssetWriterInput* _writerMetadataInput;
 static AVAssetWriterInputMetadataAdaptor* _metadataAdaptor;
 static double _frameCount;
-#define kMETADATA_ID_RAW @"mdta/com.github.asus4.avfi.raw"
 
 extern void Avfi_StartRecording(const char* filePath, int width, int height)
 {
@@ -129,7 +131,7 @@ extern void Avfi_AppendFrame(
 
     // Buffer submission
     [_bufferAdaptor appendPixelBuffer:buffer
-                 withPresentationTime:CMTimeMakeWithSeconds(time, 240)];
+                 withPresentationTime:CMTimeMakeWithSeconds(time, kTIMESCALE)];
     
     if (metadataSize > 0)
     {
@@ -139,7 +141,7 @@ extern void Avfi_AppendFrame(
         metadataItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_RawData;
         metadataItem.value = [NSData dataWithBytes:metadata length:metadataSize];
 
-        CMTimeRange metadataTime = CMTimeRangeMake(CMTimeMakeWithSeconds(time, 240), kCMTimeInvalid);
+        CMTimeRange metadataTime = CMTimeRangeMake(CMTimeMakeWithSeconds(time, kTIMESCALE), kCMTimeInvalid);
         AVTimedMetadataGroup* metadataGroup = [[AVTimedMetadataGroup alloc] initWithItems:@[metadataItem]
                                                                                 timeRange:metadataTime];
         [_metadataAdaptor appendTimedMetadataGroup:metadataGroup];

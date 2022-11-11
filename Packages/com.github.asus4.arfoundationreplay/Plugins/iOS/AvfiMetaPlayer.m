@@ -11,9 +11,10 @@
 static AVAssetReader* _reader;
 static AVAssetReaderTrackOutput* _readerMetadataOutput;
 static AVAssetReaderOutputMetadataAdaptor* _metadataAdaptor;
-
 static NSMutableArray<RawMetadata*>* _metadataBuffer = nil;
+
 #define kMETADATA_ID_RAW @"mdta/com.github.asus4.avfi.raw"
+#define kTIMESCALE 240
 
 extern void Avfi_UnloadMetadata(void);
 
@@ -21,8 +22,8 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
     Avfi_UnloadMetadata();
     // Load AVAsset from file path
     NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:filePath]];
+    NSLog(@"Avfi_LoadMetadata  (%@)", url);
     AVAsset* asset = [AVAsset assetWithURL:url];
-
 
     // Ensure the asset has at leaset one metadata track.
     NSArray* tracks = [asset tracksWithMediaType:AVMediaTypeMetadata];
@@ -66,20 +67,18 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
             if ([item.identifier isEqualToString:kMETADATA_ID_RAW]) {
                 RawMetadata* rawMetadata = [[RawMetadata alloc] init];
                 rawMetadata.time = timeRange.start;
+                // rawMetadata.data = [NSData dataWithData:(NSData*) item.value];
                 rawMetadata.data = (NSData*) item.value;
-
                 [_metadataBuffer addObject:rawMetadata];
             }
         }
-
-        NSLog(@"%i Found metadata group: %@", i, group);
 
         i++;
     }
 
     [_reader cancelReading];
 
-    NSLog(@"Avfi_LoadMetadata: %@", url);
+    NSLog(@"Avfi_LoadMetadata: %@, Found %i metadata", url, i);
     return true;
 }
 
@@ -115,7 +114,7 @@ extern uint32_t Avfi_PeekMetadata(double time, void* data)
     }
 
     for(RawMetadata* rawMetadata in _metadataBuffer) {
-        if(CMTIME_COMPARE_INLINE(rawMetadata.time, >=, CMTimeMakeWithSeconds(time, 240))) {
+        if(CMTIME_COMPARE_INLINE(rawMetadata.time, >=, CMTimeMakeWithSeconds(time, kTIMESCALE))) {
             uint32_t length = (uint32_t)rawMetadata.data.length;
             memcpy(data, rawMetadata.data.bytes, rawMetadata.data.length);
             return length;
