@@ -33,6 +33,7 @@ extern void Avfi_StartRecording(const char* filePath, int width, int height)
       [[AVAssetWriter alloc] initWithURL: filePathURL
                                 fileType: AVFileTypeQuickTimeMovie
                                    error: &err];
+    _writer.movieTimeScale = kTIMESCALE;
 
     if (err)
     {
@@ -41,22 +42,33 @@ extern void Avfi_StartRecording(const char* filePath, int width, int height)
     }
 
     // Asset writer input setup
+    NSDictionary* colorPropertySettings =
+    @{
+        AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
+        AVVideoYCbCrMatrixKey: AVVideoTransferFunction_ITU_R_709_2,
+        AVVideoTransferFunctionKey: AVVideoYCbCrMatrix_ITU_R_709_2,
+    };
     NSDictionary* settings =
-      @{ AVVideoCodecKey: AVVideoCodecTypeH264,
-         AVVideoWidthKey: @(width),
-        AVVideoHeightKey: @(height) };
+    @{
+        AVVideoCodecKey: AVVideoCodecTypeH264,
+        AVVideoWidthKey: @(width),
+        AVVideoHeightKey: @(height),
+        AVVideoColorPropertiesKey: colorPropertySettings,
+    };
 
     _writerVideoInput = [AVAssetWriterInput assetWriterInputWithMediaType: AVMediaTypeVideo
                                                       outputSettings: settings];
     _writerVideoInput.expectsMediaDataInRealTime = true;
+    _writerVideoInput.mediaTimeScale = kTIMESCALE;
 
     [_writer addInput:_writerVideoInput];
 
     // Pixel buffer adaptor setup
-    NSDictionary* attribs =
-      @{ (NSString*)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
-                   (NSString*)kCVPixelBufferWidthKey: @(width),
-                  (NSString*)kCVPixelBufferHeightKey: @(height) };
+    NSDictionary* attribs = @{
+        (NSString*)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+        (NSString*)kCVPixelBufferWidthKey: @(width),
+        (NSString*)kCVPixelBufferHeightKey: @(height),
+    };
 
     _bufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput: _writerVideoInput
                                                                                       sourcePixelBufferAttributes: attribs];
@@ -130,9 +142,15 @@ extern void Avfi_AppendFrame(
     CVPixelBufferUnlockBaseAddress(buffer, 0);
 
     // Buffer submission
-    [_bufferAdaptor appendPixelBuffer:buffer
-                 withPresentationTime:CMTimeMakeWithSeconds(time, kTIMESCALE)];
-    
+    BOOL success = [_bufferAdaptor appendPixelBuffer:buffer
+                                withPresentationTime:CMTimeMakeWithSeconds(time, kTIMESCALE)];
+    if (!success) {
+        NSLog(@"Warning: Unable to write buffer to video");
+    }
+
+    CVPixelBufferUnlockBaseAddress(buffer, 0);
+    CVPixelBufferRelease(buffer);
+
     if (metadataSize > 0)
     {
         // Metadata submission
@@ -145,9 +163,7 @@ extern void Avfi_AppendFrame(
         AVTimedMetadataGroup* metadataGroup = [[AVTimedMetadataGroup alloc] initWithItems:@[metadataItem]
                                                                                 timeRange:metadataTime];
         [_metadataAdaptor appendTimedMetadataGroup:metadataGroup];
-    }
-
-    CVPixelBufferRelease(buffer);
+    }    
 }
 
 extern void Avfi_EndRecording(void)

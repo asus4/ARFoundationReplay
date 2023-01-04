@@ -9,8 +9,8 @@ LIBS+=" -framework CoreMedia -framework CoreVideo -framework QuartzCore"
 
 MAC_ARGS="-shared -rdynamic -fPIC -fobjc-arc"
 
-SRC="../Packages/com.github.asus4.arfoundationreplay/Plugins/iOS"
-DST="../Packages/com.github.asus4.arfoundationreplay/Plugins/macOS"
+SRC="../iOS"
+DST="../macOS"
 
 rm -f *.so *.bundle
 

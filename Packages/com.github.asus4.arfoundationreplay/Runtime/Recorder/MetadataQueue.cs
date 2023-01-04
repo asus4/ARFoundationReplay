@@ -7,8 +7,8 @@ namespace ARFoundationReplay
 {
     internal sealed class MetadataQueue : IDisposable
     {
-        private readonly Queue<double> _times = new();
-        private readonly Queue<NativeArray<byte>> _buffers = new();
+        private readonly Queue<double> _times = new(4);
+        private readonly Queue<NativeArray<byte>> _buffers = new(4);
 
         private double _start;
         private double _last;
