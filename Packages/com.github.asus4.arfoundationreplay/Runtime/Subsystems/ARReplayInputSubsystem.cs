@@ -1,7 +1,9 @@
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.XR.ARFoundation;
-using Unity.XR.CoreUtils;
+using UnityEngine.Assertions;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
@@ -11,43 +13,38 @@ namespace ARFoundationReplay
     /// </summary>
     public class ARReplayInputSubsystem : System.IDisposable
     {
-        private readonly Transform _target;
-        private readonly Behaviour _driver;
+        private readonly HandheldARInputDevice _device;
 
         public ARReplayInputSubsystem()
         {
-            _target = Object.FindObjectOfType<XROrigin>().Camera.transform;
-
-            // Disable TrackedPoseDriver or ARPoseDriver
-            if (_target.TryGetComponent(out TrackedPoseDriver driver))
+            var desc = new InputDeviceDescription()
             {
-                _driver = driver;
-            }
-#pragma warning disable 0618 // Obsolete support
-            else if (_target.TryGetComponent(out ARPoseDriver arDriver))
-            {
-                _driver = arDriver;
-            }
-#pragma warning restore 0618
-            if (_driver != null)
-            {
-                _driver.enabled = false;
-            }
+                interfaceName = "XRInput",
+                product = "ARFoundationReplay",
+            };
+            _device = (HandheldARInputDevice)InputSystem.AddDevice(desc);
+            InputSystem.EnableDevice(_device);
         }
 
         public void Dispose()
         {
-            if (_driver != null)
+            if (_device != null)
             {
-                _driver.enabled = true;
+                InputSystem.DisableDevice(_device);
+                InputSystem.RemoveDevice(_device);
             }
         }
 
         public void Update(Packet packet)
         {
-            var pose = packet.trackedPose;
-            _target.localPosition = pose.position;
-            _target.localRotation = pose.rotation;
+            Assert.IsNotNull(_device);
+
+            var pose = (UnityEngine.Pose)packet.trackedPose;
+
+            using var buffer = StateEvent.From(_device, out var eventPtr);
+            _device.devicePosition.WriteValueIntoEvent(pose.position, eventPtr);
+            _device.deviceRotation.WriteValueIntoEvent(pose.rotation, eventPtr);
+            InputSystem.QueueEvent(eventPtr);
         }
     }
 }

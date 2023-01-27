@@ -1,0 +1,10 @@
+{
+    "name": "AR Foundation Replay Plugin",
+    "version": "0.1.0",
+    "libraryName": "ARFoundationReplayPlugin",
+    "inputs": [
+        {
+            "id": "ARReplay-Input"
+        }
+    ]
+}

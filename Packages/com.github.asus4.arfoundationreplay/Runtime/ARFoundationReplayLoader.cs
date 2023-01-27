@@ -10,14 +10,15 @@ namespace ARFoundationReplay
     {
         static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
         static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();
+        static readonly List<XRInputSubsystemDescriptor> s_InputSubsystemDescriptors = new();
         static readonly List<XROcclusionSubsystemDescriptor> s_OcclusionSubsystemDescriptors = new();
+
 
         public override bool Initialize()
         {
             CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(s_SessionSubsystemDescriptors, ARReplaySessionSubsystem.ID);
             CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(s_CameraSubsystemDescriptors, ARReplayCameraSubsystem.ID);
-            // Input subsystem requires to implement a native plugin
-            // CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, ARReplayInputSubsystem.ID);
+            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, "ARReplay-Input");
 
             // Optional subsystems
             CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(s_OcclusionSubsystemDescriptors, ARReplayOcclusionSubsystem.ID);
@@ -27,6 +28,7 @@ namespace ARFoundationReplay
             {
                 Debug.LogError("Failed to load session subsystem.");
             }
+            Debug.Log("ARFoundationReplayLoader.Initialize()");
             return sessionSubsystem != null;
         }
 
@@ -42,8 +44,10 @@ namespace ARFoundationReplay
 
         public override bool Deinitialize()
         {
-            DestroySubsystem<XRCameraSubsystem>();
             DestroySubsystem<XROcclusionSubsystem>();
+
+            DestroySubsystem<XRInputSubsystem>();
+            DestroySubsystem<XRCameraSubsystem>();
             DestroySubsystem<XRSessionSubsystem>();
 
             return base.Deinitialize();
