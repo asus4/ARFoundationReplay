@@ -9,21 +9,12 @@ namespace ARFoundationReplay
 {
     public sealed class VideoRecorder : IDisposable
     {
-        #region Editable attributes
-
         private RenderTexture _source = null;
-
-        public RenderTexture Source
-        {
-            get => _source;
-            set => ChangeSource(value);
-        }
-
-        #endregion
-
-        #region Public properties and methods
+        private RenderTexture _buffer;
+        private readonly MetadataQueue _metadataQueue = new();
 
         public bool IsRecording { get; private set; }
+        public int FrameRate { get; private set; } = -1;
 
         public VideoRecorder(RenderTexture source)
         {
@@ -51,9 +42,8 @@ namespace ARFoundationReplay
         public void StartRecording()
         {
             var path = GetTemporaryFilePath();
-            Avfi.StartRecording(path, _source.width, _source.height);
-
             _metadataQueue.Clear();
+            Avfi.StartRecording(path, _source.width, _source.height);
             IsRecording = true;
         }
 
@@ -63,13 +53,6 @@ namespace ARFoundationReplay
             Avfi.EndRecording();
             IsRecording = false;
         }
-
-        #endregion
-
-        #region Private objects
-
-        private RenderTexture _buffer;
-        private readonly MetadataQueue _metadataQueue = new();
 
         private void ChangeSource(RenderTexture rt)
         {
@@ -95,10 +78,6 @@ namespace ARFoundationReplay
             string fileName = $"Record_{DateTime.Now:MMdd_HHmm_ss}.mp4";
             return $"{dir}/{fileName}";
         }
-
-        #endregion
-
-        #region Async GPU readback
 
         private unsafe void OnSourceReadback(AsyncGPUReadbackRequest request)
         {
@@ -126,7 +105,6 @@ namespace ARFoundationReplay
             }
         }
 
-        #endregion
     }
 
-} // namespace Avfi
+} // namespace ARFoundationReplay

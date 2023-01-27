@@ -41,18 +41,18 @@ namespace ARFoundationReplay
             // Copy native array
             var buffer = metadata.CopyToNativeArray(Allocator.Persistent);
 
+            var time = Time.unscaledTimeAsDouble - _start;
+
             if (_start == 0)
             {
                 _times.Enqueue(0);
                 _buffers.Enqueue(buffer);
-                _start = Time.timeAsDouble;
+                _start = Time.unscaledTimeAsDouble;
                 _last = 0;
                 return true;
             }
             else
             {
-                var time = Time.timeAsDouble - _start;
-
                 // Reject it if it falls into the same frame.
                 if ((int)(time * 60) == (int)(_last * 60))
                 {
