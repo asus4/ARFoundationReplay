@@ -8,6 +8,14 @@ namespace ARFoundationReplay
     public sealed class ARRecordButton : MonoBehaviour
     {
         [SerializeField]
+        private ARRecorder.Options _options = new()
+        {
+            width = 1920,
+            height = 1080,
+            targetFrameRate = 60,
+        };
+
+        [SerializeField]
         private bool _hideInReleaseBuild = true;
 
         [SerializeField]
@@ -30,6 +38,7 @@ namespace ARFoundationReplay
             }
 
             _recorder = gameObject.AddComponent<ARRecorder>();
+            _recorder.options = _options;
             bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
             gameObject.SetActive(!needHidden);
         }

@@ -8,6 +8,19 @@ namespace ARFoundationReplay
 {
     public sealed class ARRecorder : MonoBehaviour
     {
+        [System.Serializable]
+        public struct Options
+        {
+            [Min(640)]
+            public int width;
+            [Min(480)]
+            public int height;
+            [Range(10, 60)]
+            public int targetFrameRate;
+        }
+
+        public Options options;
+
         static readonly ProfilerMarker kSerializeMarker = new("ARRecorder.Serialize");
 
         private XROrigin _origin;
@@ -33,11 +46,11 @@ namespace ARFoundationReplay
         private void Start()
         {
             // Nullable
-            _renderTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            _renderTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
             var shader = Shader.Find("Hidden/ARFoundationReplay/ARKitEncoder");
             Assert.IsNotNull(shader);
             _bufferMaterial = new Material(shader);
-            _videoRecorder = new VideoRecorder(_renderTexture);
+            _videoRecorder = new VideoRecorder(_renderTexture, options.targetFrameRate);
         }
 
         private void OnDestroy()

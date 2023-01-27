@@ -9,11 +9,17 @@ namespace ARFoundationReplay
     {
         private readonly Queue<double> _times = new(4);
         private readonly Queue<NativeArray<byte>> _buffers = new(4);
+        private readonly int _targetFrameRate;
 
         private double _start;
         private double _last;
 
         public int Count => _times.Count;
+
+        public MetadataQueue(int targetFrameRate = 60)
+        {
+            _targetFrameRate = targetFrameRate;
+        }
 
         public void Dispose()
         {
@@ -54,7 +60,7 @@ namespace ARFoundationReplay
             else
             {
                 // Reject it if it falls into the same frame.
-                if ((int)(time * 60) == (int)(_last * 60))
+                if ((int)(time * _targetFrameRate) == (int)(_last * _targetFrameRate))
                 {
                     buffer.Dispose();
                     return false;

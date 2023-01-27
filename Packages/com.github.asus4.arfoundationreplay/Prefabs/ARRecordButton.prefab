@@ -134,6 +134,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c54b621ad43946b8b06470ff52134cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _options:
+    width: 1920
+    height: 1080
+    targetFrameRate: 60
   _hideInReleaseBuild: 1
   _iconStart: {fileID: 21300000, guid: fd635387560374a93866c6e16186fa90, type: 3}
   _iconStop: {fileID: 21300000, guid: 0e523b11954d74f63b9dd2a2bf840f79, type: 3}
