@@ -27,21 +27,11 @@ namespace ARFoundationReplay
                 id = ID,
                 providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplayCameraSubsystem),
-                supportsAverageBrightness = false,
-                supportsAverageColorTemperature = true,
-                supportsColorCorrection = false,
                 supportsDisplayMatrix = true,
                 supportsProjectionMatrix = true,
                 supportsTimestamp = true,
                 supportsCameraConfigurations = true,
-                supportsCameraImage = true,
-                supportsAverageIntensityInLumens = true,
-                supportsFocusModes = true,
-                supportsFaceTrackingAmbientIntensityLightEstimation = true,
-                supportsFaceTrackingHDRLightEstimation = true,
-                supportsWorldTrackingAmbientIntensityLightEstimation = true,
-                supportsWorldTrackingHDRLightEstimation = false,
-                supportsCameraGrain = false,
+                supportsCameraImage = false,
             };
 
             if (!Register(cameraSubsystemCinfo))
@@ -69,6 +59,8 @@ namespace ARFoundationReplay
             RenderTexture _yTexture;
             RenderTexture _cbCrTexture;
 
+            XRCameraConfiguration _cameraConfiguration;
+            XRCameraIntrinsics _cameraIntrinsics;
 
             public override Material cameraMaterial
             {
@@ -101,7 +93,6 @@ namespace ARFoundationReplay
                 => requestedBackgroundRenderingMode switch
                 {
                     XRSupportedCameraBackgroundRenderingMode.Any => XRCameraBackgroundRenderingMode.AfterOpaques,
-                    // Don't support BeforeOpaques at the moment
                     XRSupportedCameraBackgroundRenderingMode.BeforeOpaques => XRCameraBackgroundRenderingMode.BeforeOpaques,
                     XRSupportedCameraBackgroundRenderingMode.AfterOpaques => XRCameraBackgroundRenderingMode.AfterOpaques,
                     XRSupportedCameraBackgroundRenderingMode.None => XRCameraBackgroundRenderingMode.None,
@@ -124,6 +115,9 @@ namespace ARFoundationReplay
                 _computeShader.SetInts(k_TextureSize, size.x, size.y);
                 _yTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.R8);
                 _cbCrTexture = TextureUtils.CreateRWTexture2D(size, RenderTextureFormat.RG16);
+
+                _cameraConfiguration = new XRCameraConfiguration(IntPtr.Zero, size);
+                _cameraIntrinsics = new XRCameraIntrinsics();
             }
 
             public override void Destroy()
@@ -164,7 +158,7 @@ namespace ARFoundationReplay
                     projectionMatrix: received.projectionMatrix,
                     displayMatrix: received.displayMatrix,
                     trackingState: TrackingState.Tracking,
-                    nativePtr: IntPtr.Zero,
+                    nativePtr: replay.Texture.GetNativeTexturePtr(),
                     properties: properties,
                     averageIntensityInLumens: 0,
                     exposureDuration: 0,
@@ -178,6 +172,19 @@ namespace ARFoundationReplay
                 );
 
                 return true;
+            }
+
+            public override bool TryGetIntrinsics(out XRCameraIntrinsics cameraIntrinsics)
+            {
+                cameraIntrinsics = _cameraIntrinsics;
+                return true;
+            }
+
+            public override NativeArray<XRCameraConfiguration> GetConfigurations(XRCameraConfiguration defaultCameraConfiguration, Allocator allocator)
+            {
+                var configs = new NativeArray<XRCameraConfiguration>(1, allocator);
+                configs[0] = _cameraConfiguration;
+                return configs;
             }
 
             public override bool autoFocusEnabled => true;
@@ -205,7 +212,7 @@ namespace ARFoundationReplay
             {
                 if (!ARReplay.TryGetReplay(out var replay))
                 {
-                    return new NativeArray<XRTextureDescriptor>(0, allocator);
+                    return base.GetTextureDescriptors(defaultDescriptor, allocator);
                 }
 
                 // Decode Y + CbCr texture from video
