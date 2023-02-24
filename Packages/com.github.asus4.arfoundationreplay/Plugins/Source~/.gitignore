@@ -3,3 +3,6 @@
 *.a
 *.bundle
 *.xcodeproj
+
+# Ignore Headers
+Headers/
