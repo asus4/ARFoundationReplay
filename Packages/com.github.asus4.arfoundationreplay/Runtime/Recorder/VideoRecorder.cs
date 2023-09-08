@@ -103,6 +103,7 @@ namespace ARFoundationReplay
             var (time, metadata) = _metadataQueue.Dequeue();
             if (!metadata.IsCreated)
             {
+                return;
             }
 
             // Override time as Unity 2022.2.1f1 doesn't support VFR video playback

@@ -31,9 +31,12 @@ static const float4x4 s_SRGBToYCbCr = float4x4(
 void DecodeYCbCr (uint2 id : SV_DispatchThreadID)
 {
     float2 uv = (float2)id / (float2)_TextureSize;
+
+    float2 dx = float2(1.0 / _TextureSize.x, 0);
+    float2 dy = float2(0, -1.0 / _TextureSize.y);
     
     float2 uv_c = UV_ColorToFull(uv);
-    float4 rgb = _InputTexture.SampleLevel(linearClampSampler, uv_c, 0);
+    float4 rgb = _InputTexture.SampleGrad(linearClampSampler, uv_c, dx, dy);
 #ifndef UNITY_COLORSPACE_GAMMA
     rgb.xyz = FastLinearToSRGB(rgb.xyz);
 #endif
@@ -47,10 +50,13 @@ void DecodeOcclusion (uint2 id : SV_DispatchThreadID)
 {
     float2 uv = (float2)id / (float2)_TextureSize;
     
+    float2 dx = float2(1.0 / _TextureSize.x, 0);
+    float2 dy = float2(0, -1.0 / _TextureSize.y);
+
     float2 uv_s = UV_StencilToFull(uv);
     float2 uv_d = UV_DepthToFull(uv);
-    float4 rgb_human = _InputTexture.SampleLevel(linearClampSampler, uv_s, 0);
-    float4 rgb_depth = _InputTexture.SampleLevel(linearClampSampler, uv_d, 0);
+    float4 rgb_human = _InputTexture.SampleGrad(linearClampSampler, uv_s, dx, dy);
+    float4 rgb_depth = _InputTexture.SampleGrad(linearClampSampler, uv_d, dx, dy);
 #ifndef UNITY_COLORSPACE_GAMMA
     rgb_human.xyz = FastLinearToSRGB(rgb_human.xyz);
     rgb_depth.xyz = FastLinearToSRGB(rgb_depth.xyz);

@@ -20,8 +20,8 @@ namespace ARFoundationReplay
             var plist = new PlistDocument();
             plist.ReadFromFile(plistPath);
 
-            var key = "NSPhotoLibraryAddUsageDescription";
-            var desc = "Adds recorded videos to the library.";
+            const string key = "NSPhotoLibraryAddUsageDescription";
+            const string desc = "Adds recorded videos to the library.";
 
             if (!plist.root.values.ContainsKey(key))
             {

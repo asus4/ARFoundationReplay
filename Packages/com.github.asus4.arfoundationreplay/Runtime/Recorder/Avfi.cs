@@ -9,6 +9,9 @@ using IntPtr = System.IntPtr;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// Native interface to Avfi.
+    /// </summary>
     static internal class Avfi
     {
 #if !UNITY_EDITOR && UNITY_IOS

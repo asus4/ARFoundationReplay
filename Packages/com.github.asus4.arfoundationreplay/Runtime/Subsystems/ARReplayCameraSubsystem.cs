@@ -216,8 +216,10 @@ namespace ARFoundationReplay
                 }
 
                 // Decode Y + CbCr texture from video
-                Vector2Int size = Config.RecordResolution;
-                _computeShader.SetTexture(_kernel, k_InputTexture, replay.Texture);
+                var inputTex = replay.Texture;
+                var size = new Vector2Int(inputTex.width, inputTex.height);
+                _computeShader.SetInts(k_TextureSize, size.x, size.y);
+                _computeShader.SetTexture(_kernel, k_InputTexture, inputTex);
                 _computeShader.SetTexture(_kernel, k_TextureY, _yTexture);
                 _computeShader.SetTexture(_kernel, k_TextureCbCr, _cbCrTexture);
                 _computeShader.Dispatch(_kernel, size.x / 8, size.y / 8, 1);

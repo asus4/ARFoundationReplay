@@ -41,7 +41,7 @@ namespace ARFoundationReplay
             {
                 ARFoundationReplaySettings setting = null;
 #if UNITY_EDITOR
-                setting = ARFoundationReplaySettings.currentSettings;
+                setting = ARFoundationReplaySettings.CurrentSettings;
 #else
                 // TODO: Support runtime replay
                 throw new System.NotImplementedException("Runtime replay is not supported yet");

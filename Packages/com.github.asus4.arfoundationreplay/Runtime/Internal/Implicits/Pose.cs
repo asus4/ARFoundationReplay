@@ -5,8 +5,9 @@ using Unity.Mathematics;
 namespace ARFoundationReplay
 {
     [Serializable]
-    public struct Pose : IEquatable<Pose>,
-                         IEquatable<UnityEngine.Pose>
+    public struct Pose :
+        IEquatable<Pose>,
+        IEquatable<UnityEngine.Pose>
     {
         public float3 position;
         public quaternion rotation;
@@ -23,7 +24,7 @@ namespace ARFoundationReplay
                 && rotation.Equals(o.rotation);
         }
 
-        public override string ToString()
+        public override readonly string ToString()
         {
             return $"Pose:(p:{position}, r:{rotation})";
         }

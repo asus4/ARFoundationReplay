@@ -49,7 +49,7 @@ namespace ARFoundationReplay
         {
             if (obj is ARFoundationReplaySettings settings)
             {
-                ARFoundationReplaySettings.currentSettings = settings;
+                ARFoundationReplaySettings.CurrentSettings = settings;
                 return true;
             }
 

@@ -31,7 +31,7 @@ namespace ARFoundationReplay
         }
 
 #if UNITY_EDITOR
-        public static ARFoundationReplaySettings currentSettings
+        public static ARFoundationReplaySettings CurrentSettings
         {
             get
             {
