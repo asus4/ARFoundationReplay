@@ -5,8 +5,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.xr.arfoundation": "5.1.0-pre.3",
-        "com.unity.serialization": "3.0.0-pre.2"
+        "com.unity.xr.arfoundation": "5.1.0-pre.3"
       }
     },
     "com.unity.burst": {

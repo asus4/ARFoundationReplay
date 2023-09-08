@@ -82,7 +82,7 @@ namespace ARFoundationReplay
             }
 
             double time = _video.time;
-            var metadata = _metadata.PeekMetadataAsSpan(time);
+            var metadata = _metadata.PeekMetadata(time);
             if (metadata.IsEmpty)
             {
                 Debug.LogWarning($"Metadata not found, time:{time}");

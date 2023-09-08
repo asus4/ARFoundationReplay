@@ -16,6 +16,7 @@ namespace ARFoundationReplay
         };
 
         [SerializeField]
+        [Tooltip("Hide this button in release build")]
         private bool _hideInReleaseBuild = true;
 
         [SerializeField]

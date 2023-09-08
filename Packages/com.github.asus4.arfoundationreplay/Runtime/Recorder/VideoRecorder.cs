@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Assertions;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// Record video file with timeline metadata.
+    /// </summary>
     public sealed class VideoRecorder : IDisposable
     {
         private readonly MetadataQueue _metadataQueue;
@@ -35,6 +37,10 @@ namespace ARFoundationReplay
             UnityEngine.Object.Destroy(_buffer);
         }
 
+        /// <summary>
+        /// Update metadata and record frame.
+        /// </summary>
+        /// <param name="metadata">Bytes of Metadata</param>
         public void Update(ReadOnlySpan<byte> metadata)
         {
             if (!IsRecording) { return; }
@@ -94,11 +100,10 @@ namespace ARFoundationReplay
 
             Assert.AreNotEqual(_metadataQueue.Count, 0);
 
-            // Get pixel buffer
-            var data = request.GetData<byte>(0);
-            var ptr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(data);
-
             var (time, metadata) = _metadataQueue.Dequeue();
+            if (!metadata.IsCreated)
+            {
+            }
 
             // Override time as Unity 2022.2.1f1 doesn't support VFR video playback
             // https://issuetracker.unity3d.com/issues/video-created-with-avfoundation-framework-is-not-played-when-entering-the-play-mode
@@ -107,16 +112,14 @@ namespace ARFoundationReplay
                 time = _frameCount * (1.0 / TargetFrameRate);
             }
 
-            if (metadata.IsCreated)
-            {
-                var metadataPtr = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(metadata);
-                Avfi.AppendFrame(ptr, (uint)data.Length, metadataPtr, (uint)metadata.Length, time);
-                metadata.Dispose();
-            }
-            else
-            {
-                Avfi.AppendFrame(ptr, (uint)data.Length, IntPtr.Zero, 0, time);
-            }
+            // Get pixel buffer
+            using var pixelData = request.GetData<byte>(0);
+            var pixelPtr = NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(pixelData);
+
+            var metadataPtr = NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(metadata);
+            Avfi.AppendFrame(pixelPtr, (uint)pixelData.Length, metadataPtr, (uint)metadata.Length, time);
+
+            metadata.Dispose();
 
             _frameCount++;
         }

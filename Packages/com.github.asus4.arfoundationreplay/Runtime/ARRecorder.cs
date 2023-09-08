@@ -6,6 +6,9 @@ using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// Records video file with timeline metadata.
+    /// </summary>
     public sealed class ARRecorder : MonoBehaviour
     {
         [System.Serializable]
@@ -34,7 +37,7 @@ namespace ARFoundationReplay
 
         private void Awake()
         {
-            _origin = FindObjectOfType<XROrigin>();
+            _origin = FindFirstObjectByType<XROrigin>();
             if (_origin == null)
             {
                 Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
@@ -74,6 +77,7 @@ namespace ARFoundationReplay
             }
 
             Graphics.Blit(null, _renderTexture, _bufferMaterial);
+
             kSerializeMarker.Begin();
             var metadata = _packet.Serialize();
             kSerializeMarker.End();

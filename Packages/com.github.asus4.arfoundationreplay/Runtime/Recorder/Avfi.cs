@@ -1,6 +1,6 @@
 /*
  * Meta Avfi https://github.com/asus4/MetaAvfi
- * Modified from https://github.com/keijiro/Avfi
+ * Based on https://github.com/keijiro/Avfi
  * Unlicense license
 */
 
@@ -21,8 +21,8 @@ namespace ARFoundationReplay
         public static extern void StartRecording(string filePath, int width, int height);
 
         [DllImport(DllName, EntryPoint = "Avfi_AppendFrame")]
-        public static extern void AppendFrame(
-            IntPtr pointer, uint size, IntPtr metadata, uint metadataSize, double time);
+        public unsafe static extern void AppendFrame(
+            void* pointer, uint size, void* metadata, uint metadataSize, double time);
 
         [DllImport(DllName, EntryPoint = "Avfi_EndRecording")]
         public static extern void EndRecording();
@@ -38,7 +38,7 @@ namespace ARFoundationReplay
         public static extern uint GetBufferSize();
 
         [DllImport(DllName, EntryPoint = "Avfi_PeekMetadata")]
-        public static extern uint PeekMetadata(double time, IntPtr metadata);
+        public unsafe static extern uint PeekMetadata(double time, byte* metadata);
         #endregion // Metadata
     }
 }
