@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
-using UnityEngine.Rendering;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Assertions;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
@@ -87,7 +88,8 @@ namespace ARFoundationReplay
         {
             string dir = Application.platform == RuntimePlatform.IPhonePlayer
                 ? Application.temporaryCachePath : ".";
-            string fileName = $"Record_{DateTime.Now:MMdd_HHmm_ss}.mp4";
+            string sceneName = SceneManager.GetActiveScene().name;
+            string fileName = $"Record_{sceneName}_{DateTime.Now:MMdd_HHmm_ss}.mp4";
             return $"{dir}/{fileName}";
         }
 
