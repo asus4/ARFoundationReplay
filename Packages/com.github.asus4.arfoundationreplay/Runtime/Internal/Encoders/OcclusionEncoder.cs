@@ -46,7 +46,7 @@ namespace ARFoundationReplay
             {
                 _muxMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
-
+            // TODO: calc min/max depth using compute shader
             _muxMaterial.SetVector(k_DepthRange, _depthRange);
         }
     }

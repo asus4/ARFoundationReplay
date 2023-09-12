@@ -2,7 +2,6 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
-using Unity.Mathematics;
 using Unity.XR.CoreUtils;
 using UnityEngine.XR.ARSubsystems;
 
@@ -82,7 +81,6 @@ namespace ARFoundationReplay
             if (_cameraManager.subsystem.TryGetLatestFrame(cameraParams, out XRCameraFrame frame))
             {
                 _cameraFrame = frame;
-                Debug.Log($"CameraFrame: {frame}");
             }
         }
     }
