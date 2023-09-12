@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.xr.arfoundation": "5.1.0-pre.3"
+        "com.unity.xr.arfoundation": "5.1.0-pre.10"
       }
     },
     "com.unity.burst": {
@@ -346,7 +346,7 @@
     },
     "com.unity.modules.unityanalytics": {
       "version": "1.0.0",
-      "depth": 1,
+      "depth": 2,
       "source": "builtin",
       "dependencies": {
         "com.unity.modules.unitywebrequest": "1.0.0",
