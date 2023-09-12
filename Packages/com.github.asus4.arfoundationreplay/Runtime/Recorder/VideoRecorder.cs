@@ -16,6 +16,7 @@ namespace ARFoundationReplay
         public readonly int targetFrameRate;
 
         private RenderTexture _source = null;
+        private RenderTexture _buffer;
         private uint _frameCount = 0;
 
         public bool IsRecording { get; private set; }
@@ -23,7 +24,7 @@ namespace ARFoundationReplay
 
         public VideoRecorder(RenderTexture source, int targetFrameRate)
         {
-            _source = source;
+            ChangeSource(source);
             this.targetFrameRate = targetFrameRate;
             _metadataQueue = new MetadataQueue(targetFrameRate);
         }
@@ -34,6 +35,7 @@ namespace ARFoundationReplay
             {
                 EndRecording();
             }
+            UnityEngine.Object.Destroy(_buffer);
         }
 
         /// <summary>
@@ -45,7 +47,8 @@ namespace ARFoundationReplay
             if (!IsRecording) { return; }
             if (!_metadataQueue.TryEnqueueNow(metadata)) { return; }
 
-            AsyncGPUReadback.Request(_source, 0, OnSourceReadback);
+            Graphics.Blit(_source, _buffer);
+            AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
         }
 
         public void StartRecording()
@@ -62,6 +65,23 @@ namespace ARFoundationReplay
             AsyncGPUReadback.WaitAllRequests();
             Avfi.EndRecording();
             IsRecording = false;
+        }
+
+        private void ChangeSource(RenderTexture rt)
+        {
+            if (IsRecording)
+            {
+                Debug.LogError("Can't change the source while recording.");
+                return;
+            }
+
+            if (_buffer != null)
+            {
+                UnityEngine.Object.Destroy(_buffer);
+            }
+
+            _source = rt;
+            _buffer = new RenderTexture(rt.width, rt.height, 0);
         }
 
         private static string GetTemporaryFilePath()
