@@ -136,41 +136,18 @@ namespace ARFoundationReplay
                     return false;
                 }
 
-                const XRCameraFrameProperties properties =
-                    XRCameraFrameProperties.Timestamp
-                    | XRCameraFrameProperties.ProjectionMatrix
-                    | XRCameraFrameProperties.DisplayMatrix;
+                var receivedFrame = replay.Packet.camera.CameraFrame;
 
-                var received = replay.Packet.camera;
 
                 // Skip if timestamp is not set
-                if (received.timestampNs == 0)
+                if (receivedFrame.timestampNs == 0)
                 {
                     cameraFrame = default;
                     return false;
                 }
 
-                cameraFrame = new XRCameraFrame(
-                    timestamp: received.timestampNs,
-                    averageBrightness: 0,
-                    averageColorTemperature: 0,
-                    colorCorrection: default,
-                    projectionMatrix: received.projectionMatrix,
-                    displayMatrix: received.displayMatrix,
-                    trackingState: TrackingState.Tracking,
-                    nativePtr: replay.Texture.GetNativeTexturePtr(),
-                    properties: properties,
-                    averageIntensityInLumens: 0,
-                    exposureDuration: 0,
-                    exposureOffset: 0,
-                    mainLightIntensityInLumens: 0,
-                    mainLightColor: default,
-                    mainLightDirection: default,
-                    ambientSphericalHarmonics: default,
-                    cameraGrain: default,
-                    noiseIntensity: 0
-                );
-
+                cameraFrame = CopyOnlySafeFrame(receivedFrame);
+                // cameraFrame = receivedFrame;
                 return true;
             }
 
@@ -250,6 +227,35 @@ namespace ARFoundationReplay
             {
                 // Do nothing
                 // Debug.Log($"OnBeforeBackgroundRender: {id}");
+            }
+
+            private static XRCameraFrame CopyOnlySafeFrame(in XRCameraFrame input)
+            {
+                XRCameraFrameProperties properties = input.properties;
+                properties &= ~XRCameraFrameProperties.CameraGrain;
+                properties &= ~XRCameraFrameProperties.ExifData;
+
+                return new XRCameraFrame(
+                    timestamp: input.timestampNs,
+                    averageBrightness: input.averageBrightness,
+                    averageColorTemperature: input.averageColorTemperature,
+                    colorCorrection: input.colorCorrection,
+                    projectionMatrix: input.projectionMatrix,
+                    displayMatrix: input.displayMatrix,
+                    trackingState: input.trackingState,
+                    nativePtr: IntPtr.Zero,
+                    properties: properties,
+                    averageIntensityInLumens: input.averageIntensityInLumens,
+                    exposureDuration: input.exposureDuration,
+                    exposureOffset: input.exposureOffset,
+                    mainLightIntensityInLumens: input.mainLightIntensityLumens,
+                    mainLightColor: input.mainLightColor,
+                    mainLightDirection: input.mainLightDirection,
+                    ambientSphericalHarmonics: input.ambientSphericalHarmonics,
+                    cameraGrain: default,
+                    noiseIntensity: input.noiseIntensity,
+                    exifData: default
+                );
             }
         }
     }

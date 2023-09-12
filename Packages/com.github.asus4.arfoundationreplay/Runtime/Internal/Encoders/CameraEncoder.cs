@@ -1,24 +1,26 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using Unity.Mathematics;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
     [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct CameraPacket
     {
-        // public ARLightEstimationData lightEstimation;
-        public long timestampNs;
-        public float4x4 projectionMatrix;
-        public float4x4 displayMatrix;
-        // public double? exposureDuration;
-        // public float? exposureOffset;
+        // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.I1, SizeConst = 448)]
+        public byte[] cameraFrame;
+
+        public readonly XRCameraFrame CameraFrame
+            => cameraFrame == null ? default : cameraFrame.ToStruct<XRCameraFrame>();
 
         public override readonly string ToString()
         {
-            return $"[time: {timestampNs}, projection: {projectionMatrix}, display: {displayMatrix}]";
+            return CameraFrame.ToString();
         }
     }
 
@@ -26,11 +28,13 @@ namespace ARFoundationReplay
     {
         private Material _muxMaterial;
         private ARCameraManager _cameraManager;
-        private CameraPacket _cameraPacket;
+        private Camera _camera;
+        private XRCameraFrame _cameraFrame;
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _muxMaterial = muxMaterial;
+            _camera = origin.Camera;
             if (!origin.Camera.TryGetComponent(out _cameraManager))
             {
                 return false;
@@ -51,7 +55,10 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.camera = _cameraPacket;
+            metadata.camera = new CameraPacket
+            {
+                cameraFrame = _cameraFrame.ToByteArray(),
+            };
         }
 
         private void OnCameraFrameReceived(ARCameraFrameEventArgs args)
@@ -63,12 +70,20 @@ namespace ARFoundationReplay
                 _muxMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
 
-            _cameraPacket = new CameraPacket()
+            // Get XR Camera Frame
+            var cameraParams = new XRCameraParams
             {
-                timestampNs = args.timestampNs.Value,
-                projectionMatrix = args.projectionMatrix.Value,
-                displayMatrix = args.displayMatrix.Value
+                zNear = _camera.nearClipPlane,
+                zFar = _camera.farClipPlane,
+                screenWidth = Screen.width,
+                screenHeight = Screen.height,
+                screenOrientation = Screen.orientation
             };
+            if (_cameraManager.subsystem.TryGetLatestFrame(cameraParams, out XRCameraFrame frame))
+            {
+                _cameraFrame = frame;
+                Debug.Log($"CameraFrame: {frame}");
+            }
         }
     }
 }

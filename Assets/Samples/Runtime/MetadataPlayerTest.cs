@@ -1,6 +1,9 @@
 using System.IO;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Video;
+using UnityEngine.XR.ARSubsystems;
+using Unity.Collections.LowLevel.Unsafe;
 using ARFoundationReplay;
 
 [RequireComponent(typeof(VideoPlayer))]
@@ -12,6 +15,13 @@ public class MetadataPlayerTest : MonoBehaviour
     private MetadataPlayer _metadataPlayer;
     private VideoPlayer _videoPlayer;
     private long _lastFrame = long.MinValue;
+
+    private void Awake()
+    {
+        Assert.IsTrue(UnsafeUtility.IsBlittable<XRCameraFrame>());
+        // Assert.IsTrue(UnsafeUtility.IsBlittable<CameraPacket>());
+        Debug.Log($"Size of XRCameraFrame: {UnsafeUtility.SizeOf<XRCameraFrame>()} bytes");
+    }
 
     private void Start()
     {
