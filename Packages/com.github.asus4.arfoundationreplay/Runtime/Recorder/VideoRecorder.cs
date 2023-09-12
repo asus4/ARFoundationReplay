@@ -13,10 +13,9 @@ namespace ARFoundationReplay
     public sealed class VideoRecorder : IDisposable
     {
         private readonly MetadataQueue _metadataQueue;
-        public readonly int TargetFrameRate;
+        public readonly int targetFrameRate;
 
         private RenderTexture _source = null;
-        private RenderTexture _buffer;
         private uint _frameCount = 0;
 
         public bool IsRecording { get; private set; }
@@ -24,8 +23,8 @@ namespace ARFoundationReplay
 
         public VideoRecorder(RenderTexture source, int targetFrameRate)
         {
-            ChangeSource(source);
-            TargetFrameRate = targetFrameRate;
+            _source = source;
+            this.targetFrameRate = targetFrameRate;
             _metadataQueue = new MetadataQueue(targetFrameRate);
         }
 
@@ -35,7 +34,6 @@ namespace ARFoundationReplay
             {
                 EndRecording();
             }
-            UnityEngine.Object.Destroy(_buffer);
         }
 
         /// <summary>
@@ -47,8 +45,7 @@ namespace ARFoundationReplay
             if (!IsRecording) { return; }
             if (!_metadataQueue.TryEnqueueNow(metadata)) { return; }
 
-            Graphics.Blit(_source, _buffer);
-            AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
+            AsyncGPUReadback.Request(_source, 0, OnSourceReadback);
         }
 
         public void StartRecording()
@@ -65,23 +62,6 @@ namespace ARFoundationReplay
             AsyncGPUReadback.WaitAllRequests();
             Avfi.EndRecording();
             IsRecording = false;
-        }
-
-        private void ChangeSource(RenderTexture rt)
-        {
-            if (IsRecording)
-            {
-                Debug.LogError("Can't change the source while recording.");
-                return;
-            }
-
-            if (_buffer != null)
-            {
-                UnityEngine.Object.Destroy(_buffer);
-            }
-
-            _source = rt;
-            _buffer = new RenderTexture(rt.width, rt.height, 0);
         }
 
         private static string GetTemporaryFilePath()
@@ -112,7 +92,7 @@ namespace ARFoundationReplay
             // https://issuetracker.unity3d.com/issues/video-created-with-avfoundation-framework-is-not-played-when-entering-the-play-mode
             if (FixedFrameRate)
             {
-                time = _frameCount * (1.0 / TargetFrameRate);
+                time = _frameCount * (1.0 / targetFrameRate);
             }
 
             // Get pixel buffer

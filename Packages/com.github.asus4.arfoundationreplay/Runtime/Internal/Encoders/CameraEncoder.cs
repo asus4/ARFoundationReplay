@@ -1,9 +1,34 @@
+using System;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using Unity.Mathematics;
 using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
+    [Serializable]
+    public struct CameraPacket : IEquatable<CameraPacket>
+    {
+        // public ARLightEstimationData lightEstimation;
+        public long timestampNs;
+        public float4x4 projectionMatrix;
+        public float4x4 displayMatrix;
+        // public double? exposureDuration;
+        // public float? exposureOffset;
+
+        public bool Equals(CameraPacket o)
+        {
+            return timestampNs.Equals(o.timestampNs)
+                && projectionMatrix.Equals(o.projectionMatrix)
+                && displayMatrix.Equals(o.displayMatrix);
+        }
+
+        public override string ToString()
+        {
+            return $"[time: {timestampNs}, projection: {projectionMatrix}, display: {displayMatrix}]";
+        }
+    }
+
     internal sealed class CameraEncoder : IEncoder
     {
 
@@ -50,7 +75,7 @@ namespace ARFoundationReplay
                 _material.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
 
-            _packet.cameraFrame = new Packet.CameraFrameEvent()
+            _packet.camera = new CameraPacket()
             {
                 timestampNs = args.timestampNs.Value,
                 projectionMatrix = args.projectionMatrix.Value,

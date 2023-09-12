@@ -926,6 +926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 921967158}
   - component: {fileID: 921967157}
+  - component: {fileID: 921967159}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -966,6 +967,20 @@ Transform:
   - {fileID: 709195696}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &921967159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921967156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1760703bbd54c04488a8d10600262ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PlanePrefab: {fileID: 0}
+  m_DetectionMode: -1
 --- !u!1 &1142452608
 GameObject:
   m_ObjectHideFlags: 0

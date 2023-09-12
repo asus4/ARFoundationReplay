@@ -2,13 +2,19 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using Unity.Mathematics;
+
+
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// A packet encoded in each frame
+    /// </summary>
     [Serializable]
-    public partial class Packet
+    public sealed class Packet
     {
-        public CameraFrameEvent cameraFrame;
+        public CameraPacket camera;
         public Pose trackedPose;
 
         private static readonly BinaryFormatter formatter = new();

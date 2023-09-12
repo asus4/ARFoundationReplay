@@ -67,9 +67,10 @@ namespace ARFoundationReplay
             _videoRecorder?.Dispose();
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (!IsRecording) { return; }
+
 
             foreach (var encoder in _encoders)
             {
@@ -81,6 +82,7 @@ namespace ARFoundationReplay
             kSerializeMarker.Begin();
             var metadata = _packet.Serialize();
             kSerializeMarker.End();
+
             _videoRecorder.Update(metadata);
         }
 

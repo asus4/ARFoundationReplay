@@ -35,7 +35,7 @@ namespace ARFoundationReplay
             }
         }
 
-        public void Update(Packet packet)
+        internal void Update(Packet packet)
         {
             Assert.IsNotNull(_device);
 

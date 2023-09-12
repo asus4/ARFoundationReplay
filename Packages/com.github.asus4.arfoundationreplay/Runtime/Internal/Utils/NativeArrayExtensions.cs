@@ -4,7 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
-    public static class NativeArrayExtensions
+    internal static class NativeArrayExtensions
     {
         /// <summary>
         /// Copy C# span into new NativeArray.

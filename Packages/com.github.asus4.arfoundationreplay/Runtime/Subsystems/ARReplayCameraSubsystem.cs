@@ -141,7 +141,7 @@ namespace ARFoundationReplay
                     | XRCameraFrameProperties.ProjectionMatrix
                     | XRCameraFrameProperties.DisplayMatrix;
 
-                var received = replay.Packet.cameraFrame;
+                var received = replay.Packet.camera;
 
                 // Skip if timestamp is not set
                 if (received.timestampNs == 0)
