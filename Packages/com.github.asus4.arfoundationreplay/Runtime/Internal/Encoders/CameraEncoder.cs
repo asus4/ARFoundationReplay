@@ -7,7 +7,7 @@ using Unity.XR.CoreUtils;
 namespace ARFoundationReplay
 {
     [Serializable]
-    public struct CameraPacket : IEquatable<CameraPacket>
+    public struct CameraPacket
     {
         // public ARLightEstimationData lightEstimation;
         public long timestampNs;
@@ -16,33 +16,22 @@ namespace ARFoundationReplay
         // public double? exposureDuration;
         // public float? exposureOffset;
 
-        public bool Equals(CameraPacket o)
-        {
-            return timestampNs.Equals(o.timestampNs)
-                && projectionMatrix.Equals(o.projectionMatrix)
-                && displayMatrix.Equals(o.displayMatrix);
-        }
-
-        public override string ToString()
+        public override readonly string ToString()
         {
             return $"[time: {timestampNs}, projection: {projectionMatrix}, display: {displayMatrix}]";
         }
     }
 
-    internal sealed class CameraEncoder : IEncoder
+    internal sealed class CameraEncoder : ISubsystemEncoder
     {
-
-        private Packet _packet;
-        private Material _material;
+        private Material _muxMaterial;
         private ARCameraManager _cameraManager;
+        private CameraPacket _cameraPacket;
 
-
-        public bool Initialize(XROrigin origin, Packet packet, Material material)
+        public bool Initialize(XROrigin origin, Material muxMaterial)
         {
-            _packet = packet;
-            _material = material;
-            _cameraManager = origin.Camera.GetComponent<ARCameraManager>();
-            if (_cameraManager == null)
+            _muxMaterial = muxMaterial;
+            if (!origin.Camera.TryGetComponent(out _cameraManager))
             {
                 return false;
             }
@@ -57,13 +46,12 @@ namespace ARFoundationReplay
                 _cameraManager.frameReceived -= OnCameraFrameReceived;
             }
             _cameraManager = null;
-            _packet = null;
-            _material = null;
+            _muxMaterial = null;
         }
 
-        public void Update()
+        public void Encode(FrameMetadata metadata)
         {
-            // Nothing to do
+            metadata.camera = _cameraPacket;
         }
 
         private void OnCameraFrameReceived(ARCameraFrameEventArgs args)
@@ -72,10 +60,10 @@ namespace ARFoundationReplay
             var count = args.textures.Count;
             for (int i = 0; i < count; i++)
             {
-                _material.SetTexture(args.propertyNameIds[i], args.textures[i]);
+                _muxMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
 
-            _packet.camera = new CameraPacket()
+            _cameraPacket = new CameraPacket()
             {
                 timestampNs = args.timestampNs.Value,
                 projectionMatrix = args.projectionMatrix.Value,

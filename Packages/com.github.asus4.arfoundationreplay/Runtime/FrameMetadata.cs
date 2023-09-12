@@ -2,20 +2,18 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
-using Unity.Mathematics;
-
 
 
 namespace ARFoundationReplay
 {
     /// <summary>
-    /// A packet encoded in each frame
+    /// A metadata encoded each frame into video file.
     /// </summary>
     [Serializable]
-    public sealed class Packet
+    public sealed class FrameMetadata
     {
         public CameraPacket camera;
-        public Pose trackedPose;
+        public Pose input;
 
         private static readonly BinaryFormatter formatter = new();
         private static readonly MemoryStream stream = new();
@@ -23,11 +21,6 @@ namespace ARFoundationReplay
 
         public ReadOnlySpan<byte> Serialize()
         {
-            // TODO: Consider using faster serializer
-            // instead of using BinaryFormatter?
-            // https://github.com/Cysharp/MemoryPack
-            // https://docs.unity3d.com/Packages/com.unity.serialization@3.1/manual/index.html
-
             lock (stream)
             {
                 stream.Position = 0;
@@ -35,8 +28,8 @@ namespace ARFoundationReplay
                 int length = (int)stream.Position;
                 if (buffer.Length < length)
                 {
-                    buffer = new byte[length];
-                    Debug.Log($"Packet buffer resized: {length}");
+                    buffer = new byte[Mathf.NextPowerOfTwo(length)];
+                    Debug.Log($"Max buffer resized: {length}");
                 }
                 var span = new Span<byte>(buffer, 0, length);
 
@@ -46,14 +39,14 @@ namespace ARFoundationReplay
             }
         }
 
-        public static Packet Deserialize(ReadOnlySpan<byte> data)
+        public static FrameMetadata Deserialize(ReadOnlySpan<byte> data)
         {
             lock (stream)
             {
                 stream.Position = 0;
                 stream.Write(data);
                 stream.Position = 0;
-                return formatter.Deserialize(stream) as Packet;
+                return formatter.Deserialize(stream) as FrameMetadata;
             }
         }
     }

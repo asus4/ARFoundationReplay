@@ -6,19 +6,18 @@ namespace ARFoundationReplay
 {
 
     /// <summary>
-    /// Base interface for all encoders.
+    /// Base interface that encode subsystem state into binary.
     /// </summary>
-    internal interface IEncoder : IDisposable
+    internal interface ISubsystemEncoder : IDisposable
     {
         /// <summary>
-        /// 
+        /// Initialize and check availability of Subsystem.
         /// </summary>
         /// <param name="origin">An XROrigin</param>
-        /// <param name="packet">A packet to be encoded</param>
-        /// <param name="material"></param>
+        /// <param name="material">A material for Multiplexing</param>
         /// <returns>Available or not</returns>
-        bool Initialize(XROrigin origin, Packet packet, Material material);
-        void Update();
+        bool Initialize(XROrigin origin, Material muxMaterial);
+        void Encode(FrameMetadata metadata);
     }
 
     [Serializable]

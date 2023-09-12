@@ -46,9 +46,9 @@ public class MetadataPlayerTest : MonoBehaviour
         }
 
         double time = _videoPlayer.time;
-        var metadata = _metadataPlayer.PeekMetadata(time);
-        var packet = Packet.Deserialize(metadata);
-        Debug.Log($"f={frame}, t={time:0.00}, metadata={metadata.Length} frame={packet.camera}");
+        var rawMetadata = _metadataPlayer.PeekMetadata(time);
+        var metadata = FrameMetadata.Deserialize(rawMetadata);
+        Debug.Log($"f={frame}, t={time:0.00}, metadata={rawMetadata.Length} frame={metadata.camera}");
 
         _lastFrame = _videoPlayer.frame;
     }

@@ -7,10 +7,11 @@ using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
-    internal sealed class PlaneEncoder : IEncoder
+    internal sealed class PlaneEncoder : ISubsystemEncoder
     {
-        public bool Initialize(XROrigin origin, Packet packet, Material material)
+        public bool Initialize(XROrigin origin, Material muxMaterial)
         {
+            // Not implemented
             return false;
         }
 
@@ -19,7 +20,7 @@ namespace ARFoundationReplay
             // Nothing to do
         }
 
-        public void Update()
+        public void Encode(FrameMetadata metadata)
         {
             // Nothing to do
         }

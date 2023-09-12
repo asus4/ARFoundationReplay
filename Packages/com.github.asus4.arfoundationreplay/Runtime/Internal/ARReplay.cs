@@ -30,7 +30,7 @@ namespace ARFoundationReplay
 
         public bool DidUpdateThisFrame { get; private set; } = false;
         public Texture Texture => _video.texture;
-        public Packet Packet { get; private set; }
+        public FrameMetadata Packet { get; private set; }
 
         public ARReplay(ARFoundationReplaySettings settings)
         {
@@ -91,7 +91,7 @@ namespace ARFoundationReplay
             }
 
             kDeserializeMarker.Begin();
-            Packet = Packet.Deserialize(metadata);
+            Packet = FrameMetadata.Deserialize(metadata);
             kDeserializeMarker.End();
 
             _lastFrame = _video.frame;
