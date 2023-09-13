@@ -14,6 +14,7 @@ namespace ARFoundationReplay
     [Serializable]
     internal class PlanePacket : TrackableChangesPacket<BoundedPlane>
     {
+        public PlaneDetectionMode currentDetectionMode;
         public Dictionary<TrackableId, byte[]> boundaries; // NativeArray<Vector2>
 
         public PlanePacket() : base()
@@ -90,6 +91,8 @@ namespace ARFoundationReplay
             {
                 _packet.Reset();
             }
+
+            _packet.currentDetectionMode = _planeManager.currentDetectionMode;
 
             // Convert ARPlanes into TrackableChanges:
             using var changes = new TrackableChanges<BoundedPlane>(

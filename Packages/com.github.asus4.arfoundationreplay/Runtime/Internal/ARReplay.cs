@@ -5,7 +5,8 @@ using Unity.Profiling;
 namespace ARFoundationReplay
 {
     /// <summary>
-    /// Replay video file with timeline metadata.
+    /// Replay video file with timeline metadata
+    /// and mock ARFoundation subsystems without any changes
     /// </summary>
     internal sealed class ARReplay : System.IDisposable
     {
@@ -30,7 +31,7 @@ namespace ARFoundationReplay
 
         public bool DidUpdateThisFrame { get; private set; } = false;
         public Texture Texture => _video.texture;
-        public FrameMetadata Packet { get; private set; }
+        public FrameMetadata Metadata { get; private set; }
 
         public ARReplay(ARFoundationReplaySettings settings)
         {
@@ -91,13 +92,13 @@ namespace ARFoundationReplay
             }
 
             kDeserializeMarker.Begin();
-            Packet = FrameMetadata.Deserialize(metadata);
+            Metadata = FrameMetadata.Deserialize(metadata);
             kDeserializeMarker.End();
 
             _lastFrame = _video.frame;
             DidUpdateThisFrame = true;
 
-            _input.Update(Packet);
+            _input.Update(Metadata);
         }
 
         static VideoPlayer CreateVideoPlayer(string path)

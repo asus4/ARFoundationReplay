@@ -34,10 +34,6 @@ namespace ARFoundationReplay
         {
             get
             {
-                if (added == null || updated == null || removed == null)
-                {
-                    return false;
-                }
                 return added.Length > 0 || updated.Length > 0 || removed.Length > 0;
             }
         }
@@ -96,6 +92,11 @@ namespace ARFoundationReplay
                     allocator
                 );
             }
+        }
+
+        public override string ToString()
+        {
+            return $"added:{added.Length} updated:{updated.Length} removed:{removed.Length}";
         }
     }
 }

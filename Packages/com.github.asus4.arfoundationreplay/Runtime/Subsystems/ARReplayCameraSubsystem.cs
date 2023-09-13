@@ -136,7 +136,7 @@ namespace ARFoundationReplay
                     return false;
                 }
 
-                var receivedFrame = replay.Packet.camera.CameraFrame;
+                var receivedFrame = replay.Metadata.camera.CameraFrame;
 
 
                 // Skip if timestamp is not set
