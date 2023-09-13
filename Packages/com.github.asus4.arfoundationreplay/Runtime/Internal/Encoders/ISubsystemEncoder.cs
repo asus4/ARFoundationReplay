@@ -19,12 +19,4 @@ namespace ARFoundationReplay
         bool Initialize(XROrigin origin, Material muxMaterial);
         void Encode(FrameMetadata metadata);
     }
-
-    [Serializable]
-    public abstract class TrackableChanges<T> where T : struct
-    {
-        public byte[] added;
-        public byte[] updated;
-        public byte[] removed;
-    }
 }
