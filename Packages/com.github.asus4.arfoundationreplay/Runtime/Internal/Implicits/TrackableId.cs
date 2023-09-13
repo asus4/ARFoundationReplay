@@ -5,7 +5,7 @@ namespace ARFoundationReplay
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct TrackableId : IEquatable<TrackableId>
+    internal struct TrackableId : IEquatable<TrackableId>
     {
         public ulong subId1;
         public ulong subId2;

@@ -5,7 +5,7 @@ using Unity.Mathematics;
 namespace ARFoundationReplay
 {
     [Serializable]
-    public struct Pose :
+    internal struct Pose :
         IEquatable<Pose>,
         IEquatable<UnityEngine.Pose>
     {

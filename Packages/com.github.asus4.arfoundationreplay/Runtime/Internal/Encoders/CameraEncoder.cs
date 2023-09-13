@@ -9,7 +9,7 @@ namespace ARFoundationReplay
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct CameraPacket
+    internal struct CameraPacket
     {
         // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.I1, SizeConst = 448)]
         public byte[] cameraFrame;

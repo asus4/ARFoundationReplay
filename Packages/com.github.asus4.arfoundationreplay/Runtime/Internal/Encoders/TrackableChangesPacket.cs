@@ -12,7 +12,7 @@ namespace ARFoundationReplay
     /// </summary>
     /// <typeparam name="T">Struct of trackable</typeparam>
     [Serializable]
-    public abstract class TrackableChangesPacket<T>
+    internal abstract class TrackableChangesPacket<T>
         where T : struct, ITrackable
     {
         public byte[] added;

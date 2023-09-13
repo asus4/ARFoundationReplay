@@ -10,7 +10,7 @@ namespace ARFoundationReplay
     /// A metadata encoded each frame into video file.
     /// </summary>
     [Serializable]
-    public sealed class FrameMetadata
+    internal sealed class FrameMetadata
     {
         public CameraPacket camera;
         public Pose input;

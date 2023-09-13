@@ -12,7 +12,7 @@ namespace ARFoundationReplay
     using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
 
     [Serializable]
-    public class PlanePacket : TrackableChangesPacket<BoundedPlane>
+    internal class PlanePacket : TrackableChangesPacket<BoundedPlane>
     {
         public Dictionary<TrackableId, byte[]> boundaries; // NativeArray<Vector2>
 
