@@ -5,6 +5,8 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
+    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
+
     /// <summary>
     /// Base class to serialize TrackableChanges
     /// </summary>
@@ -28,7 +30,7 @@ namespace ARFoundationReplay
         /// Check if any changes are available
         /// </summary>
         /// <value>True if available</value>
-        public bool IsAvailable
+        public virtual bool IsAvailable
         {
             get
             {
@@ -40,6 +42,13 @@ namespace ARFoundationReplay
             }
         }
 
+        public virtual void Reset()
+        {
+            added = Array.Empty<byte>();
+            updated = Array.Empty<byte>();
+            removed = Array.Empty<byte>();
+        }
+
         /// <summary>
         /// Copy data from TrackableChanges
         /// </summary>
@@ -47,7 +56,7 @@ namespace ARFoundationReplay
         public unsafe void CopyFrom(TrackableChanges<T> changes)
         {
             int strideT = UnsafeUtility.SizeOf<T>();
-            int strideId = UnsafeUtility.SizeOf<TrackableId>();
+            int strideId = UnsafeUtility.SizeOf<NativeTrackableId>();
 
             added = new byte[changes.added.Length * strideT];
             updated = new byte[changes.updated.Length * strideT];
@@ -72,7 +81,7 @@ namespace ARFoundationReplay
         public unsafe TrackableChanges<T> AsTrackableChanges(Allocator allocator)
         {
             int strideT = UnsafeUtility.SizeOf<T>();
-            int strideId = UnsafeUtility.SizeOf<TrackableId>();
+            int strideId = UnsafeUtility.SizeOf<NativeTrackableId>();
 
             // get void ptr of each array
             fixed (void* addedPtr = added)

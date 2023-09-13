@@ -57,5 +57,19 @@ namespace ARFoundationReplay
         {
             return new ReadOnlySpan<T>(src.GetUnsafePtr(), src.Length);
         }
+
+        public static void EnsureSize<T>(int length, Allocator allocator, ref NativeArray<T> src)
+            where T : struct
+        {
+            if (src.IsCreated && src.Length != length)
+            {
+                src.Dispose();
+                src = new NativeArray<T>(length, allocator);
+            }
+            else
+            {
+                src = new NativeArray<T>(length, allocator);
+            }
+        }
     }
 }
