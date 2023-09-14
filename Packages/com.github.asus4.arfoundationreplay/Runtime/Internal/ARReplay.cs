@@ -29,7 +29,17 @@ namespace ARFoundationReplay
         private readonly ARReplayInputSubsystem _input;
         private long _lastFrame = long.MinValue;
 
+        /// <summary>
+        /// Whether the video frame was updated in this frame
+        /// </summary>
+        /// <value>True when updated in this frame</value>
         public bool DidUpdateThisFrame { get; private set; } = false;
+
+        /// <summary>
+        /// Whether the video frame was looped in this frame
+        /// </summary>
+        /// <value>True when looped in this frame</value>
+        public bool DidLoopThisFrame { get; private set; } = false;
         public Texture Texture => _video.texture;
         public FrameMetadata Metadata { get; private set; }
 
@@ -71,6 +81,7 @@ namespace ARFoundationReplay
             if (!_video.isPlaying)
             {
                 DidUpdateThisFrame = false;
+                DidLoopThisFrame = false;
                 return;
             }
 
@@ -79,6 +90,7 @@ namespace ARFoundationReplay
             if (frame == _lastFrame)
             {
                 DidUpdateThisFrame = false;
+                DidLoopThisFrame = false;
                 return;
             }
 
@@ -95,13 +107,14 @@ namespace ARFoundationReplay
             Metadata = FrameMetadata.Deserialize(metadata);
             kDeserializeMarker.End();
 
-            _lastFrame = _video.frame;
             DidUpdateThisFrame = true;
+            DidLoopThisFrame = _lastFrame > frame;
+            _lastFrame = _video.frame;
 
             _input.Update(Metadata);
         }
 
-        static VideoPlayer CreateVideoPlayer(string path)
+        private static VideoPlayer CreateVideoPlayer(string path)
         {
             var gameObject = new GameObject(typeof(ARReplay).ToString());
 

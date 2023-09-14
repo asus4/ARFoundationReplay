@@ -86,6 +86,13 @@ namespace ARFoundationReplay
                 {
                     return default;
                 }
+
+                bool looped = replay.DidLoopThisFrame;
+                if (looped)
+                {
+                    Debug.LogWarning("TODO: looped");
+                }
+
                 _currentPacket = replay.Metadata.plane;
 
                 if (_currentPacket == null)
@@ -94,12 +101,10 @@ namespace ARFoundationReplay
                 }
                 if (!_currentPacket.IsAvailable)
                 {
-                    Debug.Log($"packet: {_currentPacket}");
                     return default;
                 }
 
                 var changes = _currentPacket.AsTrackableChanges(allocator);
-                Debug.Log($"GetChanges: {changes.added.Length} {changes.updated.Length} {changes.removed.Length}");
                 return changes;
             }
         }
