@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -76,6 +77,39 @@ namespace ARFoundationReplay
                 UnsafeUtility.MemCpy(updatedPtr, changes.updated.GetUnsafeReadOnlyPtr(), updated.Length);
                 UnsafeUtility.MemCpy(removedPtr, changes.removed.GetUnsafeReadOnlyPtr(), removed.Length);
             }
+        }
+
+        /// <summary>
+        /// Copy data from lists
+        /// </summary>
+        /// <param name="added">A list of added <typeparamref name="T"/></param>
+        /// <param name="updated">A list of updated <typeparamref name="T"/></param>
+        /// <param name="removed">A list of removed TrackableId</param>
+        public unsafe void CopyFrom(
+            IReadOnlyList<T> added,
+            IReadOnlyList<T> updated,
+            IReadOnlyList<NativeTrackableId> removed)
+        {
+            using var changes = new TrackableChanges<T>(
+                added.Count, updated.Count, removed.Count, Allocator.Temp);
+
+            var nativeAdded = changes.added;
+            var nativeUpdated = changes.updated;
+            var nativeRemoved = changes.removed;
+
+            for (int i = 0; i < added.Count; i++)
+            {
+                nativeAdded[i] = added[i];
+            }
+            for (int i = 0; i < updated.Count; i++)
+            {
+                nativeUpdated[i] = updated[i];
+            }
+            for (int i = 0; i < removed.Count; i++)
+            {
+                nativeRemoved[i] = removed[i];
+            }
+            CopyFrom(changes);
         }
 
         /// <summary>

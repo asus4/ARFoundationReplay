@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -37,17 +38,24 @@ namespace ARFoundationReplay
             private PlanePacket _currentPacket;
             private PlaneDetectionMode _requestedPlaneDetectionMode;
 
+            private readonly HashSet<NativeTrackableId> _activeIds = new();
+            private readonly List<BoundedPlane> _added = new();
+            private readonly List<BoundedPlane> _updated = new();
+            private readonly List<NativeTrackableId> _removed = new();
+
+
             public override void Start() { }
 
             public override void Stop()
             {
+                _activeIds.Clear();
+                _added.Clear();
+                _updated.Clear();
+                _removed.Clear();
                 _currentPacket = null;
             }
 
-            public override void Destroy()
-            {
-                _currentPacket = null;
-            }
+            public override void Destroy() { }
 
             public override PlaneDetectionMode currentPlaneDetectionMode
             {
@@ -87,12 +95,6 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                bool looped = replay.DidLoopThisFrame;
-                if (looped)
-                {
-                    Debug.LogWarning("TODO: looped");
-                }
-
                 _currentPacket = replay.Metadata.plane;
 
                 if (_currentPacket == null)
@@ -104,8 +106,55 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                var changes = _currentPacket.AsTrackableChanges(allocator);
-                return changes;
+                // Need to correct inconsistencies of tracked IDs
+                // since the recording will start in the middle of the session,
+                // and the video is looped.
+                CorrectTrackable(_currentPacket);
+
+                return _currentPacket.AsTrackableChanges(allocator);
+            }
+
+            private void CorrectTrackable(PlanePacket packet)
+            {
+                _added.Clear();
+                _updated.Clear();
+                _removed.Clear();
+                using var rawChanges = packet.AsTrackableChanges(Allocator.Temp);
+                // Added
+                for (int i = 0; i < rawChanges.added.Length; i++)
+                {
+                    BoundedPlane plane = rawChanges.added[i];
+                    if (!_activeIds.Contains(plane.trackableId))
+                    {
+                        _activeIds.Add(plane.trackableId);
+                        _added.Add(plane);
+                    }
+                }
+                // Updated
+                for (int i = 0; i < rawChanges.updated.Length; i++)
+                {
+                    BoundedPlane plane = rawChanges.updated[i];
+                    if (_activeIds.Contains(plane.trackableId))
+                    {
+                        _updated.Add(plane);
+                    }
+                    else
+                    {
+                        _activeIds.Add(plane.trackableId);
+                        _added.Add(plane);
+                    }
+                }
+                // Removed
+                for (int i = 0; i < rawChanges.removed.Length; i++)
+                {
+                    NativeTrackableId id = rawChanges.removed[i];
+                    if (_activeIds.Contains(id))
+                    {
+                        _activeIds.Remove(id);
+                        _removed.Add(id);
+                    }
+                }
+                packet.CopyFrom(_added, _updated, _removed);
             }
         }
     }
