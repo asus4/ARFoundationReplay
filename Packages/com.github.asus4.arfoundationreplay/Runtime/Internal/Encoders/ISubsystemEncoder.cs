@@ -17,6 +17,17 @@ namespace ARFoundationReplay
         /// <param name="material">A material for Multiplexing</param>
         /// <returns>Available or not</returns>
         bool Initialize(XROrigin origin, Material muxMaterial);
+
+        /// <summary>
+        /// Encode subsystem state into metadata.
+        /// </summary>
+        /// <param name="metadata">A metadata to be encoded</param>
         void Encode(FrameMetadata metadata);
+
+        /// <summary>
+        /// Called after Encode() is called for all subsystems.
+        /// </summary>
+        /// <param name="metadata">A metadata after encoded</param>
+        void PostEncode(FrameMetadata metadata);
     }
 }

@@ -60,6 +60,11 @@ namespace ARFoundationReplay
             };
         }
 
+        public void PostEncode(FrameMetadata metadata)
+        {
+            // Nothing to do
+        }
+
         private void OnCameraFrameReceived(ARCameraFrameEventArgs args)
         {
             // Set texture

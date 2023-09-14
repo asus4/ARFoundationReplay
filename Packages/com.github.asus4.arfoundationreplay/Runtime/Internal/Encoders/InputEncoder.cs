@@ -26,5 +26,10 @@ namespace ARFoundationReplay
                 rotation = _target.localRotation,
             };
         }
+
+        public void PostEncode(FrameMetadata metadata)
+        {
+            // Nothing to do
+        }
     }
 }

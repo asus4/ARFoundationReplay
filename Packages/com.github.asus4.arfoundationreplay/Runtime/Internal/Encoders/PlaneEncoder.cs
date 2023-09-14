@@ -71,6 +71,7 @@ namespace ARFoundationReplay
 
         public void Dispose()
         {
+            _planeManager.planesChanged -= OnPlanesChanged;
             _planeManager = null;
         }
 
@@ -82,6 +83,10 @@ namespace ARFoundationReplay
             }
 
             metadata.plane = _packet;
+        }
+
+        public void PostEncode(FrameMetadata metadata)
+        {
             _packet.Reset();
         }
 

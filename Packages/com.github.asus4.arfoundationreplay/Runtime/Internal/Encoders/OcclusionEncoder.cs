@@ -38,6 +38,11 @@ namespace ARFoundationReplay
             // Nothing to do
         }
 
+        public void PostEncode(FrameMetadata metadata)
+        {
+            // Nothing to do
+        }
+
         private void OnOcclusionFrameReceived(AROcclusionFrameEventArgs args)
         {
             // Set texture

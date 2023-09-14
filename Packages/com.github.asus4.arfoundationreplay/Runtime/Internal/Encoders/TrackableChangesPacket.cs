@@ -40,9 +40,18 @@ namespace ARFoundationReplay
 
         public virtual void Reset()
         {
-            added = Array.Empty<byte>();
-            updated = Array.Empty<byte>();
-            removed = Array.Empty<byte>();
+            if (added.Length > 0)
+            {
+                added = Array.Empty<byte>();
+            }
+            if (updated.Length > 0)
+            {
+                updated = Array.Empty<byte>();
+            }
+            if (removed.Length > 0)
+            {
+                removed = Array.Empty<byte>();
+            }
         }
 
         /// <summary>
