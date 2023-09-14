@@ -13,7 +13,7 @@ Only iOS ARKit + macOS Editor. Android ARCore is planned.
 - [x] XRSessionSubsystem
 - [x] XRCameraSubsystem
 - [ ] XRPointCloudSubsystem
-- [ ] XRPlaneSubsystem
+- [x] XRPlaneSubsystem
 - [ ] XRAnchorSubsystem
 - [ ] XRRaycastSubsystem
 - [ ] XRHumanBodySubsystem
@@ -22,7 +22,7 @@ Only iOS ARKit + macOS Editor. Android ARCore is planned.
 - [ ] XRImageTrackingSubsystem
 - [ ] XRObjectTrackingSubsystem
 - [ ] XRFaceSubsystem
-- [ ] XROcclusionSubsystem
+- [x] XROcclusionSubsystem
 - [ ] XRParticipantSubsystem
 - [ ] XRMeshSubsystem
 
