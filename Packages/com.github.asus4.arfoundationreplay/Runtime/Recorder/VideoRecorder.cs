@@ -13,7 +13,7 @@ namespace ARFoundationReplay
     public sealed class VideoRecorder : IDisposable
     {
         private readonly MetadataQueue _metadataQueue;
-        public readonly int TargetFrameRate;
+        public readonly int targetFrameRate;
 
         private RenderTexture _source = null;
         private RenderTexture _buffer;
@@ -24,8 +24,11 @@ namespace ARFoundationReplay
 
         public VideoRecorder(RenderTexture source, int targetFrameRate)
         {
-            ChangeSource(source);
-            TargetFrameRate = targetFrameRate;
+            _source = source;
+            _buffer = new RenderTexture(source.width, source.height, 0);
+            // _buffer = new RenderTexture(source.width, source.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linea);
+
+            this.targetFrameRate = targetFrameRate;
             _metadataQueue = new MetadataQueue(targetFrameRate);
         }
 
@@ -67,23 +70,6 @@ namespace ARFoundationReplay
             IsRecording = false;
         }
 
-        private void ChangeSource(RenderTexture rt)
-        {
-            if (IsRecording)
-            {
-                Debug.LogError("Can't change the source while recording.");
-                return;
-            }
-
-            if (_buffer != null)
-            {
-                UnityEngine.Object.Destroy(_buffer);
-            }
-
-            _source = rt;
-            _buffer = new RenderTexture(rt.width, rt.height, 0);
-        }
-
         private static string GetTemporaryFilePath()
         {
             string dir = Application.platform == RuntimePlatform.IPhonePlayer
@@ -112,7 +98,7 @@ namespace ARFoundationReplay
             // https://issuetracker.unity3d.com/issues/video-created-with-avfoundation-framework-is-not-played-when-entering-the-play-mode
             if (FixedFrameRate)
             {
-                time = _frameCount * (1.0 / TargetFrameRate);
+                time = _frameCount * (1.0 / targetFrameRate);
             }
 
             // Get pixel buffer

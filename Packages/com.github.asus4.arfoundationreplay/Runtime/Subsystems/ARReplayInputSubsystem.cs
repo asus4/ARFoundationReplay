@@ -35,11 +35,11 @@ namespace ARFoundationReplay
             }
         }
 
-        public void Update(Packet packet)
+        internal void Update(FrameMetadata packet)
         {
             Assert.IsNotNull(_device);
 
-            var pose = (UnityEngine.Pose)packet.trackedPose;
+            var pose = (UnityEngine.Pose)packet.input;
 
             using var buffer = StateEvent.From(_device, out var eventPtr);
             _device.devicePosition.WriteValueIntoEvent(pose.position, eventPtr);

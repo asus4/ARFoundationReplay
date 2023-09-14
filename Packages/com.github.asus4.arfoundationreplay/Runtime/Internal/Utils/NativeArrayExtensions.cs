@@ -1,11 +1,34 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Assertions;
 
 namespace ARFoundationReplay
 {
-    public static class NativeArrayExtensions
+    internal static class NativeArrayExtensions
     {
+        public static byte[] ToByteArray<T>(in this NativeArray<T> arr)
+            where T : struct
+        {
+            var slice = new NativeSlice<T>(arr).SliceConvert<byte>();
+            var bytes = new byte[slice.Length];
+            slice.CopyTo(bytes);
+            return bytes;
+        }
+
+        public static NativeArray<T> AsNativeArray<T>(this byte[] bytes, Allocator allocator)
+            where T : struct
+        {
+            int stride = UnsafeUtility.SizeOf<T>();
+            Assert.AreEqual(0, bytes.Length % stride);
+
+            var arr = new NativeArray<T>(bytes.Length / stride, allocator);
+
+            NativeSlice<byte> slice = new NativeSlice<T>(arr).SliceConvert<byte>();
+            slice.CopyFrom(bytes);
+            return arr;
+        }
+
         /// <summary>
         /// Copy C# span into new NativeArray.
         /// </summary>
@@ -33,6 +56,20 @@ namespace ARFoundationReplay
             where T : unmanaged
         {
             return new ReadOnlySpan<T>(src.GetUnsafePtr(), src.Length);
+        }
+
+        public static void EnsureSize<T>(int length, Allocator allocator, ref NativeArray<T> src)
+            where T : struct
+        {
+            if (src.IsCreated && src.Length != length)
+            {
+                src.Dispose();
+                src = new NativeArray<T>(length, allocator);
+            }
+            else
+            {
+                src = new NativeArray<T>(length, allocator);
+            }
         }
     }
 }

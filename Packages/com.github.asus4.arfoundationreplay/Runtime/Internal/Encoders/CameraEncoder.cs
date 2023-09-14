@@ -1,23 +1,40 @@
+using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
-    internal sealed class CameraEncoder : IEncoder
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CameraPacket
     {
+        // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.I1, SizeConst = 448)]
+        public byte[] cameraFrame;
 
-        private Packet _packet;
-        private Material _material;
-        private ARCameraManager _cameraManager;
+        public readonly XRCameraFrame CameraFrame
+            => cameraFrame == null ? default : cameraFrame.ToStruct<XRCameraFrame>();
 
-
-        public bool Initialize(XROrigin origin, Packet packet, Material material)
+        public override readonly string ToString()
         {
-            _packet = packet;
-            _material = material;
-            _cameraManager = origin.Camera.GetComponent<ARCameraManager>();
-            if (_cameraManager == null)
+            return CameraFrame.ToString();
+        }
+    }
+
+    internal sealed class CameraEncoder : ISubsystemEncoder
+    {
+        private Material _muxMaterial;
+        private ARCameraManager _cameraManager;
+        private Camera _camera;
+        private XRCameraFrame _cameraFrame;
+
+        public bool Initialize(XROrigin origin, Material muxMaterial)
+        {
+            _muxMaterial = muxMaterial;
+            _camera = origin.Camera;
+            if (!origin.Camera.TryGetComponent(out _cameraManager))
             {
                 return false;
             }
@@ -32,11 +49,18 @@ namespace ARFoundationReplay
                 _cameraManager.frameReceived -= OnCameraFrameReceived;
             }
             _cameraManager = null;
-            _packet = null;
-            _material = null;
+            _muxMaterial = null;
         }
 
-        public void Update()
+        public void Encode(FrameMetadata metadata)
+        {
+            metadata.camera = new CameraPacket
+            {
+                cameraFrame = _cameraFrame.ToByteArray(),
+            };
+        }
+
+        public void PostEncode(FrameMetadata metadata)
         {
             // Nothing to do
         }
@@ -47,15 +71,22 @@ namespace ARFoundationReplay
             var count = args.textures.Count;
             for (int i = 0; i < count; i++)
             {
-                _material.SetTexture(args.propertyNameIds[i], args.textures[i]);
+                _muxMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
             }
 
-            _packet.cameraFrame = new Packet.CameraFrameEvent()
+            // Get XR Camera Frame
+            var cameraParams = new XRCameraParams
             {
-                timestampNs = args.timestampNs.Value,
-                projectionMatrix = args.projectionMatrix.Value,
-                displayMatrix = args.displayMatrix.Value
+                zNear = _camera.nearClipPlane,
+                zFar = _camera.farClipPlane,
+                screenWidth = Screen.width,
+                screenHeight = Screen.height,
+                screenOrientation = Screen.orientation
             };
+            if (_cameraManager.subsystem.TryGetLatestFrame(cameraParams, out XRCameraFrame frame))
+            {
+                _cameraFrame = frame;
+            }
         }
     }
 }

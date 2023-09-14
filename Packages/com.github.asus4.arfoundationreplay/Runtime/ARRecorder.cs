@@ -28,11 +28,11 @@ namespace ARFoundationReplay
 
         private XROrigin _origin;
         private VideoRecorder _videoRecorder;
-        private RenderTexture _renderTexture;
-        private Material _bufferMaterial;
+        private RenderTexture _muxTexture;
+        private Material _muxMaterial;
 
-        private Packet _packet;
-        private IEncoder[] _encoders;
+        private FrameMetadata _metadata;
+        private ISubsystemEncoder[] _encoders;
         public bool IsRecording => _videoRecorder.IsRecording;
 
         private void Awake()
@@ -49,11 +49,11 @@ namespace ARFoundationReplay
         private void Start()
         {
             // Nullable
-            _renderTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            _muxTexture = new RenderTexture(options.width, options.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
             var shader = Shader.Find("Hidden/ARFoundationReplay/ARKitEncoder");
             Assert.IsNotNull(shader);
-            _bufferMaterial = new Material(shader);
-            _videoRecorder = new VideoRecorder(_renderTexture, options.targetFrameRate);
+            _muxMaterial = new Material(shader);
+            _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate);
         }
 
         private void OnDestroy()
@@ -62,25 +62,32 @@ namespace ARFoundationReplay
             {
                 StopRecording();
             }
-            DisposeUtil.Dispose(_bufferMaterial);
-            DisposeUtil.Dispose(_renderTexture);
+            DisposeUtil.Dispose(_muxMaterial);
+            DisposeUtil.Dispose(_muxTexture);
             _videoRecorder?.Dispose();
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (!IsRecording) { return; }
 
+
             foreach (var encoder in _encoders)
             {
-                encoder.Update();
+                encoder.Encode(_metadata);
             }
 
-            Graphics.Blit(null, _renderTexture, _bufferMaterial);
+            // Multiplexing RGB and depth textures into a texture
+            Graphics.Blit(null, _muxTexture, _muxMaterial);
 
             kSerializeMarker.Begin();
-            var metadata = _packet.Serialize();
+            // TODO: Consider using faster serializer
+            // instead of using BinaryFormatter?
+            // https://github.com/Cysharp/MemoryPack
+            // https://docs.unity3d.com/Packages/com.unity.serialization@3.1/manual/index.html
+            var metadata = _metadata.Serialize();
             kSerializeMarker.End();
+
             _videoRecorder.Update(metadata);
         }
 
@@ -89,14 +96,14 @@ namespace ARFoundationReplay
             if (IsRecording) { return; }
             Debug.Log($"ARRecorder.StartRecording");
 
-            _packet = new Packet();
+            _metadata = new FrameMetadata();
             _videoRecorder.StartRecording();
 
             // Initialize encoders and filter unavailable out
             _encoders = CreateAllEncoders()
                 .Where(encoder =>
                 {
-                    bool available = encoder.Initialize(_origin, _packet, _bufferMaterial);
+                    bool available = encoder.Initialize(_origin, _muxMaterial);
                     if (!available)
                     {
                         encoder.Dispose();
@@ -124,12 +131,13 @@ namespace ARFoundationReplay
             }
         }
 
-        private static IEncoder[] CreateAllEncoders()
-            => new IEncoder[]
+        private static ISubsystemEncoder[] CreateAllEncoders()
+            => new ISubsystemEncoder[]
             {
                 new CameraEncoder(),
-                new TrackedPoseEncoder(),
+                new InputEncoder(),
                 new OcclusionEncoder(),
+                new PlaneEncoder(),
             };
     }
 }

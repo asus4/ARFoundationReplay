@@ -3,31 +3,33 @@ using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
-    internal sealed class TrackedPoseEncoder : IEncoder
+    internal sealed class InputEncoder : ISubsystemEncoder
     {
-        private Packet _packet;
         private Transform _target;
 
-        public bool Initialize(XROrigin origin, Packet packet, Material material)
+        public bool Initialize(XROrigin origin, Material muxMaterial)
         {
-            _packet = packet;
             _target = origin.Camera.transform;
             return true;
         }
 
         public void Dispose()
         {
-            _packet = null;
             _target = null;
         }
 
-        public void Update()
+        public void Encode(FrameMetadata metadata)
         {
-            _packet.trackedPose = new Pose
+            metadata.input = new Pose
             {
                 position = _target.localPosition,
                 rotation = _target.localRotation,
             };
+        }
+
+        public void PostEncode(FrameMetadata metadata)
+        {
+            // Nothing to do
         }
     }
 }
