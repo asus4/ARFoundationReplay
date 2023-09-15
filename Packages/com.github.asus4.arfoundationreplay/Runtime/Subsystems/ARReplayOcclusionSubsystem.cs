@@ -31,11 +31,11 @@ namespace ARFoundationReplay
             };
             if (Register(info))
             {
-                Debug.LogFormat("Registered the {0} subsystem", ID);
+                Debug.LogFormat("Registered {0} subsystem", ID);
             }
             else
             {
-                Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
+                Debug.LogErrorFormat("Cannot register {0} subsystem", ID);
             }
         }
 

@@ -42,7 +42,7 @@ namespace ARFoundationReplay
             Debug.Log($"[Input] Registered input layout: {layout}");
         }
 
-        static ARFoundationReplayLoader FindLoader()
+        private static ARFoundationReplayLoader FindLoader()
         {
             var instance = XRGeneralSettings.Instance;
             if (instance == null)
