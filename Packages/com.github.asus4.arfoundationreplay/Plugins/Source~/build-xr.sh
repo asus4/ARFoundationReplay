@@ -1,6 +1,8 @@
 #!/bin/sh -xe
 
-# Build XR macOS plugin
+# Build XR SDK macOS plugin
+# See here about XR SDK:
+# https://docs.unity3d.com/Manual/xr-sdk.html
 
 echo "Building XR macOS plugin..."
 
