@@ -21,6 +21,7 @@ namespace ARFoundationReplay
 #if UNITY_EDITOR
         static InputLayoutLoader()
         {
+            Debug.Log($"[Input] InputLayoutLoader static constructor");
             RegisterLayouts();
         }
 #endif

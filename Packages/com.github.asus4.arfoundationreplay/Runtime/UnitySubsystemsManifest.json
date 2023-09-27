@@ -4,7 +4,7 @@
     "libraryName": "ARFoundationReplayPlugin",
     "inputs": [
         {
-            "id": "ARReplay-Input"
+            "id": "ARReplayInput"
         }
     ]
 }
