@@ -38,8 +38,8 @@ namespace ARFoundationReplay
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                     .WithProduct("(ARFoundationReplay)")
                 );
-            var layout = Inputs.LoadLayout<HandheldARInputDevice>();
-            Debug.Log($"[Input] Registered input layout: {layout}");
+            // var layout = Inputs.LoadLayout<HandheldARInputDevice>();
+            Debug.Log($"[Input] Registered input layout");
         }
 
         private static ARFoundationReplayLoader FindLoader()
