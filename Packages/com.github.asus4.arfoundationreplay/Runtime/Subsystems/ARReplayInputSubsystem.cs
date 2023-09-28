@@ -6,7 +6,7 @@ namespace ARFoundationReplay
     /// XRInputSubsystem requires native plugin to register itself
     /// It will be invoked from ARReplay as a workaround
     /// </summary>
-    public class ARReplayInputSubsystem
+    public sealed class ARReplayInputSubsystem
     {
         // The ID should be the same with 
         // - UnitySubsystemsManifest.json
