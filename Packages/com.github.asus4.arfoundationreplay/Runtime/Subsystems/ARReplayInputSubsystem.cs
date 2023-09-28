@@ -8,6 +8,11 @@ namespace ARFoundationReplay
     /// </summary>
     public class ARReplayInputSubsystem
     {
+        // The ID should be the same with 
+        // - UnitySubsystemsManifest.json
+        // - input.cpp native plugin
+        public const string ID = "ARReplay-Input";
+
         static internal void Update(FrameMetadata packet)
         {
             var pose = (UnityEngine.Pose)packet.input;

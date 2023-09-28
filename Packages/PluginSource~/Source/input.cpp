@@ -1,10 +1,11 @@
 #include "input.h"
 
+const UnityXRInternalInputDeviceId kReplayDeviceId = 0;
+
 static IUnityXRTrace *s_XrTrace = nullptr;
 static IUnityXRInputInterface *s_XrInput = nullptr;
 static UnityXRPose s_Pose = {};
 static UnityXRInputTrackingOriginModeFlags s_trackingMode = kUnityXRInputTrackingOriginModeUnknown;
-const UnityXRInternalInputDeviceId kReplayDeviceId = 0;
 
 //-------------
 // Input Subsystem
