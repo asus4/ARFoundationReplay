@@ -1,11 +1,10 @@
 {
-    "name": "AR Foundation Replay Plugin",
+    "name": "XR SDK Input Sample",
     "version": "1.0.0",
     "libraryName": "InputProviderSample",
-
     "inputs": [
         {
-            "id": "ARReplay-Input"
+            "id": "input0"
         }
     ]
 }
