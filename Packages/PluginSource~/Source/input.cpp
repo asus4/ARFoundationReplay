@@ -3,6 +3,7 @@
 static IUnityXRTrace *s_XrTrace = nullptr;
 static IUnityXRInputInterface *s_XrInput = nullptr;
 static UnityXRPose s_Pose = {};
+static UnityXRInputTrackingOriginModeFlags s_trackingMode = kUnityXRInputTrackingOriginModeUnknown;
 const UnityXRInternalInputDeviceId kReplayDeviceId = 0;
 
 //-------------
@@ -104,21 +105,21 @@ static UnitySubsystemErrorCode HandleHapticStop(UnitySubsystemHandle handle, voi
 
 static UnitySubsystemErrorCode QueryTrackingOriginMode(UnitySubsystemHandle handle, void *userData, UnityXRInputTrackingOriginModeFlags *trackingOriginMode)
 {
-    *trackingOriginMode = kUnityXRInputTrackingOriginModeDevice;
+    *trackingOriginMode = s_trackingMode;
     return kUnitySubsystemErrorCodeSuccess;
 }
 
 static UnitySubsystemErrorCode QuerySupportedTrackingOriginModes(UnitySubsystemHandle handle, void *userData, UnityXRInputTrackingOriginModeFlags *supportedTrackingOriginModes)
 {
-    *supportedTrackingOriginModes = kUnityXRInputTrackingOriginModeDevice;
+    const UnityXRInputTrackingOriginModeFlags all = (UnityXRInputTrackingOriginModeFlags)(kUnityXRInputTrackingOriginModeDevice | kUnityXRInputTrackingOriginModeFloor);
+    *supportedTrackingOriginModes = all;
     return kUnitySubsystemErrorCodeSuccess;
 }
 
 static UnitySubsystemErrorCode HandleSetTrackingOriginMode(UnitySubsystemHandle handle, void *userData, UnityXRInputTrackingOriginModeFlags trackingOriginMode)
 {
-    return trackingOriginMode == kUnityXRInputTrackingOriginModeDevice
-               ? kUnitySubsystemErrorCodeSuccess
-               : kUnitySubsystemErrorCodeFailure;
+    s_trackingMode = trackingOriginMode;
+    return kUnitySubsystemErrorCodeSuccess;
 }
 
 /// Callback executed when a subsystem should initialize in preparation for becoming active.
