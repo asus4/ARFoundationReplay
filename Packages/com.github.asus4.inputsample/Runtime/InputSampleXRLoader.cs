@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Management;
 
-namespace Unity.XR.SDK
+namespace Asus4.InputSample
 {
     public class InputSampleXRLoader : XRLoaderHelper
     {

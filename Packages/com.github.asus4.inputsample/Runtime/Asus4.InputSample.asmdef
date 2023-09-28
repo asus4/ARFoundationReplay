@@ -1,5 +1,5 @@
 {
-    "name": "Unity.XR.SDK.InputSample",
+    "name": "Asus4.InputSample",
     "references": [
         "Unity.XR.Management"
     ],
