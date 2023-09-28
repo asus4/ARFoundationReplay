@@ -6,7 +6,7 @@ namespace ARFoundationReplay
     /// XRInputSubsystem requires native plugin to register itself
     /// It will be invoked from ARReplay as a workaround
     /// </summary>
-    public class ARReplayInputSubsystem
+    public sealed class ARReplayInputSubsystem
     {
         // The ID should be the same with 
         // - UnitySubsystemsManifest.json
@@ -20,12 +20,14 @@ namespace ARFoundationReplay
         }
 
 #if !UNITY_EDITOR && UNITY_IOS
-        const string DllName = "__Internal";
+        private static void ARReplayInputUpdate(UnityEngine.Pose pose)
+        {
+            // Nothing to do
+        }
 #else
         const string DllName = "ARFoundationReplayPlugin";
-#endif
-
         [DllImport(DllName)]
         private static extern void ARReplayInputUpdate(UnityEngine.Pose pose);
+#endif
     }
 }
