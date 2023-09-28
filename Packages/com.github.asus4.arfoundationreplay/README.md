@@ -18,7 +18,7 @@ Only iOS ARKit + macOS Editor. Android ARCore is planned.
 - [ ] XRRaycastSubsystem
 - [ ] XRHumanBodySubsystem
 - [ ] XREnvironmentProbeSubsystem
-- [x] XRInputSubsystem: with workaround
+- [x] XRInputSubsystem
 - [ ] XRImageTrackingSubsystem
 - [ ] XRObjectTrackingSubsystem
 - [ ] XRFaceSubsystem
