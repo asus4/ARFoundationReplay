@@ -20,12 +20,14 @@ namespace ARFoundationReplay
         }
 
 #if !UNITY_EDITOR && UNITY_IOS
-        const string DllName = "__Internal";
+        private static void ARReplayInputUpdate(UnityEngine.Pose pose)
+        {
+            // Nothing to do
+        }
 #else
         const string DllName = "ARFoundationReplayPlugin";
-#endif
-
         [DllImport(DllName)]
         private static extern void ARReplayInputUpdate(UnityEngine.Pose pose);
+#endif
     }
 }
