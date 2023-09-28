@@ -28,20 +28,22 @@ namespace ARFoundationReplay
         public static T ToStruct<T>(this byte[] bytes)
             where T : struct
         {
-            T output = default;
-            int size = Marshal.SizeOf(output);
+            int size = Marshal.SizeOf<T>();
             IntPtr ptr = IntPtr.Zero;
             try
             {
                 ptr = Marshal.AllocHGlobal(size);
                 Marshal.Copy(bytes, 0, ptr, size);
-                output = (T)Marshal.PtrToStructure(ptr, typeof(T));
+                return (T)Marshal.PtrToStructure(ptr, typeof(T));
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
             finally
             {
                 Marshal.FreeHGlobal(ptr);
             }
-            return output;
         }
     }
 }

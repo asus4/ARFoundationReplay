@@ -30,6 +30,7 @@ namespace ARFoundationReplay
         {
             if (FindLoader() == null)
             {
+                // Debug.LogWarning($"[Input] ARFoundationReplayLoader not found");
                 return;
             }
 
@@ -38,11 +39,11 @@ namespace ARFoundationReplay
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                     .WithProduct("(ARFoundationReplay)")
                 );
-            var layout = Inputs.LoadLayout<HandheldARInputDevice>();
-            Debug.Log($"[Input] Registered input layout: {layout}");
+            // var layout = Inputs.LoadLayout<HandheldARInputDevice>();
+            Debug.Log($"[Input] Registered input layout");
         }
 
-        static ARFoundationReplayLoader FindLoader()
+        private static ARFoundationReplayLoader FindLoader()
         {
             var instance = XRGeneralSettings.Instance;
             if (instance == null)

@@ -24,7 +24,7 @@ namespace ARFoundationReplay
         }
 
 
-        private static IXRPackageMetadata s_Metadata = new ARFoundationReplayPackageMetadata()
+        private static readonly IXRPackageMetadata s_Metadata = new ARFoundationReplayPackageMetadata()
         {
             packageName = "AR Foundation Replay",
             packageId = "com.github.asus4.arfoundationreplay",

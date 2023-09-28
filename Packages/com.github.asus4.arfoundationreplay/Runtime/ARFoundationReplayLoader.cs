@@ -6,7 +6,7 @@ using UnityEngine.XR.Management;
 
 namespace ARFoundationReplay
 {
-    public sealed class ARFoundationReplayLoader : XRLoaderHelper
+    public class ARFoundationReplayLoader : XRLoaderHelper
     {
         static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
         static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();
@@ -20,7 +20,7 @@ namespace ARFoundationReplay
             // Required subsystems
             CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(s_SessionSubsystemDescriptors, ARReplaySessionSubsystem.ID);
             CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(s_CameraSubsystemDescriptors, ARReplayCameraSubsystem.ID);
-            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, "ARReplay-Input");
+            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, ARReplayInputSubsystem.ID);
 
             // Optional subsystems
             CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(s_OcclusionSubsystemDescriptors, ARReplayOcclusionSubsystem.ID);
@@ -31,6 +31,13 @@ namespace ARFoundationReplay
             {
                 Debug.LogError("Failed to load session subsystem.");
             }
+
+            var inputSubsystem = GetLoadedSubsystem<XRInputSubsystem>();
+            if (inputSubsystem == null)
+            {
+                Debug.LogError("Failed to load input subsystem.");
+            }
+
             Debug.Log("ARFoundationReplayLoader.Initialize()");
             return sessionSubsystem != null;
         }

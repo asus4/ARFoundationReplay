@@ -1,15 +1,17 @@
 #!/bin/sh -xe
 
-# Build XR macOS plugin
+# Build XR SDK macOS plugin
+# See here about XR SDK:
+# https://docs.unity3d.com/Manual/xr-sdk.html
 
 echo "Building XR macOS plugin..."
 
 CFLAGS="-O2 -Wall"
 MAC_ARGS="-shared -rdynamic -fPIC -fobjc-arc"
-HEADERS="-IHeaders"
-FILES="Source/entry.cpp"
+HEADERS="-IHeaders -ISource"
+FILES="Source/*.cpp"
 
-DST="../macOS"
+DST="../com.github.asus4.arfoundationreplay/Runtime/Plugins/macOS"
 
 rm -f *.so *.bundle
 
