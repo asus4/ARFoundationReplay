@@ -41,7 +41,7 @@ namespace ARFoundationReplay
             // Assert.IsNotNull(_device);
 
             var pose = (UnityEngine.Pose)packet.input;
-            // ARReplayInputUpdate(pose);
+            ARReplayInputUpdate(pose);
 
             // using var buffer = StateEvent.From(_device, out var eventPtr);
             // _device.devicePosition.WriteValueIntoEvent(pose.position, eventPtr);
