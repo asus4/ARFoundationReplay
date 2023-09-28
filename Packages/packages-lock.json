@@ -9,15 +9,6 @@
         "com.unity.xr.management": "4.0.1"
       }
     },
-    "com.github.asus4.arfoundationreplay-old": {
-      "version": "file:com.github.asus4.arfoundationreplay-old",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.xr.arfoundation": "5.1.0-pre.10",
-        "com.unity.xr.management": "3.0.4"
-      }
-    },
     "com.unity.burst": {
       "version": "1.8.7",
       "depth": 1,
