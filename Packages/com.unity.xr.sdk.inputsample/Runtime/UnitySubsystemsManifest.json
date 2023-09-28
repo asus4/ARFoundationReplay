@@ -1,0 +1,11 @@
+{
+	"name": "XR SDK Input Sample",
+	"version": "1.0.0",
+	"libraryName": "InputProviderSample",
+
+	"inputs": [
+		{
+			"id": "input0"
+		}
+	]
+}

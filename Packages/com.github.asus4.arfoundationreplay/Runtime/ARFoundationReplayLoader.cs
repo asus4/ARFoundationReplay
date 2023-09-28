@@ -20,7 +20,7 @@ namespace ARFoundationReplay
             // Required subsystems
             CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(s_SessionSubsystemDescriptors, ARReplaySessionSubsystem.ID);
             CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(s_CameraSubsystemDescriptors, ARReplayCameraSubsystem.ID);
-            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, "ARReplayInput");
+            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, "ARReplay-Input");
 
             // Optional subsystems
             CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(s_OcclusionSubsystemDescriptors, ARReplayOcclusionSubsystem.ID);
@@ -31,12 +31,28 @@ namespace ARFoundationReplay
             {
                 Debug.LogError("Failed to load session subsystem.");
             }
+
+            var inputSubsystem = GetLoadedSubsystem<XRInputSubsystem>();
+            if (inputSubsystem == null)
+            {
+                Debug.LogError("Failed to load input subsystem.");
+            }
+
             Debug.Log("ARFoundationReplayLoader.Initialize()");
             return sessionSubsystem != null;
         }
 
         public override bool Start()
         {
+            var inputDescriptors = new List<XRInputSubsystemDescriptor>();
+            SubsystemManager.GetSubsystemDescriptors(inputDescriptors);
+            int i = 0;
+            foreach (var descriptor in inputDescriptors)
+            {
+                Debug.Log($"[{i}]: {descriptor.id}");
+                i++;
+            }
+
             return true;
         }
 

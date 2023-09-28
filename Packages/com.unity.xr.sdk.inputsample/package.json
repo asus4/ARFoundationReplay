@@ -1,0 +1,16 @@
+{
+    "name": "com.unity.xr.sdk.inputsample",
+    "displayName": "XR SDK Input Sample",
+    "version": "0.1.0-preview.1",
+    "unity": "2019.3",
+    "description": "Sample for XR SDK's Input subsystem.",
+    "keywords": [
+        "vr",
+        "xr",
+        "reality",
+        "xreditorsubsystem"
+    ],
+    "dependencies": {
+        "com.unity.xr.management": "3.0.4"
+    }
+}

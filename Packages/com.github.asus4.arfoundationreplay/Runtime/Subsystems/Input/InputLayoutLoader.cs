@@ -21,7 +21,6 @@ namespace ARFoundationReplay
 #if UNITY_EDITOR
         static InputLayoutLoader()
         {
-            Debug.Log($"[Input] InputLayoutLoader static constructor");
             RegisterLayouts();
         }
 #endif
@@ -31,7 +30,8 @@ namespace ARFoundationReplay
         {
             if (FindLoader() == null)
             {
-                return;
+                Debug.Log($"[Input] ARFoundationReplayLoader not found");
+                // return;
             }
 
             Inputs.RegisterLayout<HandheldARInputDevice>(

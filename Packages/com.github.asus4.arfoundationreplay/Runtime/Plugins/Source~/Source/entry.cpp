@@ -82,23 +82,16 @@ extern "C"
 
         // Setup input
         s_XrInput = unityInterfaces->Get<IUnityXRInputInterface>();
-        // UnityLifecycleProvider inputLifecycleHandler = {
-        //     nullptr,
-        //     &Lifecycle_Initialize,
-        //     &Lifecycle_Start,
-        //     &Lifecycle_Stop,
-        //     &Lifecycle_Shutdown};
-
-        UnityLifecycleProvider inputLifecycleHandler = {0};
-        inputLifecycleHandler.userData = nullptr;
-        inputLifecycleHandler.Initialize = &Lifecycle_Initialize;
-        inputLifecycleHandler.Start = &Lifecycle_Start;
-        inputLifecycleHandler.Stop = &Lifecycle_Stop;
-        inputLifecycleHandler.Shutdown = &Lifecycle_Shutdown;
+        UnityLifecycleProvider inputLifecycleHandler = {
+            nullptr,
+            &Lifecycle_Initialize,
+            &Lifecycle_Start,
+            &Lifecycle_Stop,
+            &Lifecycle_Shutdown};
 
         s_XrInput->RegisterLifecycleProvider("AR Foundation Replay Plugin", "ARReplay-Input", &inputLifecycleHandler);
 
-        XR_TRACE_LOG(s_XrTrace, "[ARReplay] Setup Input Provider\n");
+        XR_TRACE_LOG(s_XrTrace, "[ARReplay] Setup Input Provider with id: ARReplay-Input\n");
     }
 
     void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
