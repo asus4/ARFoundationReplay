@@ -30,8 +30,8 @@ namespace ARFoundationReplay
         {
             if (FindLoader() == null)
             {
-                Debug.Log($"[Input] ARFoundationReplayLoader not found");
-                // return;
+                // Debug.LogWarning($"[Input] ARFoundationReplayLoader not found");
+                return;
             }
 
             Inputs.RegisterLayout<HandheldARInputDevice>(

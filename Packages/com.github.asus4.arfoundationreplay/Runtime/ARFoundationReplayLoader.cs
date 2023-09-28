@@ -44,15 +44,6 @@ namespace ARFoundationReplay
 
         public override bool Start()
         {
-            var inputDescriptors = new List<XRInputSubsystemDescriptor>();
-            SubsystemManager.GetSubsystemDescriptors(inputDescriptors);
-            int i = 0;
-            foreach (var descriptor in inputDescriptors)
-            {
-                Debug.Log($"[{i}]: {descriptor.id}");
-                i++;
-            }
-
             return true;
         }
 

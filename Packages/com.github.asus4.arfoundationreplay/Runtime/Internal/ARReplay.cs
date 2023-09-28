@@ -26,7 +26,6 @@ namespace ARFoundationReplay
 
         private readonly VideoPlayer _video;
         private readonly MetadataPlayer _metadata;
-        private readonly ARReplayInputSubsystem _input;
         private long _lastFrame = long.MinValue;
 
         /// <summary>
@@ -53,14 +52,12 @@ namespace ARFoundationReplay
             string path = settings.GetRecordPath();
             _video = CreateVideoPlayer(path);
             _metadata = new MetadataPlayer(path);
-            _input = new ARReplayInputSubsystem();
 
             _sharedInstance = this;
         }
 
         public void Dispose()
         {
-            _input.Dispose();
             _metadata?.Dispose();
             if (_video != null)
             {
@@ -111,7 +108,8 @@ namespace ARFoundationReplay
             DidLoopThisFrame = _lastFrame > frame;
             _lastFrame = _video.frame;
 
-            _input.Update(Metadata);
+            // Forward to the input native plugin
+            ARReplayInputSubsystem.Update(Metadata);
         }
 
         private static VideoPlayer CreateVideoPlayer(string path)
