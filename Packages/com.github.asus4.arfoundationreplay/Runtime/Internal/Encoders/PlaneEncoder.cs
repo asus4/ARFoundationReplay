@@ -11,6 +11,9 @@ namespace ARFoundationReplay
 {
     using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
 
+    /// <summary>
+    /// Serializable version of each frame of ARPlanes.
+    /// </summary>
     [Serializable]
     internal class PlanePacket : TrackableChangesPacket<BoundedPlane>
     {
@@ -53,6 +56,9 @@ namespace ARFoundationReplay
         }
     }
 
+    /// <summary>
+    /// Encodes planes from ARPlaneManager into Packet.
+    /// </summary>
     internal sealed class PlaneEncoder : ISubsystemEncoder
     {
         private ARPlaneManager _planeManager;
@@ -77,12 +83,7 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            if (!_packet.IsAvailable)
-            {
-                metadata.plane = null;
-            }
-
-            metadata.plane = _packet;
+            metadata.plane = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode(FrameMetadata metadata)
@@ -128,7 +129,7 @@ namespace ARFoundationReplay
             // Serialize TrackableChanges into Packet:
             _packet.CopyFrom(changes);
 
-            Debug.Log($"Planes changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
+            // Debug.Log($"Planes changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
         }
 
         private static BoundedPlane ConvertToBoundedPlane(ARPlane plane)

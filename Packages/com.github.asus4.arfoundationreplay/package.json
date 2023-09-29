@@ -4,12 +4,6 @@
   "version": "0.1.0",
   "unity": "2022.3",
   "description": "Record AR and Playback in Editor on AR Foundation",
-  "keywords": [
-    "vr",
-    "xr",
-    "reality",
-    "xreditorsubsystem"
-  ],
   "dependencies": {
     "com.unity.xr.arfoundation": "5.1.0"
   }

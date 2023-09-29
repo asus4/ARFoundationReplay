@@ -6,7 +6,7 @@ using UnityEngine.XR.Management;
 
 namespace ARFoundationReplay
 {
-    public class ARFoundationReplayLoader : XRLoaderHelper
+    public sealed class ARFoundationReplayLoader : XRLoaderHelper
     {
         static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
         static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();

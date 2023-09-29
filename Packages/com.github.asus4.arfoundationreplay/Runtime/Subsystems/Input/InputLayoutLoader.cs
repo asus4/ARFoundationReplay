@@ -28,7 +28,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterLayouts()
         {
-            if (FindLoader() == null)
+            if (!IsLoaderSet())
             {
                 // Debug.LogWarning($"[Input] ARFoundationReplayLoader not found");
                 return;
@@ -42,27 +42,10 @@ namespace ARFoundationReplay
             Debug.Log($"[Input] Registered input layout");
         }
 
-        private static ARFoundationReplayLoader FindLoader()
+        private static bool IsLoaderSet()
         {
-            var instance = XRGeneralSettings.Instance;
-            if (instance == null)
-            {
-                return null;
-            }
-            var manager = instance.Manager;
-            if (manager == null || manager.activeLoaders == null)
-            {
-                return null;
-            }
-            foreach (var loader in manager.activeLoaders)
-            {
-                if (loader is ARFoundationReplayLoader replayLoader)
-                {
-                    return replayLoader;
-                }
-            }
-
-            return null;
+            var loader = XRGeneralSettings.Instance?.Manager?.activeLoader;
+            return loader is ARFoundationReplayLoader;
         }
     }
 }

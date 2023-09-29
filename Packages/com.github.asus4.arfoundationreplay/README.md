@@ -28,5 +28,6 @@ Only iOS ARKit + macOS Editor. Android ARCore is planned.
 
 ## Acknowledgement
 
+- [XR SDK - Unity Companion License](https://docs.unity3d.com/Manual/xr-sdk.html)
 - [keijiro/Bibcam - Unlicense](https://github.com/keijiro/Bibcam)
 - [keijiro/Avfi - Unlicense](https://github.com/keijiro/Avfi): Metadata recording system is modified from Avfi.

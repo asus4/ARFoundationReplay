@@ -15,6 +15,7 @@ namespace ARFoundationReplay
         public CameraPacket camera;
         public Pose input;
         public PlanePacket plane;
+        public MeshPacket mesh;
 
         private static readonly BinaryFormatter formatter = new();
         private static readonly MemoryStream stream = new();
