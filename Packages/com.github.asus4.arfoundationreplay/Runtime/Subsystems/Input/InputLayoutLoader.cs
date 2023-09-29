@@ -44,8 +44,19 @@ namespace ARFoundationReplay
 
         private static bool IsLoaderSet()
         {
-            var loader = XRGeneralSettings.Instance?.Manager?.activeLoader;
-            return loader is ARFoundationReplayLoader;
+            var loaders = XRGeneralSettings.Instance?.Manager?.activeLoaders;
+            if (loaders == null)
+            {
+                return false;
+            }
+            foreach (var loader in loaders)
+            {
+                if (loader is ARFoundationReplayLoader)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
