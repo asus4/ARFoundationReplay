@@ -6,15 +6,34 @@ using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR;
+using Unity.Mathematics;
 
 namespace ARFoundationReplay
 {
+    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
+
+    internal struct TrackableMesh : ITrackable
+    {
+        public TrackableId id;
+        public Pose poseMesh;
+        public Vector3 scale;
+
+        public NativeTrackableId trackableId => id;
+        public UnityEngine.Pose pose { get; set; }
+        public TrackingState trackingState { get; set; }
+        public IntPtr nativePtr { get; set; }
+
+    }
+
+
     /// <summary>
     /// Serializable version of each frame of ARMeshes.
     /// </summary>
     [Serializable]
     internal class MeshPacket : TrackableChangesPacket<BoundedPlane>
     {
+        public MeshId id;
     }
 
     /// <summary>
@@ -45,7 +64,7 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.mesh = _packet.IsAvailable ? _packet : null;
+            // metadata.mesh = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode(FrameMetadata metadata)

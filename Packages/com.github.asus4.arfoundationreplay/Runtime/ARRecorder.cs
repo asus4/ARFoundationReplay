@@ -138,7 +138,8 @@ namespace ARFoundationReplay
                 new InputEncoder(),
                 new OcclusionEncoder(),
                 new PlaneEncoder(),
-                new MeshEncoder(),
+                // Working in progress
+                // new MeshEncoder(),
             };
     }
 }
