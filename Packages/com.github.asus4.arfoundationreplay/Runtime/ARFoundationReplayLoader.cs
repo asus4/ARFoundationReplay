@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.ARSubsystems;
@@ -6,36 +5,31 @@ using UnityEngine.XR.Management;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// An entry point of the ARFoundation Replay.
+    /// </summary>
     public sealed class ARFoundationReplayLoader : XRLoaderHelper
     {
-        static readonly List<XRSessionSubsystemDescriptor> s_SessionSubsystemDescriptors = new();
-        static readonly List<XRCameraSubsystemDescriptor> s_CameraSubsystemDescriptors = new();
-        static readonly List<XRInputSubsystemDescriptor> s_InputSubsystemDescriptors = new();
-        static readonly List<XROcclusionSubsystemDescriptor> s_OcclusionSubsystemDescriptors = new();
-        static readonly List<XRPlaneSubsystemDescriptor> s_PlaneSubsystemDescriptors = new();
-
-
         public override bool Initialize()
         {
             // Required subsystems
-            CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(s_SessionSubsystemDescriptors, ARReplaySessionSubsystem.ID);
-            CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(s_CameraSubsystemDescriptors, ARReplayCameraSubsystem.ID);
-            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, ARReplayInputSubsystem.ID);
+            CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(new(), ARReplaySessionSubsystem.ID);
+            CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(new(), ARReplayCameraSubsystem.ID);
+            CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(new(), ARReplayInputSubsystem.ID);
 
             // Optional subsystems
-            CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(s_OcclusionSubsystemDescriptors, ARReplayOcclusionSubsystem.ID);
-            CreateSubsystem<XRPlaneSubsystemDescriptor, XRPlaneSubsystem>(s_PlaneSubsystemDescriptors, ARReplayPlaneSubsystem.ID);
+            CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(new(), ARReplayOcclusionSubsystem.ID);
+            CreateSubsystem<XRPlaneSubsystemDescriptor, XRPlaneSubsystem>(new(), ARReplayPlaneSubsystem.ID);
+
+            // Optional ARCore extensions
+#if ARCORE_EXTENSIONS_ENABLED
+            CreateSubsystem<XRGeospatialEarthSubsystemDescriptor, XRGeospatialEarthSubsystem>(new(), ARReplayGeospatialEarthSubsystem.ID);
+#endif // ARCORE_EXTENSIONS_ENABLED
 
             var sessionSubsystem = GetLoadedSubsystem<XRSessionSubsystem>();
             if (sessionSubsystem == null)
             {
                 Debug.LogError("Failed to load session subsystem.");
-            }
-
-            var inputSubsystem = GetLoadedSubsystem<XRInputSubsystem>();
-            if (inputSubsystem == null)
-            {
-                Debug.LogError("Failed to load input subsystem.");
             }
 
             Debug.Log("ARFoundationReplayLoader.Initialize()");
@@ -54,6 +48,10 @@ namespace ARFoundationReplay
 
         public override bool Deinitialize()
         {
+#if ARCORE_EXTENSIONS_ENABLED
+            DestroySubsystem<XRGeospatialEarthSubsystem>();
+#endif // ARCORE_EXTENSIONS_ENABLED
+
             DestroySubsystem<XRPlaneSubsystem>();
             DestroySubsystem<XROcclusionSubsystem>();
 
