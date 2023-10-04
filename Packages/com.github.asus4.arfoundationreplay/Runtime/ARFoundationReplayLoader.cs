@@ -61,5 +61,16 @@ namespace ARFoundationReplay
 
             return base.Deinitialize();
         }
+
+        public static bool TryGetLoader(out ARFoundationReplayLoader loader)
+        {
+            if (XRGeneralSettings.Instance != null && XRGeneralSettings.Instance.Manager != null)
+            {
+                loader = XRGeneralSettings.Instance.Manager.activeLoader as ARFoundationReplayLoader;
+                return loader != null;
+            }
+            loader = null;
+            return false;
+        }
     }
 }

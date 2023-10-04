@@ -1,12 +1,16 @@
 #if ARCORE_EXTENSIONS_ENABLED
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Google.XR.ARCoreExtensions;
 using UnityEngine.SubsystemsImplementation;
 using UnityEngine.XR.ARSubsystems;
-using System;
 using UnityEngine.Scripting;
+using Google.XR.ARCoreExtensions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Assertions;
 
 namespace ARFoundationReplay
 {
@@ -31,6 +35,10 @@ namespace ARFoundationReplay
     public class XRGeospatialEarthSubsystem
         : SubsystemWithProvider<XRGeospatialEarthSubsystem, XRGeospatialEarthSubsystemDescriptor, XRGeospatialEarthSubsystem.Provider>
     {
+        public EarthState EarthState => provider.EarthState;
+        public TrackingState EarthTrackingState => provider.EarthTrackingState;
+        public GeospatialPose CameraGeospatialPose => provider.CameraGeospatialPose;
+
         public static bool Register(XRGeospatialEarthSubsystemSubsystemCinfo info)
         {
             var descriptor = new XRGeospatialEarthSubsystemDescriptor(info);
@@ -40,9 +48,9 @@ namespace ARFoundationReplay
 
         public abstract class Provider : SubsystemProvider<XRGeospatialEarthSubsystem>
         {
-            public abstract bool TryGetEarthState(out EarthState earthState);
-            public abstract bool TryGetEarthTrackingState(out TrackingState trackingState);
-            public abstract bool TryGetCameraGeospatialPose(out GeospatialPose cameraGeospatialPose);
+            public abstract EarthState EarthState { get; }
+            public abstract TrackingState EarthTrackingState { get; }
+            public abstract GeospatialPose CameraGeospatialPose { get; }
         }
     }
 
@@ -51,7 +59,6 @@ namespace ARFoundationReplay
     public sealed class ARReplayGeospatialEarthSubsystem : XRGeospatialEarthSubsystem
     {
         public const string ID = "ARReplay-GeospatialEarth";
-        public static readonly int IDKey = Shader.PropertyToID(ID);
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Register()
@@ -74,38 +81,85 @@ namespace ARFoundationReplay
 
         class ARReplayProvider : Provider
         {
+            private static readonly int PacketSize = UnsafeUtility.SizeOf<GeospatialEarthPacket>();
+
+            private int updatedFrameCount = -1;
+            private GeospatialEarthPacket latest = new()
+            {
+                earthState = EarthState.ErrorEarthNotReady,
+                trackingState = TrackingState.None,
+                geospatialPose = new GeospatialPose(),
+            };
 
             public override void Start()
             {
-
             }
 
             public override void Stop()
             {
-
             }
 
             public override void Destroy()
             {
-
             }
 
-            public override bool TryGetEarthState(out EarthState earthState)
+            public override EarthState EarthState
             {
-                earthState = EarthState.Enabled;
-                return false;
+                get
+                {
+                    UpdatePacket();
+                    return latest.earthState;
+                }
             }
 
-            public override bool TryGetEarthTrackingState(out TrackingState trackingState)
+            public override TrackingState EarthTrackingState
             {
-                trackingState = TrackingState.None;
-                return false;
+                get
+                {
+                    UpdatePacket();
+                    return latest.trackingState;
+                }
             }
 
-            public override bool TryGetCameraGeospatialPose(out GeospatialPose cameraGeospatialPose)
+            public override GeospatialPose CameraGeospatialPose
             {
-                cameraGeospatialPose = default;
-                return false;
+                get
+                {
+                    UpdatePacket();
+                    return latest.geospatialPose;
+                }
+            }
+
+            private GeospatialEarthPacket UpdatePacket()
+            {
+                if (updatedFrameCount == Time.frameCount)
+                {
+                    // Updated already at this frame.
+                    return latest;
+                }
+
+                if (!ARReplay.TryGetReplay(out var replay))
+                {
+                    // Assuming not ready
+                    return latest;
+                }
+                if (!replay.DidUpdateThisFrame)
+                {
+                    return latest;
+                }
+
+                var metadata = replay.Metadata;
+
+                updatedFrameCount = Time.frameCount;
+
+                if (!metadata.extraTracks.TryGetValue((int)ExternalTrackID.ARCoreGeospatialEarth, out byte[] bytes))
+                {
+                    Debug.LogError($"No extra track for : {ExternalTrackID.ARCoreGeospatialEarth}");
+                    return latest;
+                }
+                Assert.AreEqual(PacketSize, bytes.Length);
+                latest = bytes.ToStruct<GeospatialEarthPacket>();
+                return latest;
             }
         }
     }

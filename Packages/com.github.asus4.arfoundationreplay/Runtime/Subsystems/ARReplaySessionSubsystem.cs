@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.XR.Management;
 
 namespace ARFoundationReplay
 {
@@ -47,6 +48,7 @@ namespace ARFoundationReplay
                 throw new System.NotImplementedException("Runtime replay is not supported yet");
 #endif
                 _replay = new ARReplay(setting);
+                StartExtraSystems();
             }
 
             public override void Stop()
@@ -67,6 +69,23 @@ namespace ARFoundationReplay
                 {
                     return TrackingState.Tracking;
                 }
+            }
+
+
+            private void StartExtraSystems()
+            {
+                if (!ARFoundationReplayLoader.TryGetLoader(out var loader))
+                {
+                    Debug.LogError("Failed to get ARFoundationReplayLoader");
+                    return;
+                }
+#if ARCORE_EXTENSIONS_ENABLED
+                var earth = loader.GetLoadedSubsystem<XRGeospatialEarthSubsystem>();
+                if (!earth.running)
+                {
+                    earth.Start();
+                }
+#endif // ARCORE_EXTENSIONS_ENABLED
             }
         }
     }

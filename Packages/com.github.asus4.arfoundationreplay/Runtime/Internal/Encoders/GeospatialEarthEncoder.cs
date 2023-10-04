@@ -50,7 +50,7 @@ namespace ARFoundationReplay
                 trackingState = _earthManager.EarthTrackingState,
                 geospatialPose = _earthManager.CameraGeospatialPose,
             };
-            metadata.extraTracks[ARReplayGeospatialEarthSubsystem.IDKey] = packet.ToByteArray();
+            metadata.extraTracks[(int)ExternalTrackID.ARCoreGeospatialEarth] = packet.ToByteArray();
         }
 
         public void PostEncode(FrameMetadata metadata)
