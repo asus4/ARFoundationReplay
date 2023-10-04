@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace ARFoundationReplay
         public Pose input;
         public PlanePacket plane;
         // public MeshPacket mesh;
+        public Dictionary<int, byte[]> extraTracks = new();
 
         private static readonly BinaryFormatter formatter = new();
         private static readonly MemoryStream stream = new();

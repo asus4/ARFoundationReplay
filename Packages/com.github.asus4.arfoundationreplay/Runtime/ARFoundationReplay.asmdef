@@ -9,7 +9,8 @@
         "Unity.XR.ARFoundation",
         "Unity.XR.ARSubsystems",
         "Unity.XR.CoreUtils",
-        "Unity.XR.Management"
+        "Unity.XR.Management",
+        "Google.XR.ARCoreExtensions"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -28,6 +29,11 @@
             "name": "com.unity.inputsystem",
             "expression": "1.0.0",
             "define": "UNITY_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.google.ar.core.arfoundation.extensions",
+            "expression": "1.39.0",
+            "define": "ARCORE_EXTENSIONS_ENABLED"
         }
     ],
     "noEngineReferences": false

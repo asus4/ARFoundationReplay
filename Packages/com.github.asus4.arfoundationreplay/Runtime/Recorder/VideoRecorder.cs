@@ -54,6 +54,14 @@ namespace ARFoundationReplay
             AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
         }
 
+        public void WarmUp()
+        {
+            // TODO: implement
+            // var path = GetTemporaryFilePath();
+            // Avfi.StartRecording(path, _source.width, _source.height);
+            // Avfi.EndRecording();
+        }
+
         public void StartRecording()
         {
             var path = GetTemporaryFilePath();

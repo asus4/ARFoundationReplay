@@ -54,6 +54,7 @@ namespace ARFoundationReplay
             Assert.IsNotNull(shader);
             _muxMaterial = new Material(shader);
             _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate);
+            // TODO: warm up video recorder
         }
 
         private void OnDestroy()
@@ -140,6 +141,10 @@ namespace ARFoundationReplay
                 new PlaneEncoder(),
                 // Working in progress
                 // new MeshEncoder(),
+#if ARCORE_EXTENSIONS_ENABLED
+                // Optional encoders for ARCore Geospatial
+                new GeospatialEarthEncoder(),
+#endif // ARCORE_EXTENSIONS_ENABLED
             };
     }
 }
