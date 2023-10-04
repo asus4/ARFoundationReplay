@@ -141,6 +141,10 @@ namespace ARFoundationReplay
                 new PlaneEncoder(),
                 // Working in progress
                 // new MeshEncoder(),
+#if ARCORE_EXTENSIONS_ENABLED
+                // Optional encoders for ARCore Geospatial
+                new GeospatialEarthEncoder(),
+#endif // ARCORE_EXTENSIONS_ENABLED
             };
     }
 }
