@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using UnityEngine.Assertions;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
@@ -8,6 +10,8 @@ namespace ARFoundationReplay
         public static byte[] ToByteArray<T>(ref this T input)
             where T : struct
         {
+            Assert.IsTrue(UnsafeUtility.IsBlittable<T>());
+
             int size = Marshal.SizeOf(input);
             byte[] arr = new byte[size];
 
@@ -28,6 +32,9 @@ namespace ARFoundationReplay
         public static T ToStruct<T>(this byte[] bytes)
             where T : struct
         {
+            Assert.IsNotNull(bytes);
+            Assert.AreEqual(UnsafeUtility.SizeOf<T>(), bytes.Length);
+
             int size = Marshal.SizeOf<T>();
             IntPtr ptr = IntPtr.Zero;
             try

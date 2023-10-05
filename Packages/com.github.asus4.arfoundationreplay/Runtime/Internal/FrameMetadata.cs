@@ -17,7 +17,21 @@ namespace ARFoundationReplay
         public Pose input;
         public PlanePacket plane;
         // public MeshPacket mesh;
-        public Dictionary<int, byte[]> extraTracks = new();
+        public Dictionary<TrackID, object> tracks = new();
+
+        public bool TryGetTrack<T>(TrackID id, out T result)
+        {
+            if (tracks.TryGetValue(id, out var track))
+            {
+                result = (T)track;
+                return true;
+            }
+            else
+            {
+                result = default;
+                return false;
+            }
+        }
 
         private static readonly BinaryFormatter formatter = new();
         private static readonly MemoryStream stream = new();
