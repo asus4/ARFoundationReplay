@@ -54,12 +54,14 @@ namespace ARFoundationReplay
             AsyncGPUReadback.Request(_buffer, 0, OnSourceReadback);
         }
 
+        /// <summary>
+        /// On iOS, warming up at the first time recording is recommended as it takes time.
+        /// </summary>
         public void WarmUp()
         {
-            // TODO: implement
-            // var path = GetTemporaryFilePath();
-            // Avfi.StartRecording(path, _source.width, _source.height);
-            // Avfi.EndRecording();
+            var path = GetTemporaryFilePath();
+            Avfi.StartRecording(path, _source.width, _source.height);
+            Avfi.EndRecording(false);
         }
 
         public void StartRecording()
@@ -74,7 +76,7 @@ namespace ARFoundationReplay
         public void EndRecording()
         {
             AsyncGPUReadback.WaitAllRequests();
-            Avfi.EndRecording();
+            Avfi.EndRecording(true);
             IsRecording = false;
         }
 

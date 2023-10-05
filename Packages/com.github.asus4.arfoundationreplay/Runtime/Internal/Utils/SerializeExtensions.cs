@@ -7,6 +7,14 @@ namespace ARFoundationReplay
 {
     internal static class SerializeExtensions
     {
+        /// <summary>
+        /// Convert struct into byte array.
+        /// 
+        /// The struct must be blittable.
+        /// </summary>
+        /// <param name="input">A struct</param>
+        /// <typeparam name="T">Type of struct</typeparam>
+        /// <returns>A byte array</returns>
         public static byte[] ToByteArray<T>(ref this T input)
             where T : struct
         {
@@ -29,6 +37,15 @@ namespace ARFoundationReplay
             return arr;
         }
 
+        /// <summary>
+        /// Convert byte array into struct.
+        /// 
+        /// The struct must be blittable.
+        /// bytes must be the same size of struct.
+        /// </summary>
+        /// <param name="bytes">A bytes array</param>
+        /// <typeparam name="T">The type of the struct</typeparam>
+        /// <returns>A struct</returns>
         public static T ToStruct<T>(this byte[] bytes)
             where T : struct
         {
