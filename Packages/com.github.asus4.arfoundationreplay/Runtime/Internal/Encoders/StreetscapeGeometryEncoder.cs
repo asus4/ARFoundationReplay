@@ -1,11 +1,11 @@
 #if ARCORE_EXTENSIONS_ENABLED
 using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using Unity.XR.CoreUtils;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
+using Unity.Collections;
 
 namespace ARFoundationReplay
 {
@@ -49,11 +49,6 @@ namespace ARFoundationReplay
             base.Reset();
             meshes.Clear();
         }
-
-        public byte[] ToByteArray()
-        {
-            return null;
-        }
     }
 
     internal class StreetscapeGeometryEncoder : ISubsystemEncoder
@@ -87,7 +82,7 @@ namespace ARFoundationReplay
         {
             if (_packet.IsAvailable)
             {
-                data = _packet.ToByteArray();
+                data = _packet;
                 return true;
             }
             else
@@ -104,7 +99,48 @@ namespace ARFoundationReplay
 
         private void OnGeometriesChanged(ARStreetscapeGeometriesChangedEventArgs args)
         {
+            if (_packet.IsAvailable)
+            {
+                _packet.Reset();
+            }
 
+            using var changes = new TrackableChanges<StreetscapeGeometry>(
+                args.Added.Count, args.Updated.Count, args.Removed.Count, Allocator.Temp);
+
+            var dstAdded = changes.added;
+            var dstUpdated = changes.updated;
+            var dstRemoved = changes.removed;
+
+            var meshes = _packet.meshes;
+
+            for (int i = 0; i < args.Added.Count; i++)
+            {
+                var arGeometry = args.Added[i];
+                dstAdded[i] = ConvertToSerializable(arGeometry);
+                meshes.Add(arGeometry.trackableId, arGeometry.mesh.ToByteArray());
+            }
+            for (int i = 0; i < args.Updated.Count; i++)
+            {
+                var arGeometry = args.Updated[i];
+                dstUpdated[i] = ConvertToSerializable(arGeometry);
+                meshes.Add(arGeometry.trackableId, arGeometry.mesh.ToByteArray());
+            }
+            for (int i = 0; i < args.Removed.Count; i++)
+            {
+                dstRemoved[i] = args.Removed[i].trackableId;
+            }
+        }
+
+        private StreetscapeGeometry ConvertToSerializable(ARStreetscapeGeometry geometry)
+        {
+            return new StreetscapeGeometry
+            {
+                trackableId = geometry.trackableId,
+                pose = geometry.pose,
+                trackingState = geometry.trackingState,
+                streetscapeGeometryType = geometry.streetscapeGeometryType,
+                quality = geometry.quality
+            };
         }
     }
 }

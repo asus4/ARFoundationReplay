@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine.Assertions;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
@@ -68,6 +69,57 @@ namespace ARFoundationReplay
             {
                 Marshal.FreeHGlobal(ptr);
             }
+        }
+
+        public unsafe static int CopyToBuffer<T>(this ref T src, byte[] dst, int offset)
+            where T : struct
+        {
+            int length = UnsafeUtility.SizeOf<T>();
+            var span = new Span<byte>(dst, offset, length);
+            fixed (void* dstPtr = span)
+            {
+                UnsafeUtility.CopyStructureToPtr(ref src, dstPtr);
+            }
+            return length;
+        }
+
+        public unsafe static int CopyToBuffer<T>(this ref NativeArray<T>.ReadOnly src, byte[] dst, int offset)
+            where T : struct
+        {
+            int length = src.Length * UnsafeUtility.SizeOf<T>();
+            var span = new Span<byte>(dst, offset, length);
+            fixed (void* dstPtr = span)
+            {
+                UnsafeUtility.MemCpy(dstPtr, src.GetUnsafeReadOnlyPtr(), length);
+            }
+            return length;
+        }
+
+        public unsafe static int CopyToStruct<T>(this byte[] src, int offset, out T dst)
+            where T : struct
+        {
+            int length = UnsafeUtility.SizeOf<T>();
+            var span = new ReadOnlySpan<byte>(src, offset, length);
+            fixed (void* srcPtr = span)
+            {
+                UnsafeUtility.CopyPtrToStructure(srcPtr, out dst);
+
+            }
+            return length;
+        }
+
+        public unsafe static int CopyToNativeArray<T>(
+            this byte[] src, int offset, int structLength, out NativeArray<T> dst, Allocator allocator)
+            where T : struct
+        {
+            dst = new NativeArray<T>(structLength, allocator);
+            int length = structLength * UnsafeUtility.SizeOf<T>();
+            var span = new ReadOnlySpan<byte>(src, offset, length);
+            fixed (void* srcPtr = span)
+            {
+                UnsafeUtility.MemCpy(dst.GetUnsafePtr(), srcPtr, length);
+            }
+            return length;
         }
     }
 }
