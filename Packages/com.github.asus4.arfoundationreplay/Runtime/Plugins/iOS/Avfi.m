@@ -166,7 +166,7 @@ extern void Avfi_AppendFrame(
     }    
 }
 
-extern void Avfi_EndRecording(void)
+extern void Avfi_EndRecording(bool isSave)
 {
     if (!_writer)
     {
@@ -176,18 +176,18 @@ extern void Avfi_EndRecording(void)
 
     [_writerVideoInput markAsFinished];
 
+    if (isSave)
+    {
 #if TARGET_OS_IOS
-
-    NSString* path = _writer.outputURL.path;
-    [_writer finishWritingWithCompletionHandler: ^{
-        UISaveVideoAtPathToSavedPhotosAlbum(path, nil, nil, nil);
-    }];
-
+        NSString* path = _writer.outputURL.path;
+        [_writer finishWritingWithCompletionHandler: ^{
+            UISaveVideoAtPathToSavedPhotosAlbum(path, nil, nil, nil);
+        }];
 #else
-
-    [_writer finishWritingWithCompletionHandler: ^{}];
+        [_writer finishWritingWithCompletionHandler: ^{}];
 
 #endif
+    }
 
     _writer = NULL;
     _writerVideoInput = NULL;

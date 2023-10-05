@@ -1,16 +1,12 @@
 #if ARCORE_EXTENSIONS_ENABLED
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.Scripting;
 using UnityEngine.SubsystemsImplementation;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.Scripting;
-using Google.XR.ARCoreExtensions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.Assertions;
+using Google.XR.ARCoreExtensions;
 
 namespace ARFoundationReplay
 {
@@ -151,14 +147,10 @@ namespace ARFoundationReplay
                 var metadata = replay.Metadata;
 
                 updatedFrameCount = Time.frameCount;
-
-                if (!metadata.extraTracks.TryGetValue((int)ExternalTrackID.ARCoreGeospatialEarth, out byte[] bytes))
+                if (metadata.TryGetByteStruct(TrackID.ARCoreGeospatialEarth, out GeospatialEarthPacket earthPacket))
                 {
-                    Debug.LogError($"No extra track for : {ExternalTrackID.ARCoreGeospatialEarth}");
-                    return latest;
+                    latest = earthPacket;
                 }
-                Assert.AreEqual(PacketSize, bytes.Length);
-                latest = bytes.ToStruct<GeospatialEarthPacket>();
                 return latest;
             }
         }

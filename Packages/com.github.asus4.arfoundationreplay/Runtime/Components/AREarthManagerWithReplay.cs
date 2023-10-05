@@ -8,6 +8,10 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// Need to use this version to get replay data in the editor.
+    /// TODO: Consider injecting the code with ILPostProcessor
+    /// </summary>
     public sealed class AREarthManagerWithReplay : AREarthManager
     {
         private bool _useReplay = false;

@@ -2,10 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
 using Google.XR.ARCoreExtensions;
 
@@ -27,6 +24,9 @@ namespace ARFoundationReplay
     internal sealed class GeospatialEarthEncoder : ISubsystemEncoder
     {
         private AREarthManager _earthManager;
+
+        public TrackID ID => TrackID.ARCoreGeospatialEarth;
+
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _earthManager = origin.GetComponentInChildren<AREarthManager>();
@@ -42,7 +42,7 @@ namespace ARFoundationReplay
             _earthManager = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
             var packet = new GeospatialEarthPacket
             {
@@ -50,12 +50,13 @@ namespace ARFoundationReplay
                 trackingState = _earthManager.EarthTrackingState,
                 geospatialPose = _earthManager.CameraGeospatialPose,
             };
-            metadata.extraTracks[(int)ExternalTrackID.ARCoreGeospatialEarth] = packet.ToByteArray();
+            data = packet.ToByteArray();
+            return true;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
-            // _packet.Reset();
+            // Nothing to do
         }
     }
 }

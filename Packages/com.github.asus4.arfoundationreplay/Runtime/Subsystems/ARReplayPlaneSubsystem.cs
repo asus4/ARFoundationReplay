@@ -95,8 +95,10 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                _currentPacket = replay.Metadata.plane;
-
+                if (!replay.Metadata.TryGetObject(TrackID.Plane, out _currentPacket))
+                {
+                    return default;
+                }
                 if (_currentPacket == null)
                 {
                     return default;

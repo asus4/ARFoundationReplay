@@ -44,6 +44,8 @@ namespace ARFoundationReplay
         private ARMeshManager _meshManager;
         private readonly MeshPacket _packet = new();
 
+        public TrackID ID => TrackID.Mesh;
+
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _meshManager = origin.GetComponentInChildren<ARMeshManager>();
@@ -62,12 +64,14 @@ namespace ARFoundationReplay
             _meshManager = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
+            data = null;
+            throw new NotImplementedException();
             // metadata.mesh = _packet.IsAvailable ? _packet : null;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
             _packet.Reset();
         }

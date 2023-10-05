@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-
 namespace ARFoundationReplay
 {
     /// <summary>
@@ -13,11 +12,38 @@ namespace ARFoundationReplay
     [Serializable]
     internal sealed class FrameMetadata
     {
-        public CameraPacket camera;
-        public Pose input;
-        public PlanePacket plane;
-        // public MeshPacket mesh;
-        public Dictionary<int, byte[]> extraTracks = new();
+        public Dictionary<TrackID, object> tracks = new();
+
+        public bool TryGetObject<T>(TrackID id, out T result)
+        {
+            if (tracks.TryGetValue(id, out object track))
+            {
+                result = (T)track;
+                return true;
+            }
+            else
+            {
+                result = default;
+                return false;
+            }
+        }
+
+        public bool TryGetByteStruct<T>(TrackID id, out T result)
+            where T : struct
+        {
+            if (!tracks.TryGetValue(id, out object track))
+            {
+                result = default;
+                return false;
+            }
+            if (track is not byte[] bytes)
+            {
+                throw new Exception("track is not byte[]");
+            }
+
+            result = bytes.ToStruct<T>();
+            return true;
+        }
 
         private static readonly BinaryFormatter formatter = new();
         private static readonly MemoryStream stream = new();

@@ -26,7 +26,8 @@ namespace ARFoundationReplay
 
         static readonly ProfilerMarker kSerializeMarker = new("ARRecorder.Serialize");
 
-        private XROrigin _origin;
+        [SerializeField]
+        private XROrigin _origin = null;
         private VideoRecorder _videoRecorder;
         private RenderTexture _muxTexture;
         private Material _muxMaterial;
@@ -35,9 +36,14 @@ namespace ARFoundationReplay
         private ISubsystemEncoder[] _encoders;
         public bool IsRecording => _videoRecorder.IsRecording;
 
+        private static bool _needWarmedUp = Application.platform == RuntimePlatform.IPhonePlayer;
+
         private void Awake()
         {
-            _origin = FindFirstObjectByType<XROrigin>();
+            if (_origin == null)
+            {
+                _origin = FindFirstObjectByType<XROrigin>();
+            }
             if (_origin == null)
             {
                 Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
@@ -54,7 +60,11 @@ namespace ARFoundationReplay
             Assert.IsNotNull(shader);
             _muxMaterial = new Material(shader);
             _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate);
-            // TODO: warm up video recorder
+            if (_needWarmedUp)
+            {
+                _videoRecorder.WarmUp();
+                _needWarmedUp = false;
+            }
         }
 
         private void OnDestroy()
@@ -72,10 +82,16 @@ namespace ARFoundationReplay
         {
             if (!IsRecording) { return; }
 
-
             foreach (var encoder in _encoders)
             {
-                encoder.Encode(_metadata);
+                if (encoder.TryEncode(out object data))
+                {
+                    _metadata.tracks[encoder.ID] = data;
+                }
+                else
+                {
+                    _metadata.tracks.Remove(encoder.ID);
+                }
             }
 
             // Multiplexing RGB and depth textures into a texture

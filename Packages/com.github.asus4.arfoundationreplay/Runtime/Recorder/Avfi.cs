@@ -28,7 +28,7 @@ namespace ARFoundationReplay
             void* pointer, uint size, void* metadata, uint metadataSize, double time);
 
         [DllImport(DllName, EntryPoint = "Avfi_EndRecording")]
-        public static extern void EndRecording();
+        public static extern void EndRecording(bool isSave);
 
         #region Metadata
         [DllImport(DllName, EntryPoint = "Avfi_LoadMetadata")]

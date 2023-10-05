@@ -4,6 +4,9 @@ using Unity.XR.CoreUtils;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// An utility button to start/stop AR recording.
+    /// </summary>
     [RequireComponent(typeof(Button))]
     public sealed class ARRecordButton : MonoBehaviour
     {
@@ -38,7 +41,7 @@ namespace ARFoundationReplay
                 return;
             }
 
-            _recorder = gameObject.AddComponent<ARRecorder>();
+            _recorder = AddOrGetComponent<ARRecorder>();
             _recorder.options = _options;
             bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
             gameObject.SetActive(!needHidden);
@@ -74,6 +77,15 @@ namespace ARFoundationReplay
                 _recorder.StartRecording();
                 _button.image.overrideSprite = _iconStop;
             }
+        }
+
+        private T AddOrGetComponent<T>() where T : Component
+        {
+            if (TryGetComponent<T>(out var component))
+            {
+                return component;
+            }
+            return gameObject.AddComponent<T>();
         }
     }
 }

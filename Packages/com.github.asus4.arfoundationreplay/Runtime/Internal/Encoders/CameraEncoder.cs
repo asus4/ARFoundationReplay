@@ -7,21 +7,6 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct CameraPacket
-    {
-        // [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.I1, SizeConst = 448)]
-        public byte[] cameraFrame;
-
-        public readonly XRCameraFrame CameraFrame
-            => cameraFrame == null ? default : cameraFrame.ToStruct<XRCameraFrame>();
-
-        public override readonly string ToString()
-        {
-            return CameraFrame.ToString();
-        }
-    }
 
     internal sealed class CameraEncoder : ISubsystemEncoder
     {
@@ -29,6 +14,8 @@ namespace ARFoundationReplay
         private ARCameraManager _cameraManager;
         private Camera _camera;
         private XRCameraFrame _cameraFrame;
+
+        public TrackID ID => TrackID.Camera;
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
@@ -52,15 +39,13 @@ namespace ARFoundationReplay
             _muxMaterial = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
-            metadata.camera = new CameraPacket
-            {
-                cameraFrame = _cameraFrame.ToByteArray(),
-            };
+            data = _cameraFrame.ToByteArray();
+            return true;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
             // Nothing to do
         }
