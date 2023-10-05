@@ -147,16 +147,9 @@ namespace ARFoundationReplay
                 var metadata = replay.Metadata;
 
                 updatedFrameCount = Time.frameCount;
-
-                if (metadata.TryGetTrack(TrackID.ARCoreGeospatialEarth, out byte[] bytes))
+                if (metadata.TryGetByteStruct(TrackID.ARCoreGeospatialEarth, out GeospatialEarthPacket earthPacket))
                 {
-                    if (bytes == null)
-                    {
-                        Debug.LogWarning($"Unexpected null bytes");
-                        return latest;
-                    }
-                    Assert.AreEqual(PacketSize, bytes.Length);
-                    latest = bytes.ToStruct<GeospatialEarthPacket>();
+                    latest = earthPacket;
                 }
                 return latest;
             }

@@ -72,10 +72,16 @@ namespace ARFoundationReplay
         {
             if (!IsRecording) { return; }
 
-
             foreach (var encoder in _encoders)
             {
-                encoder.Encode(_metadata);
+                if (encoder.TryEncode(out object data))
+                {
+                    _metadata.tracks[encoder.ID] = data;
+                }
+                else
+                {
+                    _metadata.tracks.Remove(encoder.ID);
+                }
             }
 
             // Multiplexing RGB and depth textures into a texture

@@ -95,7 +95,7 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                if (!replay.Metadata.TryGetTrack(TrackID.Plane, out _currentPacket))
+                if (!replay.Metadata.TryGetObject(TrackID.Plane, out _currentPacket))
                 {
                     return default;
                 }

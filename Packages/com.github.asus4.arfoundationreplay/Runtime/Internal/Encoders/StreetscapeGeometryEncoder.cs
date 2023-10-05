@@ -10,7 +10,6 @@ using System.Collections.Generic;
 namespace ARFoundationReplay
 {
     using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-    using NativePose = UnityEngine.Pose;
 
     internal struct StreetscapeGeometry : ITrackable
     {
@@ -21,8 +20,8 @@ namespace ARFoundationReplay
             set => _trackableId = value;
         }
 
-        private NativePose _pose;
-        public NativePose pose
+        private Pose _pose;
+        public Pose pose
         {
             readonly get => _pose;
             set => _pose = value;
@@ -84,19 +83,21 @@ namespace ARFoundationReplay
             }
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
             if (_packet.IsAvailable)
             {
-                metadata.tracks[ID] = _packet.ToByteArray();
+                data = _packet.ToByteArray();
+                return true;
             }
             else
             {
-                metadata.tracks.Remove(ID);
+                data = null;
+                return false;
             }
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
             _packet.Reset();
         }

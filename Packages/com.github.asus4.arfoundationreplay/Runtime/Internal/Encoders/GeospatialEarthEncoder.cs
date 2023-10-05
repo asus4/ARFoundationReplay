@@ -42,7 +42,7 @@ namespace ARFoundationReplay
             _earthManager = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
             var packet = new GeospatialEarthPacket
             {
@@ -50,12 +50,13 @@ namespace ARFoundationReplay
                 trackingState = _earthManager.EarthTrackingState,
                 geospatialPose = _earthManager.CameraGeospatialPose,
             };
-            metadata.tracks[ID] = packet.ToByteArray();
+            data = packet.ToByteArray();
+            return true;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
-            // _packet.Reset();
+            // Nothing to do
         }
     }
 }

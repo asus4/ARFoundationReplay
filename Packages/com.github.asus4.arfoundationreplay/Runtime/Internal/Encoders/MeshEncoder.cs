@@ -64,12 +64,14 @@ namespace ARFoundationReplay
             _meshManager = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
+            data = null;
+            throw new NotImplementedException();
             // metadata.mesh = _packet.IsAvailable ? _packet : null;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
             _packet.Reset();
         }

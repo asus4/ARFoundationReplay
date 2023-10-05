@@ -83,12 +83,13 @@ namespace ARFoundationReplay
             _planeManager = null;
         }
 
-        public void Encode(FrameMetadata metadata)
+        public bool TryEncode(out object data)
         {
-            metadata.tracks[ID] = _packet.IsAvailable ? _packet : null;
+            data = _packet.IsAvailable ? _packet : null;
+            return _packet.IsAvailable;
         }
 
-        public void PostEncode(FrameMetadata metadata)
+        public void PostEncode()
         {
             _packet.Reset();
         }
