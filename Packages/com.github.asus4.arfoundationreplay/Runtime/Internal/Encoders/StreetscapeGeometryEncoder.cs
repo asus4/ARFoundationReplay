@@ -62,6 +62,8 @@ namespace ARFoundationReplay
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
 
+        public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
+
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _geometryManager = origin.GetComponentInChildren<ARStreetscapeGeometryManager>();
@@ -84,14 +86,13 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            TrackID id = TrackID.ARCoreStreetscapeGeometry;
             if (_packet.IsAvailable)
             {
-                metadata.tracks[id] = _packet.ToByteArray();
+                metadata.tracks[ID] = _packet.ToByteArray();
             }
             else
             {
-                metadata.tracks.Remove(id);
+                metadata.tracks.Remove(ID);
             }
         }
 

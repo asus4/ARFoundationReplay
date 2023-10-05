@@ -13,9 +13,9 @@ namespace ARFoundationReplay
     [Serializable]
     internal sealed class FrameMetadata
     {
-        public CameraPacket camera;
-        public Pose input;
-        public PlanePacket plane;
+        // public CameraPacket camera;
+        // public Pose input;
+        // public PlanePacket plane;
         // public MeshPacket mesh;
         public Dictionary<TrackID, object> tracks = new();
 

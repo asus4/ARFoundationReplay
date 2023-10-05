@@ -25,6 +25,8 @@ namespace ARFoundationReplay
     {
         private AREarthManager _earthManager;
 
+        public TrackID ID => TrackID.ARCoreGeospatialEarth;
+
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _earthManager = origin.GetComponentInChildren<AREarthManager>();
@@ -48,7 +50,7 @@ namespace ARFoundationReplay
                 trackingState = _earthManager.EarthTrackingState,
                 geospatialPose = _earthManager.CameraGeospatialPose,
             };
-            metadata.tracks[TrackID.ARCoreGeospatialEarth] = packet.ToByteArray();
+            metadata.tracks[ID] = packet.ToByteArray();
         }
 
         public void PostEncode(FrameMetadata metadata)

@@ -15,8 +15,10 @@ namespace ARFoundationReplay
 
         static internal void Update(FrameMetadata packet)
         {
-            var pose = (UnityEngine.Pose)packet.input;
-            ARReplayInputUpdate(pose);
+            if (packet.TryGetTrack(TrackID.Input, out Pose pose))
+            {
+                ARReplayInputUpdate((UnityEngine.Pose)pose);
+            }
         }
 
 #if !UNITY_EDITOR && UNITY_IOS

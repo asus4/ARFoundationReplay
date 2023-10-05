@@ -7,6 +7,8 @@ namespace ARFoundationReplay
     {
         private Transform _target;
 
+        public TrackID ID => TrackID.Input;
+
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _target = origin.Camera.transform;
@@ -20,7 +22,7 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.input = new Pose
+            metadata.tracks[ID] = new Pose
             {
                 position = _target.localPosition,
                 rotation = _target.localRotation,
