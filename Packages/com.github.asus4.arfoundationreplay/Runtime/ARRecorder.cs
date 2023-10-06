@@ -111,7 +111,6 @@ namespace ARFoundationReplay
         public void StartRecording()
         {
             if (IsRecording) { return; }
-            Debug.Log($"ARRecorder.StartRecording");
 
             _metadata = new FrameMetadata();
             _videoRecorder.StartRecording();
@@ -128,6 +127,14 @@ namespace ARFoundationReplay
                     return available;
                 })
                 .ToArray();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("ARRecorder.StartRecording - active encoders:");
+            foreach (var encoder in _encoders)
+            {
+                sb.AppendLine($"  {encoder.ID}");
+            }
+            Debug.Log(sb.ToString());
         }
 
         public void StopRecording()
@@ -160,6 +167,7 @@ namespace ARFoundationReplay
 #if ARCORE_EXTENSIONS_ENABLED
                 // Optional encoders for ARCore Geospatial
                 new GeospatialEarthEncoder(),
+                new StreetscapeGeometryEncoder(),
 #endif // ARCORE_EXTENSIONS_ENABLED
             };
     }
