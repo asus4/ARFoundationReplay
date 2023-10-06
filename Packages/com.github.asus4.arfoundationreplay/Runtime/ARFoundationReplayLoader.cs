@@ -24,6 +24,7 @@ namespace ARFoundationReplay
             // Optional ARCore extensions
 #if ARCORE_EXTENSIONS_ENABLED
             CreateSubsystem<XRGeospatialEarthSubsystemDescriptor, XRGeospatialEarthSubsystem>(new(), ARReplayGeospatialEarthSubsystem.ID);
+            CreateSubsystem<XRStreetscapeGeometrySubsystemDescriptor, XRStreetscapeGeometrySubsystem>(new(), ARReplayStreetscapeGeometrySubsystem.ID);
 #endif // ARCORE_EXTENSIONS_ENABLED
 
             var sessionSubsystem = GetLoadedSubsystem<XRSessionSubsystem>();
@@ -49,6 +50,7 @@ namespace ARFoundationReplay
         public override bool Deinitialize()
         {
 #if ARCORE_EXTENSIONS_ENABLED
+            DestroySubsystem<XRStreetscapeGeometrySubsystem>();
             DestroySubsystem<XRGeospatialEarthSubsystem>();
 #endif // ARCORE_EXTENSIONS_ENABLED
 
