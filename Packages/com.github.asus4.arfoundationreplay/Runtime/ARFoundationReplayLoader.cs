@@ -66,8 +66,20 @@ namespace ARFoundationReplay
         {
             if (XRGeneralSettings.Instance != null && XRGeneralSettings.Instance.Manager != null)
             {
-                loader = XRGeneralSettings.Instance.Manager.activeLoader as ARFoundationReplayLoader;
-                return loader != null;
+                var loaders = XRGeneralSettings.Instance.Manager.activeLoaders;
+                if (loaders == null)
+                {
+                    loader = null;
+                    return false;
+                }
+                foreach (var activeLoader in loaders)
+                {
+                    if (activeLoader is ARFoundationReplayLoader)
+                    {
+                        loader = activeLoader as ARFoundationReplayLoader;
+                        return true;
+                    }
+                }
             }
             loader = null;
             return false;
