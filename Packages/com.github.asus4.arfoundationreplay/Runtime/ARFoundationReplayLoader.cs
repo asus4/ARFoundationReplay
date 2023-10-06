@@ -49,6 +49,7 @@ namespace ARFoundationReplay
 
         public override bool Deinitialize()
         {
+            // Is order sensitive?
 #if ARCORE_EXTENSIONS_ENABLED
             DestroySubsystem<XRStreetscapeGeometrySubsystem>();
             DestroySubsystem<XRGeospatialEarthSubsystem>();
@@ -62,6 +63,18 @@ namespace ARFoundationReplay
             DestroySubsystem<XRSessionSubsystem>();
 
             return base.Deinitialize();
+        }
+
+        public bool EnsureSystemStarted<T>()
+            where T : class, ISubsystem
+        {
+            var system = GetLoadedSubsystem<T>();
+            if (system != null && !system.running)
+            {
+                system.Start();
+                return true;
+            }
+            return false;
         }
 
         public static bool TryGetLoader(out ARFoundationReplayLoader loader)
