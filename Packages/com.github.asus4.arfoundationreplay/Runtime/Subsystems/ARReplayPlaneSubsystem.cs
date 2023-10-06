@@ -108,56 +108,11 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                // Need to correct inconsistencies of tracked IDs
-                // since the recording will start in the middle of the session,
-                // and the video is looped.
-                CorrectTrackable(_currentPacket);
+                _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
 
                 return _currentPacket.AsTrackableChanges(allocator);
             }
 
-            private void CorrectTrackable(PlanePacket packet)
-            {
-                _added.Clear();
-                _updated.Clear();
-                _removed.Clear();
-                using var rawChanges = packet.AsTrackableChanges(Allocator.Temp);
-                // Added
-                for (int i = 0; i < rawChanges.added.Length; i++)
-                {
-                    BoundedPlane plane = rawChanges.added[i];
-                    if (!_activeIds.Contains(plane.trackableId))
-                    {
-                        _activeIds.Add(plane.trackableId);
-                        _added.Add(plane);
-                    }
-                }
-                // Updated
-                for (int i = 0; i < rawChanges.updated.Length; i++)
-                {
-                    BoundedPlane plane = rawChanges.updated[i];
-                    if (_activeIds.Contains(plane.trackableId))
-                    {
-                        _updated.Add(plane);
-                    }
-                    else
-                    {
-                        _activeIds.Add(plane.trackableId);
-                        _added.Add(plane);
-                    }
-                }
-                // Removed
-                for (int i = 0; i < rawChanges.removed.Length; i++)
-                {
-                    NativeTrackableId id = rawChanges.removed[i];
-                    if (_activeIds.Contains(id))
-                    {
-                        _activeIds.Remove(id);
-                        _removed.Add(id);
-                    }
-                }
-                packet.CopyFrom(_added, _updated, _removed);
-            }
         }
     }
 }
