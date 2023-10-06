@@ -3,9 +3,9 @@ using System;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using Unity.XR.CoreUtils;
+using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
-using Unity.Collections;
 
 namespace ARFoundationReplay
 {
@@ -40,7 +40,7 @@ namespace ARFoundationReplay
     }
 
     [Serializable]
-    internal class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
+    internal sealed class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
         public Dictionary<TrackableId, byte[]> meshes = new();
 
@@ -51,7 +51,7 @@ namespace ARFoundationReplay
         }
     }
 
-    internal class StreetscapeGeometryEncoder : ISubsystemEncoder
+    internal sealed class StreetscapeGeometryEncoder : ISubsystemEncoder
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
@@ -115,15 +115,21 @@ namespace ARFoundationReplay
 
             for (int i = 0; i < args.Added.Count; i++)
             {
-                var arGeometry = args.Added[i];
-                dstAdded[i] = ConvertToSerializable(arGeometry);
-                meshes.Add(arGeometry.trackableId, arGeometry.mesh.ToByteArray());
+                var geometry = args.Added[i];
+                dstAdded[i] = ConvertToSerializable(geometry);
+                if (!meshes.ContainsKey(geometry.trackableId))
+                {
+                    meshes.Add(geometry.trackableId, geometry.mesh.ToByteArray());
+                }
             }
             for (int i = 0; i < args.Updated.Count; i++)
             {
-                var arGeometry = args.Updated[i];
-                dstUpdated[i] = ConvertToSerializable(arGeometry);
-                meshes.Add(arGeometry.trackableId, arGeometry.mesh.ToByteArray());
+                var geometry = args.Updated[i];
+                dstUpdated[i] = ConvertToSerializable(geometry);
+                if (!meshes.ContainsKey(geometry.trackableId))
+                {
+                    meshes.Add(geometry.trackableId, geometry.mesh.ToByteArray());
+                }
             }
             for (int i = 0; i < args.Removed.Count; i++)
             {

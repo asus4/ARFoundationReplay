@@ -44,34 +44,38 @@ namespace ARFoundationReplay
                 + vertices.Length; // vertices
         }
 
-        public static SerializedMesh FromMesh(Mesh mesh)
+        public static SerializedMesh FromMesh(Mesh mesh, Allocator allocator)
         {
-            using var meshes = Mesh.AcquireReadOnlyMeshData(mesh);
+            var meshes = Mesh.AcquireReadOnlyMeshData(mesh);
             Assert.IsTrue(meshes.Length > 0);
-
             Mesh.MeshData meshData = meshes[0];
-            Assert.IsTrue(meshData.subMeshCount == 0, "Sub mesh is not implemented");
+            // Assert.IsTrue(meshData.subMeshCount == 0, "Sub mesh is not implemented");
 
             var header = new Header
             {
-                vertexCount = meshData.vertexCount,
+                vertexCount = mesh.vertexCount,
                 indexCount = (int)mesh.GetIndexCount(0),
                 attributeCount = mesh.vertexAttributeCount,
+                isU32Index = mesh.indexFormat == IndexFormat.UInt32,
                 stride = meshData.GetVertexBufferStride(0),
             };
 
-            var attributes = new NativeArray<VertexAttributeDescriptor>(header.attributeCount, Allocator.None);
+            var attributes = new NativeArray<VertexAttributeDescriptor>(header.attributeCount, allocator);
             for (int i = 0; i < header.attributeCount; i++)
             {
                 attributes[i] = mesh.GetVertexAttribute(i);
             }
-            return new SerializedMesh
+
+            var indices = meshData.GetIndexData<byte>();
+            var vertices = meshData.GetVertexData<byte>();
+            var serialized = new SerializedMesh
             {
                 header = header,
                 attributes = attributes,
-                indices = meshData.GetIndexData<byte>(),
-                vertices = meshData.GetVertexData<byte>(),
+                indices = new NativeArray<byte>(indices, allocator),
+                vertices = new NativeArray<byte>(vertices, allocator),
             };
+            return serialized;
         }
 
         public void CopyToMesh(Mesh mesh)
@@ -87,7 +91,7 @@ namespace ARFoundationReplay
     {
         public unsafe static byte[] ToByteArray(this Mesh mesh)
         {
-            using var serialized = SerializedMesh.FromMesh(mesh);
+            using var serialized = SerializedMesh.FromMesh(mesh, Allocator.Temp);
 
             var buffer = new byte[serialized.TotalLength()];
 
