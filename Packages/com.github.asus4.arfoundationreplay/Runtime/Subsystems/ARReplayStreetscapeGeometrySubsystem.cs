@@ -64,24 +64,16 @@ namespace ARFoundationReplay
             public override bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh)
             {
                 if (_currentPacket == null ||
-                    !_currentPacket.meshes.TryGetValue(trackableId, out byte[] meshBytes))
+                    !_currentPacket.meshes.TryGetValue(trackableId, out SerializedMesh serializedMesh))
                 {
                     mesh = default;
                     return false;
                 }
 
-                var newMesh = new Mesh();
-                if (newMesh.UpdateFromBytes(meshBytes))
-                {
-                    mesh = newMesh;
-                    return true;
-                }
-                else
-                {
-                    Object.Destroy(newMesh);
-                    mesh = default;
-                    return false;
-                }
+                mesh = new Mesh();
+                serializedMesh.CopyToMesh(mesh);
+                mesh.UploadMeshData(false);
+                return true;
             }
         }
     }

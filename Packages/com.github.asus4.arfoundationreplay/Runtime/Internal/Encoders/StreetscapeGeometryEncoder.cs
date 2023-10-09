@@ -42,7 +42,7 @@ namespace ARFoundationReplay
     [Serializable]
     internal sealed class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
-        public Dictionary<TrackableId, byte[]> meshes = new();
+        public Dictionary<TrackableId, SerializedMesh> meshes = new();
 
         public override void Reset()
         {
@@ -119,7 +119,7 @@ namespace ARFoundationReplay
                 dstAdded[i] = ConvertToSerializable(geometry);
                 if (!meshes.ContainsKey(geometry.trackableId))
                 {
-                    meshes.Add(geometry.trackableId, geometry.mesh.ToByteArray());
+                    meshes.Add(geometry.trackableId, SerializedMesh.FromMesh(geometry.mesh));
                 }
             }
             for (int i = 0; i < args.Updated.Count; i++)
@@ -128,7 +128,7 @@ namespace ARFoundationReplay
                 dstUpdated[i] = ConvertToSerializable(geometry);
                 if (!meshes.ContainsKey(geometry.trackableId))
                 {
-                    meshes.Add(geometry.trackableId, geometry.mesh.ToByteArray());
+                    meshes.Add(geometry.trackableId, SerializedMesh.FromMesh(geometry.mesh));
                 }
             }
             for (int i = 0; i < args.Removed.Count; i++)

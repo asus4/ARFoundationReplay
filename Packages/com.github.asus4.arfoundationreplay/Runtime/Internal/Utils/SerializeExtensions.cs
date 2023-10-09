@@ -74,7 +74,7 @@ namespace ARFoundationReplay
         public unsafe static int CopyToBuffer<T>(this ref T src, byte[] dst, int offset)
             where T : struct
         {
-            int length = UnsafeUtility.SizeOf<T>();
+            int length = Marshal.SizeOf<T>();
             var span = new Span<byte>(dst, offset, length);
             fixed (void* dstPtr = span)
             {
@@ -86,40 +86,36 @@ namespace ARFoundationReplay
         public unsafe static int CopyToBuffer<T>(this ref NativeArray<T>.ReadOnly src, byte[] dst, int offset)
             where T : struct
         {
-            int length = src.Length * UnsafeUtility.SizeOf<T>();
-            var span = new Span<byte>(dst, offset, length);
-            fixed (void* dstPtr = span)
-            {
-                UnsafeUtility.MemCpy(dstPtr, src.GetUnsafeReadOnlyPtr(), length);
-            }
+            int length = src.Length * Marshal.SizeOf<T>();
+            var srcPtr = new IntPtr(src.GetUnsafeReadOnlyPtr());
+            Marshal.Copy(srcPtr, dst, offset, length);
             return length;
         }
 
         public unsafe static int CopyToStruct<T>(this byte[] src, int offset, out T dst)
             where T : struct
         {
-            int length = UnsafeUtility.SizeOf<T>();
-            var span = new ReadOnlySpan<byte>(src, offset, length);
+            int stride = Marshal.SizeOf<T>();
+            var span = new ReadOnlySpan<byte>(src, offset, stride);
             fixed (void* srcPtr = span)
             {
                 UnsafeUtility.CopyPtrToStructure(srcPtr, out dst);
 
             }
-            return length;
+            return stride;
         }
 
         public unsafe static int CopyToNativeArray<T>(
             this byte[] src, int offset, int structLength, out NativeArray<T> dst, Allocator allocator)
             where T : struct
         {
+            int length = structLength * Marshal.SizeOf<T>();
             dst = new NativeArray<T>(structLength, allocator);
-            int length = structLength * UnsafeUtility.SizeOf<T>();
-            var span = new ReadOnlySpan<byte>(src, offset, length);
-            fixed (void* srcPtr = span)
-            {
-                UnsafeUtility.MemCpy(dst.GetUnsafePtr(), srcPtr, length);
-            }
+            var dstPtr = new IntPtr(dst.GetUnsafePtr());
+            Marshal.Copy(src, offset, dstPtr, length);
+
             return length;
         }
+
     }
 }
