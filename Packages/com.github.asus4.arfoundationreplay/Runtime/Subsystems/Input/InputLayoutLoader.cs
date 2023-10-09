@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.XR.Management;
 
 using Inputs = UnityEngine.InputSystem.InputSystem;
 
@@ -39,7 +38,6 @@ namespace ARFoundationReplay
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                     .WithProduct("(ARFoundationReplay)")
                 );
-            Debug.Log($"[Input] Registered input layout");
         }
     }
 }

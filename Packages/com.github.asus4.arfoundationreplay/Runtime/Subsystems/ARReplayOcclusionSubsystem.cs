@@ -29,14 +29,7 @@ namespace ARFoundationReplay
                 environmentDepthConfidenceImageSupportedDelegate = DummySupported,
                 environmentDepthTemporalSmoothingSupportedDelegate = DummySupported,
             };
-            if (Register(info))
-            {
-                Debug.LogFormat("Registered {0} subsystem", ID);
-            }
-            else
-            {
-                Debug.LogErrorFormat("Cannot register {0} subsystem", ID);
-            }
+            Register(info);
         }
 
         // TODO: Encode supported info into the packet?

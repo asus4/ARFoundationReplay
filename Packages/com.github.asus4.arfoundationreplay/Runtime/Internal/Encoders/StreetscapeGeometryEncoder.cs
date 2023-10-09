@@ -11,7 +11,7 @@ namespace ARFoundationReplay
 {
     using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
 
-    internal struct StreetscapeGeometry : ITrackable
+    public struct StreetscapeGeometry : ITrackable
     {
         private NativeTrackableId _trackableId;
         public NativeTrackableId trackableId
@@ -33,7 +33,7 @@ namespace ARFoundationReplay
             readonly get => _trackingState;
             set => _trackingState = value;
         }
-        public readonly IntPtr nativePtr => IntPtr.Zero;
+        public readonly IntPtr nativePtr => new((long)_trackableId.subId2);
 
         public StreetscapeGeometryType streetscapeGeometryType;
         public StreetscapeGeometryQuality quality;
@@ -135,6 +135,11 @@ namespace ARFoundationReplay
             {
                 dstRemoved[i] = args.Removed[i].trackableId;
             }
+
+            // Serialize TrackableChanges into Packet:
+            _packet.CopyFrom(changes);
+
+            // Debug.Log($"StreetscapeGeometryEncoder: added: {changes.added.Length}, updated: {changes.updated.Length}, removed: {changes.removed.Length}");
         }
 
         private StreetscapeGeometry ConvertToSerializable(ARStreetscapeGeometry geometry)

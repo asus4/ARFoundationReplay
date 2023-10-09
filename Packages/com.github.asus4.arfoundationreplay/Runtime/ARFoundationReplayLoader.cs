@@ -32,8 +32,6 @@ namespace ARFoundationReplay
             {
                 Debug.LogError("Failed to load session subsystem.");
             }
-
-            Debug.Log("ARFoundationReplayLoader.Initialize()");
             return sessionSubsystem != null;
         }
 

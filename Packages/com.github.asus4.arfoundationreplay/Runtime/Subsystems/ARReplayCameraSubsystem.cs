@@ -38,10 +38,6 @@ namespace ARFoundationReplay
             {
                 Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
             }
-            else
-            {
-                Debug.Log($"Register {ID} subsystem");
-            }
         }
 
         class ARReplayProvider : Provider

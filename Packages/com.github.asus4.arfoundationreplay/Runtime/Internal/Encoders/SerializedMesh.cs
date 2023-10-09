@@ -18,6 +18,11 @@ namespace ARFoundationReplay
             public int attributeCount;
             public bool isU32Index;
             public int stride;
+
+            public override readonly string ToString()
+            {
+                return $"vertex: {vertexCount}, index: {indexCount}, attr: {attributeCount}, isU32Index: {isU32Index}, stride: {stride}";
+            }
         }
 
         public static readonly int headerSize = UnsafeUtility.SizeOf<Header>();
@@ -87,7 +92,7 @@ namespace ARFoundationReplay
         }
     }
 
-    internal static class MeshExtensions
+    public static class MeshExtensions
     {
         public unsafe static byte[] ToByteArray(this Mesh mesh)
         {

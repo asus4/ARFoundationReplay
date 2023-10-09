@@ -1,9 +1,14 @@
 #if ARCORE_EXTENSIONS_ENABLED
 using System;
+using Unity.Collections;
+using UnityEngine;
 using UnityEngine.SubsystemsImplementation;
+using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
+    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
+
     public struct XRStreetscapeGeometrySubsystemSubsystemCinfo
     {
         public string id;
@@ -23,7 +28,7 @@ namespace ARFoundationReplay
     }
 
     public class XRStreetscapeGeometrySubsystem
-        : SubsystemWithProvider<XRStreetscapeGeometrySubsystem, XRStreetscapeGeometrySubsystemDescriptor, XRStreetscapeGeometrySubsystem.Provider>
+        : TrackingSubsystem<StreetscapeGeometry, XRStreetscapeGeometrySubsystem, XRStreetscapeGeometrySubsystemDescriptor, XRStreetscapeGeometrySubsystem.Provider>
     {
         public static bool Register(XRStreetscapeGeometrySubsystemSubsystemCinfo info)
         {
@@ -32,8 +37,23 @@ namespace ARFoundationReplay
             return true;
         }
 
+        public override TrackableChanges<StreetscapeGeometry> GetChanges(Allocator allocator)
+        {
+            return provider.GetChanges(default, allocator);
+        }
+
+        public bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh)
+        {
+            return provider.TryGetMesh(trackableId, out mesh);
+        }
+
         public abstract class Provider : SubsystemProvider<XRStreetscapeGeometrySubsystem>
         {
+            public abstract TrackableChanges<StreetscapeGeometry> GetChanges(
+                StreetscapeGeometry defaultGeometry,
+                Allocator allocator);
+
+            public abstract bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh);
         }
     }
 }

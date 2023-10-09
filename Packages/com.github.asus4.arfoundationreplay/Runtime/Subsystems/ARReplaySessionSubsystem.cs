@@ -24,7 +24,6 @@ namespace ARFoundationReplay
                 supportsInstall = false,
                 supportsMatchFrameRate = false
             });
-            Debug.Log($"Register {ID} subsystem");
         }
 
         class ARReplayProvider : Provider

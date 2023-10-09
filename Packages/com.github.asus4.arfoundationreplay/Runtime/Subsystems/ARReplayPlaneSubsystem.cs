@@ -16,8 +16,6 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            Debug.Log($"Register {ID} subsystem");
-
             var cinfo = new XRPlaneSubsystemDescriptor.Cinfo
             {
                 id = ID,
@@ -29,7 +27,6 @@ namespace ARFoundationReplay
                 supportsBoundaryVertices = true,
                 supportsClassification = true,
             };
-
             XRPlaneSubsystemDescriptor.Create(cinfo);
         }
 

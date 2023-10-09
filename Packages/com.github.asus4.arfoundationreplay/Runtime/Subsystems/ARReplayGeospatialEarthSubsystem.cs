@@ -22,14 +22,7 @@ namespace ARFoundationReplay
                 providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplayGeospatialEarthSubsystem),
             };
-            if (Register(info))
-            {
-                Debug.Log($"Register {ID} subsystem");
-            }
-            else
-            {
-                Debug.LogError($"Cannot register {ID} subsystem");
-            }
+            Register(info);
         }
 
         class ARReplayProvider : Provider
