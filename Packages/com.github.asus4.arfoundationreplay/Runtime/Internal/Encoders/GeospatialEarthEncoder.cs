@@ -23,8 +23,6 @@ namespace ARFoundationReplay
     {
         private AREarthManager _earthManager;
 
-        public TrackID ID => TrackID.ARCoreGeospatialEarth;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _earthManager = origin.GetComponentInChildren<AREarthManager>();

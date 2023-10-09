@@ -11,8 +11,6 @@ namespace ARFoundationReplay
         private AROcclusionManager _occlusionManager;
         private readonly Vector2 _depthRange = Config.DepthRange;
 
-        public TrackID ID => TrackID.Occlusion;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _muxMaterial = muxMaterial;

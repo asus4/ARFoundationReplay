@@ -15,8 +15,6 @@ namespace ARFoundationReplay
         private Camera _camera;
         private XRCameraFrame _cameraFrame;
 
-        public TrackID ID => TrackID.Camera;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _muxMaterial = muxMaterial;

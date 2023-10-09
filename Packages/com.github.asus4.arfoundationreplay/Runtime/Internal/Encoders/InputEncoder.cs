@@ -7,8 +7,6 @@ namespace ARFoundationReplay
     {
         private Transform _target;
 
-        public TrackID ID => TrackID.Input;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _target = origin.Camera.transform;

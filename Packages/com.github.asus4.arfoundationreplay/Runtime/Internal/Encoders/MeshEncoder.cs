@@ -41,8 +41,6 @@ namespace ARFoundationReplay
         private ARMeshManager _meshManager;
         private readonly MeshPacket _packet = new();
 
-        public TrackID ID => TrackID.Mesh;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _meshManager = origin.GetComponentInChildren<ARMeshManager>();

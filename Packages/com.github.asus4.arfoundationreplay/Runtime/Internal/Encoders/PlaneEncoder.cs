@@ -63,8 +63,6 @@ namespace ARFoundationReplay
         private ARPlaneManager _planeManager;
         private readonly PlanePacket _packet = new();
 
-        public TrackID ID => TrackID.Plane;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _planeManager = origin.GetComponentInChildren<ARPlaneManager>();

@@ -11,12 +11,6 @@ namespace ARFoundationReplay
     internal interface ISubsystemEncoder : IDisposable
     {
         /// <summary>
-        /// Track ID used as a key of track
-        /// </summary>
-        /// <value>A track ID</value>
-        TrackID ID { get; }
-
-        /// <summary>
         /// Initialize and check availability of Subsystem.
         /// </summary>
         /// <param name="origin">An XROrigin</param>

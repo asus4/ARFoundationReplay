@@ -125,7 +125,7 @@ namespace ARFoundationReplay
             sb.AppendLine("ARRecorder.StartRecording - active encoders:");
             foreach (var encoder in _encoders)
             {
-                sb.AppendLine($"  {encoder.ID}");
+                sb.AppendLine($"  {encoder}");
             }
             Debug.Log(sb.ToString());
         }

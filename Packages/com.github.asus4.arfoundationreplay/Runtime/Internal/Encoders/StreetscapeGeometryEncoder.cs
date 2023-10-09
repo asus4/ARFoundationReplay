@@ -56,8 +56,6 @@ namespace ARFoundationReplay
         private readonly StreetscapeGeometryPacket _packet = new();
         private readonly HashSet<TrackableId> _sentMeshes = new();
 
-        public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _geometryManager = origin.GetComponentInChildren<ARStreetscapeGeometryManager>();
