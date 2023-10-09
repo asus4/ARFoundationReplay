@@ -24,6 +24,7 @@ namespace ARFoundationReplay
             // Optional ARCore extensions
 #if ARCORE_EXTENSIONS_ENABLED
             CreateSubsystem<XRGeospatialEarthSubsystemDescriptor, XRGeospatialEarthSubsystem>(new(), ARReplayGeospatialEarthSubsystem.ID);
+            CreateSubsystem<XRStreetscapeGeometrySubsystemDescriptor, XRStreetscapeGeometrySubsystem>(new(), ARReplayStreetscapeGeometrySubsystem.ID);
 #endif // ARCORE_EXTENSIONS_ENABLED
 
             var sessionSubsystem = GetLoadedSubsystem<XRSessionSubsystem>();
@@ -31,8 +32,6 @@ namespace ARFoundationReplay
             {
                 Debug.LogError("Failed to load session subsystem.");
             }
-
-            Debug.Log("ARFoundationReplayLoader.Initialize()");
             return sessionSubsystem != null;
         }
 
@@ -48,7 +47,9 @@ namespace ARFoundationReplay
 
         public override bool Deinitialize()
         {
+            // Is order sensitive?
 #if ARCORE_EXTENSIONS_ENABLED
+            DestroySubsystem<XRStreetscapeGeometrySubsystem>();
             DestroySubsystem<XRGeospatialEarthSubsystem>();
 #endif // ARCORE_EXTENSIONS_ENABLED
 
@@ -62,12 +63,36 @@ namespace ARFoundationReplay
             return base.Deinitialize();
         }
 
+        public bool EnsureSystemStarted<T>()
+            where T : class, ISubsystem
+        {
+            var system = GetLoadedSubsystem<T>();
+            if (system != null && !system.running)
+            {
+                system.Start();
+                return true;
+            }
+            return false;
+        }
+
         public static bool TryGetLoader(out ARFoundationReplayLoader loader)
         {
             if (XRGeneralSettings.Instance != null && XRGeneralSettings.Instance.Manager != null)
             {
-                loader = XRGeneralSettings.Instance.Manager.activeLoader as ARFoundationReplayLoader;
-                return loader != null;
+                var loaders = XRGeneralSettings.Instance.Manager.activeLoaders;
+                if (loaders == null)
+                {
+                    loader = null;
+                    return false;
+                }
+                foreach (var activeLoader in loaders)
+                {
+                    if (activeLoader is ARFoundationReplayLoader)
+                    {
+                        loader = activeLoader as ARFoundationReplayLoader;
+                        return true;
+                    }
+                }
             }
             loader = null;
             return false;

@@ -142,4 +142,69 @@ namespace ARFoundationReplay
             return $"added:{added.Length} updated:{updated.Length} removed:{removed.Length}";
         }
     }
+
+    internal static class TrackableChangesPacketExtension
+    {
+        /// <summary>
+        /// Used while replaying packets.
+        /// 
+        /// Trackable need to be corrected inconsistencies of tracked IDs
+        /// since the recording will start in the middle of the session,
+        /// and the video is looped.
+        /// </summary>
+        /// <param name="packet">A TrackableChangesPacket</param>
+        /// <param name="activeIds">A hash-set of active IDs</param>
+        /// <param name="added">A cache of added</param>
+        /// <param name="updated">A cache of updated</param>
+        /// <param name="removed">A cache of removed</param>
+        /// <typeparam name="T">ITrackable struct</typeparam>
+        public static void CorrectTrackable<T>(
+            this TrackableChangesPacket<T> packet,
+            HashSet<NativeTrackableId> activeIds,
+            List<T> added,
+            List<T> updated,
+            List<NativeTrackableId> removed)
+            where T : struct, ITrackable
+        {
+            added.Clear();
+            updated.Clear();
+            removed.Clear();
+            using var rawChanges = packet.AsTrackableChanges(Allocator.Temp);
+            // Added
+            for (int i = 0; i < rawChanges.added.Length; i++)
+            {
+                T plane = rawChanges.added[i];
+                if (!activeIds.Contains(plane.trackableId))
+                {
+                    activeIds.Add(plane.trackableId);
+                    added.Add(plane);
+                }
+            }
+            // Updated
+            for (int i = 0; i < rawChanges.updated.Length; i++)
+            {
+                T plane = rawChanges.updated[i];
+                if (activeIds.Contains(plane.trackableId))
+                {
+                    updated.Add(plane);
+                }
+                else
+                {
+                    activeIds.Add(plane.trackableId);
+                    added.Add(plane);
+                }
+            }
+            // Removed
+            for (int i = 0; i < rawChanges.removed.Length; i++)
+            {
+                NativeTrackableId id = rawChanges.removed[i];
+                if (activeIds.Contains(id))
+                {
+                    activeIds.Remove(id);
+                    removed.Add(id);
+                }
+            }
+            packet.CopyFrom(added, updated, removed);
+        }
+    }
 }

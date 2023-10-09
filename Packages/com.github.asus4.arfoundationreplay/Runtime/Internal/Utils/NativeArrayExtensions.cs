@@ -40,11 +40,11 @@ namespace ARFoundationReplay
             where T : unmanaged
         {
             var dst = new NativeArray<T>(src.Length, allocator, NativeArrayOptions.UninitializedMemory);
-            fixed (void* sourcePtr = src)
+            fixed (void* srcPtr = src)
             {
                 UnsafeUtility.MemCpy(
                     dst.GetUnsafePtr(),
-                    sourcePtr,
+                    srcPtr,
                     src.Length * UnsafeUtility.SizeOf<T>());
             }
             return dst;

@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.XR.Management;
 
 namespace ARFoundationReplay
 {
@@ -25,7 +24,6 @@ namespace ARFoundationReplay
                 supportsInstall = false,
                 supportsMatchFrameRate = false
             });
-            Debug.Log($"Register {ID} subsystem");
         }
 
         class ARReplayProvider : Provider
@@ -71,7 +69,6 @@ namespace ARFoundationReplay
                 }
             }
 
-
             private void StartExtraSystems()
             {
                 if (!ARFoundationReplayLoader.TryGetLoader(out var loader))
@@ -80,11 +77,8 @@ namespace ARFoundationReplay
                     return;
                 }
 #if ARCORE_EXTENSIONS_ENABLED
-                var earth = loader.GetLoadedSubsystem<XRGeospatialEarthSubsystem>();
-                if (!earth.running)
-                {
-                    earth.Start();
-                }
+                loader.EnsureSystemStarted<XRGeospatialEarthSubsystem>();
+                loader.EnsureSystemStarted<XRStreetscapeGeometrySubsystem>();
 #endif // ARCORE_EXTENSIONS_ENABLED
             }
         }

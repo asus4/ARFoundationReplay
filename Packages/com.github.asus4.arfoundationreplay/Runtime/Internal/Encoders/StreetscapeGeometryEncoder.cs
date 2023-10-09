@@ -1,9 +1,9 @@
 #if ARCORE_EXTENSIONS_ENABLED
 using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using Unity.XR.CoreUtils;
+using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
 
@@ -11,7 +11,7 @@ namespace ARFoundationReplay
 {
     using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
 
-    internal struct StreetscapeGeometry : ITrackable
+    public struct StreetscapeGeometry : ITrackable
     {
         private NativeTrackableId _trackableId;
         public NativeTrackableId trackableId
@@ -33,33 +33,29 @@ namespace ARFoundationReplay
             readonly get => _trackingState;
             set => _trackingState = value;
         }
-        public readonly IntPtr nativePtr => IntPtr.Zero;
+        public readonly IntPtr nativePtr => new((long)_trackableId.subId2);
 
         public StreetscapeGeometryType streetscapeGeometryType;
         public StreetscapeGeometryQuality quality;
     }
 
     [Serializable]
-    internal class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
+    internal sealed class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
-        public Dictionary<TrackableId, byte[]> meshes = new();
+        public Dictionary<TrackableId, SerializedMesh> meshes = new();
 
         public override void Reset()
         {
             base.Reset();
             meshes.Clear();
         }
-
-        public byte[] ToByteArray()
-        {
-            return null;
-        }
     }
 
-    internal class StreetscapeGeometryEncoder : ISubsystemEncoder
+    internal sealed class StreetscapeGeometryEncoder : ISubsystemEncoder
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
+        private readonly HashSet<NativeTrackableId> _sentMeshes = new();
 
         public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
 
@@ -76,6 +72,8 @@ namespace ARFoundationReplay
 
         public void Dispose()
         {
+            _sentMeshes.Clear();
+
             if (_geometryManager != null)
             {
                 _geometryManager.StreetscapeGeometriesChanged -= OnGeometriesChanged;
@@ -87,7 +85,7 @@ namespace ARFoundationReplay
         {
             if (_packet.IsAvailable)
             {
-                data = _packet.ToByteArray();
+                data = _packet;
                 return true;
             }
             else
@@ -104,7 +102,68 @@ namespace ARFoundationReplay
 
         private void OnGeometriesChanged(ARStreetscapeGeometriesChangedEventArgs args)
         {
+            if (_packet.IsAvailable)
+            {
+                _packet.Reset();
+            }
 
+            using var changes = new TrackableChanges<StreetscapeGeometry>(
+                args.Added.Count, args.Updated.Count, args.Removed.Count, Allocator.Temp);
+
+            var dstAdded = changes.added;
+            var dstUpdated = changes.updated;
+            var dstRemoved = changes.removed;
+
+            var meshes = _packet.meshes;
+
+            for (int i = 0; i < args.Added.Count; i++)
+            {
+                var geometry = args.Added[i];
+                dstAdded[i] = ConvertToSerializable(geometry);
+                AddMeshIfNeeded(geometry);
+            }
+            for (int i = 0; i < args.Updated.Count; i++)
+            {
+                var geometry = args.Updated[i];
+                dstUpdated[i] = ConvertToSerializable(geometry);
+                AddMeshIfNeeded(geometry);
+            }
+            for (int i = 0; i < args.Removed.Count; i++)
+            {
+                dstRemoved[i] = args.Removed[i].trackableId;
+            }
+
+            // Serialize TrackableChanges into Packet:
+            _packet.CopyFrom(changes);
+
+            // Debug.Log($"StreetscapeGeometryEncoder: added: {changes.added.Length}, updated: {changes.updated.Length}, removed: {changes.removed.Length}");
+        }
+
+        private void AddMeshIfNeeded(ARStreetscapeGeometry arGeometry)
+        {
+            if (_sentMeshes.Contains(arGeometry.trackableId))
+            {
+                return;
+            }
+            var meshes = _packet.meshes;
+            if (meshes.ContainsKey(arGeometry.trackableId))
+            {
+                return;
+            }
+            meshes.Add(arGeometry.trackableId, SerializedMesh.FromMesh(arGeometry.mesh));
+            _sentMeshes.Add(arGeometry.trackableId);
+        }
+
+        private StreetscapeGeometry ConvertToSerializable(ARStreetscapeGeometry geometry)
+        {
+            return new StreetscapeGeometry
+            {
+                trackableId = geometry.trackableId,
+                pose = geometry.pose,
+                trackingState = geometry.trackingState,
+                streetscapeGeometryType = geometry.streetscapeGeometryType,
+                quality = geometry.quality
+            };
         }
     }
 }
