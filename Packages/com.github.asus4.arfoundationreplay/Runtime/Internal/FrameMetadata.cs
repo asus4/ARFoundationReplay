@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using MemoryPack;
@@ -20,19 +21,19 @@ namespace ARFoundationReplay
         public StreetscapeGeometryPacket streetscapeGeometry;
 #endif // ARCORE_EXTENSIONS_ENABLED
 
-        // TODO: implement IMemoryStream interface
-        private static byte[] buffer = new byte[8192];
+        private static readonly ArrayBufferWriter<byte> bufferWriter = new(512);
         private static FrameMetadata deserialized = null;
 
         public ReadOnlySpan<byte> Serialize()
         {
-            buffer = MemoryPackSerializer.Serialize(this);
-            return new ReadOnlySpan<byte>(buffer);
+            bufferWriter.Clear();
+            MemoryPackSerializer.Serialize(bufferWriter, this);
+            return bufferWriter.WrittenSpan;
         }
 
         public static FrameMetadata Deserialize(ReadOnlySpan<byte> data)
         {
-            MemoryPackSerializer.Deserialize<FrameMetadata>(data, ref deserialized);
+            MemoryPackSerializer.Deserialize(data, ref deserialized);
             return deserialized;
         }
     }
