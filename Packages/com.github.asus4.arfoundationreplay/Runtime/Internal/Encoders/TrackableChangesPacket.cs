@@ -6,8 +6,6 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     /// <summary>
     /// Base class to serialize TrackableChanges
     /// </summary>
@@ -61,7 +59,7 @@ namespace ARFoundationReplay
         public unsafe void CopyFrom(TrackableChanges<T> changes)
         {
             int strideT = UnsafeUtility.SizeOf<T>();
-            int strideId = UnsafeUtility.SizeOf<NativeTrackableId>();
+            int strideId = UnsafeUtility.SizeOf<TrackableId>();
 
             added = new byte[changes.added.Length * strideT];
             updated = new byte[changes.updated.Length * strideT];
@@ -87,7 +85,7 @@ namespace ARFoundationReplay
         public unsafe void CopyFrom(
             IReadOnlyList<T> added,
             IReadOnlyList<T> updated,
-            IReadOnlyList<NativeTrackableId> removed)
+            IReadOnlyList<TrackableId> removed)
         {
             using var changes = new TrackableChanges<T>(
                 added.Count, updated.Count, removed.Count, Allocator.Temp);
@@ -119,7 +117,7 @@ namespace ARFoundationReplay
         public unsafe TrackableChanges<T> AsTrackableChanges(Allocator allocator)
         {
             int strideT = UnsafeUtility.SizeOf<T>();
-            int strideId = UnsafeUtility.SizeOf<NativeTrackableId>();
+            int strideId = UnsafeUtility.SizeOf<TrackableId>();
 
             // get void ptr of each array
             fixed (void* addedPtr = added)
@@ -159,10 +157,10 @@ namespace ARFoundationReplay
         /// <typeparam name="T">ITrackable struct</typeparam>
         public static void CorrectTrackable<T>(
             this TrackableChangesPacket<T> packet,
-            HashSet<NativeTrackableId> activeIds,
+            HashSet<TrackableId> activeIds,
             List<T> added,
             List<T> updated,
-            List<NativeTrackableId> removed)
+            List<TrackableId> removed)
             where T : struct, ITrackable
         {
             added.Clear();
@@ -196,7 +194,7 @@ namespace ARFoundationReplay
             // Removed
             for (int i = 0; i < rawChanges.removed.Length; i++)
             {
-                NativeTrackableId id = rawChanges.removed[i];
+                TrackableId id = rawChanges.removed[i];
                 if (activeIds.Contains(id))
                 {
                     activeIds.Remove(id);

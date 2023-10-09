@@ -10,8 +10,6 @@ using MemoryPack;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     /// <summary>
     /// Serializable version of each frame of ARPlanes.
     /// </summary>
@@ -33,7 +31,7 @@ namespace ARFoundationReplay
         }
 
         public unsafe void GetBoundary(
-            NativeTrackableId trackableId,
+            TrackableId trackableId,
             Allocator allocator,
             ref NativeArray<Vector2> boundary)
         {
@@ -141,7 +139,7 @@ namespace ARFoundationReplay
                 trackableId: plane.trackableId,
                 subsumedBy: plane.subsumedBy != null
                     ? plane.subsumedBy.trackableId
-                    : NativeTrackableId.invalidId,
+                    : TrackableId.invalidId,
                 pose: plane.transform.GetLocalPose(),
                 center: plane.centerInPlaneSpace,
                 size: plane.size,

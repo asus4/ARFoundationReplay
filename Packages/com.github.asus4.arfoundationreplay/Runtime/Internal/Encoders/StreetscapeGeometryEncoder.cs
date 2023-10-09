@@ -10,12 +10,10 @@ using MemoryPack;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     public struct StreetscapeGeometry : ITrackable
     {
-        private NativeTrackableId _trackableId;
-        public NativeTrackableId trackableId
+        private TrackableId _trackableId;
+        public TrackableId trackableId
         {
             readonly get => _trackableId;
             set => _trackableId = value;
@@ -56,7 +54,7 @@ namespace ARFoundationReplay
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
-        private readonly HashSet<NativeTrackableId> _sentMeshes = new();
+        private readonly HashSet<TrackableId> _sentMeshes = new();
 
         public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
 
