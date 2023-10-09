@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.memorypack": {
+      "version": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack#1.9.16",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9aa51ce1e8da24e27053bf2448c127c4263c2096"
+    },
     "com.github.asus4.arfoundationreplay": {
       "version": "file:com.github.asus4.arfoundationreplay",
       "depth": 0,
