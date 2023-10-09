@@ -17,7 +17,7 @@ namespace ARFoundationReplay
         private bool _useReplay = false;
         private XRStreetscapeGeometrySubsystem _subsystem;
 
-        private readonly Dictionary<NativeTrackableId, ARStreetscapeGeometry> _geometries = new();
+        private readonly Dictionary<NativeTrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
 
         private readonly List<ARStreetscapeGeometry> _added = new();
         private readonly List<ARStreetscapeGeometry> _updated = new();
@@ -82,26 +82,18 @@ namespace ARFoundationReplay
             }
 
             // Call private constructor using Activator
-
-            arGeometry = (ARStreetscapeGeometry)Activator.CreateInstance(
-                type: typeof(ARStreetscapeGeometry),
-                bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic,
-                binder: null,
-                args: new object[] { geometry.nativePtr },
-                culture: null
-            );
+            arGeometry = new ARStreetscapeGeometryWithReplay(geometry);
             // Set private field _mesh
             if (_subsystem.TryGetMesh(geometry.trackableId, out Mesh mesh))
             {
-                BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                FieldInfo field = typeof(ARStreetscapeGeometry).GetField("_mesh", flags);
-                field.SetValue(arGeometry, mesh);
+                arGeometry.Mesh = mesh;
             }
             return arGeometry;
         }
 
         private void InvokeChangedEvent(ARStreetscapeGeometriesChangedEventArgs args)
         {
+            // TODO: cache to speed up
             var field = typeof(ARStreetscapeGeometryManager)
                 .GetField("StreetscapeGeometriesChanged", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var eventDelegate = (MulticastDelegate)field.GetValue(this);

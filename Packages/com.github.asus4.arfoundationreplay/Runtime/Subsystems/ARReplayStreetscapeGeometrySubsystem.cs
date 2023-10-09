@@ -29,6 +29,7 @@ namespace ARFoundationReplay
         class ARReplayProvider : Provider
         {
             private StreetscapeGeometryPacket _currentPacket;
+            private readonly Dictionary<NativeTrackableId, Mesh> _cachedMeshes = new();
 
             private readonly HashSet<NativeTrackableId> _activeIds = new();
             private readonly List<StreetscapeGeometry> _added = new();
@@ -37,7 +38,14 @@ namespace ARFoundationReplay
 
             public override void Start() { }
             public override void Stop() { }
-            public override void Destroy() { }
+            public override void Destroy()
+            {
+                foreach (var mesh in _cachedMeshes.Values)
+                {
+                    Object.Destroy(mesh);
+                }
+                _cachedMeshes.Clear();
+            }
 
             public override unsafe TrackableChanges<StreetscapeGeometry> GetChanges(
                 StreetscapeGeometry defaultGeometry,
@@ -63,6 +71,11 @@ namespace ARFoundationReplay
 
             public override bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh)
             {
+                if (_cachedMeshes.TryGetValue(trackableId, out mesh))
+                {
+                    return true;
+                }
+
                 if (_currentPacket == null ||
                     !_currentPacket.meshes.TryGetValue(trackableId, out SerializedMesh serializedMesh))
                 {
@@ -73,6 +86,10 @@ namespace ARFoundationReplay
                 mesh = new Mesh();
                 serializedMesh.CopyToMesh(mesh);
                 mesh.UploadMeshData(false);
+
+
+                _cachedMeshes.Add(trackableId, mesh);
+
                 return true;
             }
         }
