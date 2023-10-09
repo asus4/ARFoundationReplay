@@ -55,6 +55,7 @@ namespace ARFoundationReplay
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
+        private readonly HashSet<NativeTrackableId> _sentMeshes = new();
 
         public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
 
@@ -71,6 +72,8 @@ namespace ARFoundationReplay
 
         public void Dispose()
         {
+            _sentMeshes.Clear();
+
             if (_geometryManager != null)
             {
                 _geometryManager.StreetscapeGeometriesChanged -= OnGeometriesChanged;
@@ -117,19 +120,13 @@ namespace ARFoundationReplay
             {
                 var geometry = args.Added[i];
                 dstAdded[i] = ConvertToSerializable(geometry);
-                if (!meshes.ContainsKey(geometry.trackableId))
-                {
-                    meshes.Add(geometry.trackableId, SerializedMesh.FromMesh(geometry.mesh));
-                }
+                AddMeshIfNeeded(geometry);
             }
             for (int i = 0; i < args.Updated.Count; i++)
             {
                 var geometry = args.Updated[i];
                 dstUpdated[i] = ConvertToSerializable(geometry);
-                if (!meshes.ContainsKey(geometry.trackableId))
-                {
-                    meshes.Add(geometry.trackableId, SerializedMesh.FromMesh(geometry.mesh));
-                }
+                AddMeshIfNeeded(geometry);
             }
             for (int i = 0; i < args.Removed.Count; i++)
             {
@@ -140,6 +137,21 @@ namespace ARFoundationReplay
             _packet.CopyFrom(changes);
 
             // Debug.Log($"StreetscapeGeometryEncoder: added: {changes.added.Length}, updated: {changes.updated.Length}, removed: {changes.removed.Length}");
+        }
+
+        private void AddMeshIfNeeded(ARStreetscapeGeometry arGeometry)
+        {
+            if (_sentMeshes.Contains(arGeometry.trackableId))
+            {
+                return;
+            }
+            var meshes = _packet.meshes;
+            if (meshes.ContainsKey(arGeometry.trackableId))
+            {
+                return;
+            }
+            meshes.Add(arGeometry.trackableId, SerializedMesh.FromMesh(arGeometry.mesh));
+            _sentMeshes.Add(arGeometry.trackableId);
         }
 
         private StreetscapeGeometry ConvertToSerializable(ARStreetscapeGeometry geometry)
