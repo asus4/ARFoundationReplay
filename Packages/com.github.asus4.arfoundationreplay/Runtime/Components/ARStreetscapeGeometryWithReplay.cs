@@ -11,7 +11,7 @@ namespace ARFoundationReplay
 
     public class ARStreetscapeGeometryWithReplay : ARStreetscapeGeometry
     {
-        private readonly StreetscapeGeometry geometry;
+        private StreetscapeGeometry geometry;
 
         public Mesh Mesh { get; set; }
 
@@ -28,6 +28,11 @@ namespace ARFoundationReplay
         public override StreetscapeGeometryType streetscapeGeometryType => geometry.streetscapeGeometryType;
         public override TrackingState trackingState => geometry.trackingState;
         public override StreetscapeGeometryQuality quality => geometry.quality;
+
+        public void UpdateGeometry(StreetscapeGeometry geometry)
+        {
+            this.geometry = geometry;
+        }
     }
 }
 #endif // ARCORE_EXTENSIONS_ENABLED

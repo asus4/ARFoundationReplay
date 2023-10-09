@@ -1,12 +1,12 @@
 #if ARCORE_EXTENSIONS_ENABLED
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using Unity.Collections;
 using Google.XR.ARCoreExtensions;
-using System;
-using System.Reflection;
 
 namespace ARFoundationReplay
 {
@@ -16,6 +16,8 @@ namespace ARFoundationReplay
     {
         private bool _useReplay = false;
         private XRStreetscapeGeometrySubsystem _subsystem;
+
+        private Action<ARStreetscapeGeometriesChangedEventArgs>[] _updateHandlers;
 
         private readonly Dictionary<NativeTrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
 
@@ -78,6 +80,7 @@ namespace ARFoundationReplay
         {
             if (_geometries.TryGetValue(geometry.trackableId, out var arGeometry))
             {
+                arGeometry.UpdateGeometry(geometry);
                 return arGeometry;
             }
 
@@ -91,18 +94,26 @@ namespace ARFoundationReplay
             return arGeometry;
         }
 
+
         private void InvokeChangedEvent(ARStreetscapeGeometriesChangedEventArgs args)
         {
-            // TODO: cache to speed up
+            if (_updateHandlers != null)
+            {
+                foreach (var handler in _updateHandlers)
+                {
+                    handler?.Invoke(args);
+                }
+            }
+
+            // Cache to speed up
             var field = typeof(ARStreetscapeGeometryManager)
                 .GetField("StreetscapeGeometriesChanged", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var eventDelegate = (MulticastDelegate)field.GetValue(this);
             if (eventDelegate != null)
             {
-                foreach (var handler in eventDelegate.GetInvocationList())
-                {
-                    handler.Method.Invoke(handler.Target, new object[] { args });
-                }
+                _updateHandlers = eventDelegate.GetInvocationList()
+                    .Select(x => x as Action<ARStreetscapeGeometriesChangedEventArgs>)
+                    .ToArray();
             }
         }
     }
