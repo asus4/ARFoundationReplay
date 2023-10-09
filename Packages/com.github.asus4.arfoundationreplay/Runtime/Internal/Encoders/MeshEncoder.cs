@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
 using UnityEngine.XR;
-using Unity.Mathematics;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
@@ -30,8 +27,8 @@ namespace ARFoundationReplay
     /// <summary>
     /// Serializable version of each frame of ARMeshes.
     /// </summary>
-    [Serializable]
-    internal class MeshPacket : TrackableChangesPacket<BoundedPlane>
+    [MemoryPackable]
+    internal partial class MeshPacket : TrackableChangesPacket<BoundedPlane>
     {
         public MeshId id;
     }
@@ -64,9 +61,8 @@ namespace ARFoundationReplay
             _meshManager = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            data = null;
             throw new NotImplementedException();
             // metadata.mesh = _packet.IsAvailable ? _packet : null;
         }

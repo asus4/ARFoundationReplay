@@ -35,11 +35,9 @@ namespace ARFoundationReplay
             _muxMaterial = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
             // Nothing to do
-            data = null;
-            return false;
         }
 
         public void PostEncode()

@@ -6,6 +6,7 @@ using Unity.XR.CoreUtils;
 using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
@@ -39,8 +40,8 @@ namespace ARFoundationReplay
         public StreetscapeGeometryQuality quality;
     }
 
-    [Serializable]
-    internal sealed class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
+    [MemoryPackable]
+    internal sealed partial class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
         public Dictionary<TrackableId, SerializedMesh> meshes = new();
 
@@ -81,18 +82,9 @@ namespace ARFoundationReplay
             }
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            if (_packet.IsAvailable)
-            {
-                data = _packet;
-                return true;
-            }
-            else
-            {
-                data = null;
-                return false;
-            }
+            metadata.streetscapeGeometry = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode()

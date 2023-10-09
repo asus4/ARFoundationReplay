@@ -8,35 +8,6 @@ namespace ARFoundationReplay
 {
     internal static class SerializeExtensions
     {
-        /// <summary>
-        /// Convert struct into byte array.
-        /// 
-        /// The struct must be blittable.
-        /// </summary>
-        /// <param name="input">A struct</param>
-        /// <typeparam name="T">Type of struct</typeparam>
-        /// <returns>A byte array</returns>
-        public static byte[] ToByteArray<T>(ref this T input)
-            where T : struct
-        {
-            Assert.IsTrue(UnsafeUtility.IsBlittable<T>());
-
-            int size = Marshal.SizeOf(input);
-            byte[] arr = new byte[size];
-
-            IntPtr ptr = IntPtr.Zero;
-            try
-            {
-                ptr = Marshal.AllocHGlobal(size);
-                Marshal.StructureToPtr(input, ptr, true);
-                Marshal.Copy(ptr, arr, 0, size);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-            return arr;
-        }
 
         /// <summary>
         /// Convert byte array into struct.
@@ -71,51 +42,7 @@ namespace ARFoundationReplay
             }
         }
 
-        public unsafe static int CopyToBuffer<T>(this ref T src, byte[] dst, int offset)
-            where T : struct
-        {
-            int length = Marshal.SizeOf<T>();
-            var span = new Span<byte>(dst, offset, length);
-            fixed (void* dstPtr = span)
-            {
-                UnsafeUtility.CopyStructureToPtr(ref src, dstPtr);
-            }
-            return length;
-        }
 
-        public unsafe static int CopyToBuffer<T>(this ref NativeArray<T>.ReadOnly src, byte[] dst, int offset)
-            where T : struct
-        {
-            int length = src.Length * Marshal.SizeOf<T>();
-            var srcPtr = new IntPtr(src.GetUnsafeReadOnlyPtr());
-            Marshal.Copy(srcPtr, dst, offset, length);
-            return length;
-        }
-
-        public unsafe static int CopyToStruct<T>(this byte[] src, int offset, out T dst)
-            where T : struct
-        {
-            int stride = Marshal.SizeOf<T>();
-            var span = new ReadOnlySpan<byte>(src, offset, stride);
-            fixed (void* srcPtr = span)
-            {
-                UnsafeUtility.CopyPtrToStructure(srcPtr, out dst);
-
-            }
-            return stride;
-        }
-
-        public unsafe static int CopyToNativeArray<T>(
-            this byte[] src, int offset, int structLength, out NativeArray<T> dst, Allocator allocator)
-            where T : struct
-        {
-            int length = structLength * Marshal.SizeOf<T>();
-            dst = new NativeArray<T>(structLength, allocator);
-            var dstPtr = new IntPtr(dst.GetUnsafePtr());
-            Marshal.Copy(src, offset, dstPtr, length);
-
-            return length;
-        }
 
     }
 }

@@ -12,7 +12,6 @@ namespace ARFoundationReplay
     /// Base class to serialize TrackableChanges
     /// </summary>
     /// <typeparam name="T">Struct of trackable</typeparam>
-    [Serializable]
     internal abstract class TrackableChangesPacket<T>
         where T : struct, ITrackable
     {

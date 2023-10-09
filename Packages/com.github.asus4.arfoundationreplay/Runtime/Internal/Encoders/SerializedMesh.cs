@@ -3,10 +3,11 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
 using Unity.Collections;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
-    [Serializable]
+    [MemoryPackable]
     internal partial class SerializedMesh : IDisposable
     {
         public byte[] indices;

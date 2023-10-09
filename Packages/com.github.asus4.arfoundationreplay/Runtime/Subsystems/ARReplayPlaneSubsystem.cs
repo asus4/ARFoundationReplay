@@ -86,21 +86,13 @@ namespace ARFoundationReplay
                 BoundedPlane defaultPlane,
                 Allocator allocator)
             {
-
                 if (!ARReplay.TryGetReplay(out var replay))
                 {
                     return default;
                 }
 
-                if (!replay.Metadata.TryGetObject(TrackID.Plane, out _currentPacket))
-                {
-                    return default;
-                }
-                if (_currentPacket == null)
-                {
-                    return default;
-                }
-                if (!_currentPacket.IsAvailable)
+                _currentPacket = replay.Metadata.plane;
+                if (_currentPacket == null || !_currentPacket.IsAvailable)
                 {
                     return default;
                 }

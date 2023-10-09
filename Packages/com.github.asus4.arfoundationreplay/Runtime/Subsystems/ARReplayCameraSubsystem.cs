@@ -131,11 +131,8 @@ namespace ARFoundationReplay
                     cameraFrame = default;
                     return false;
                 }
-                if (!replay.Metadata.TryGetByteStruct(TrackID.Camera, out XRCameraFrame receivedFrame))
-                {
-                    cameraFrame = default;
-                    return false;
-                }
+
+                XRCameraFrame receivedFrame = replay.Metadata.camera;
 
                 // Skip if timestamp is not set
                 if (receivedFrame.timestampNs == 0)

@@ -6,6 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
@@ -14,8 +15,8 @@ namespace ARFoundationReplay
     /// <summary>
     /// Serializable version of each frame of ARPlanes.
     /// </summary>
-    [Serializable]
-    internal class PlanePacket : TrackableChangesPacket<BoundedPlane>
+    [MemoryPackable]
+    internal partial class PlanePacket : TrackableChangesPacket<BoundedPlane>
     {
         public PlaneDetectionMode currentDetectionMode;
         public Dictionary<TrackableId, byte[]> boundaries; // NativeArray<Vector2>
@@ -83,10 +84,9 @@ namespace ARFoundationReplay
             _planeManager = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            data = _packet.IsAvailable ? _packet : null;
-            return _packet.IsAvailable;
+            metadata.plane = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode()

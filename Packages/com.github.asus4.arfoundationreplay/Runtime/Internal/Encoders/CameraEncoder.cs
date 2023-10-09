@@ -39,10 +39,9 @@ namespace ARFoundationReplay
             _muxMaterial = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            data = _cameraFrame.ToByteArray();
-            return true;
+            metadata.camera = _cameraFrame;
         }
 
         public void PostEncode()

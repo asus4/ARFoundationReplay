@@ -97,10 +97,8 @@ namespace ARFoundationReplay
                 var metadata = replay.Metadata;
 
                 updatedFrameCount = Time.frameCount;
-                if (metadata.TryGetByteStruct(TrackID.ARCoreGeospatialEarth, out GeospatialEarthPacket earthPacket))
-                {
-                    latest = earthPacket;
-                }
+
+                latest = metadata.geospatialEarth;
                 return latest;
             }
         }

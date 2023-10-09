@@ -27,9 +27,8 @@ namespace ARFoundationReplay
         /// <summary>
         /// Encode subsystem state.
         /// </summary>
-        /// <param name="data">The encoded data</param>
-        /// <returns>Whether succeeded or not</returns>
-        bool TryEncode(out object data);
+        /// <param name="metadata">The encoded metadata</param>
+        void Encode(FrameMetadata metadata);
 
         /// <summary>
         /// Called after Encode() is called for all subsystems.
