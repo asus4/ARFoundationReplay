@@ -6,8 +6,6 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     [Preserve]
     internal sealed class ARReplayPlaneSubsystem : XRPlaneSubsystem
     {
@@ -35,11 +33,10 @@ namespace ARFoundationReplay
             private PlanePacket _currentPacket;
             private PlaneDetectionMode _requestedPlaneDetectionMode;
 
-            private readonly HashSet<NativeTrackableId> _activeIds = new();
+            private readonly HashSet<TrackableId> _activeIds = new();
             private readonly List<BoundedPlane> _added = new();
             private readonly List<BoundedPlane> _updated = new();
-            private readonly List<NativeTrackableId> _removed = new();
-
+            private readonly List<TrackableId> _removed = new();
 
             public override void Start() { }
 
@@ -73,7 +70,7 @@ namespace ARFoundationReplay
             }
 
             public override unsafe void GetBoundary(
-                NativeTrackableId trackableId, Allocator allocator, ref NativeArray<Vector2> boundary)
+                TrackableId trackableId, Allocator allocator, ref NativeArray<Vector2> boundary)
             {
                 if (_currentPacket == null)
                 {
