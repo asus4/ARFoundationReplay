@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
 
     public sealed class ARStreetscapeGeometryManagerWithReplay : ARStreetscapeGeometryManager
     {
@@ -19,13 +19,11 @@ namespace ARFoundationReplay
 
         private Action<ARStreetscapeGeometriesChangedEventArgs>[] _updateHandlers;
 
-        private readonly Dictionary<NativeTrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
+        private readonly Dictionary<TrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
 
         private readonly List<ARStreetscapeGeometry> _added = new();
         private readonly List<ARStreetscapeGeometry> _updated = new();
         private readonly List<ARStreetscapeGeometry> _removed = new();
-
-
 
         private void Start()
         {
@@ -40,7 +38,7 @@ namespace ARFoundationReplay
             }
         }
 
-        public new void Update()
+        public override void Update()
         {
             if (!_useReplay)
             {
@@ -55,6 +53,12 @@ namespace ARFoundationReplay
                 return;
             }
 
+            // Clear all
+            _added.Clear();
+            _updated.Clear();
+            _removed.Clear();
+
+            // Create ARStreetscapeGeometriesChangedEventArgs
             foreach (var added in changes.added)
             {
                 _added.Add(Convert(added));
@@ -73,6 +77,7 @@ namespace ARFoundationReplay
                 }
             }
 
+            // Debug.Log($"Invoke [{Time.frameCount}] = added={_added.Count}, updated={_updated.Count}, removed={_removed.Count}");
             InvokeChangedEvent(new ARStreetscapeGeometriesChangedEventArgs(_added, _updated, _removed));
         }
 
@@ -97,6 +102,7 @@ namespace ARFoundationReplay
 
         private void InvokeChangedEvent(ARStreetscapeGeometriesChangedEventArgs args)
         {
+            // Using cache to speed up invoke time
             if (_updateHandlers != null)
             {
                 foreach (var handler in _updateHandlers)
@@ -105,7 +111,6 @@ namespace ARFoundationReplay
                 }
             }
 
-            // Cache to speed up
             var field = typeof(ARStreetscapeGeometryManager)
                 .GetField("StreetscapeGeometriesChanged", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var eventDelegate = (MulticastDelegate)field.GetValue(this);

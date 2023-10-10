@@ -7,8 +7,6 @@ using Unity.Collections;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     [Preserve]
     public sealed class ARReplayStreetscapeGeometrySubsystem : XRStreetscapeGeometrySubsystem
     {
@@ -29,15 +27,23 @@ namespace ARFoundationReplay
         class ARReplayProvider : Provider
         {
             private StreetscapeGeometryPacket _currentPacket;
-            private readonly Dictionary<NativeTrackableId, Mesh> _cachedMeshes = new();
+            private readonly Dictionary<TrackableId, Mesh> _cachedMeshes = new();
 
-            private readonly HashSet<NativeTrackableId> _activeIds = new();
+            private readonly HashSet<TrackableId> _activeIds = new();
             private readonly List<StreetscapeGeometry> _added = new();
             private readonly List<StreetscapeGeometry> _updated = new();
-            private readonly List<NativeTrackableId> _removed = new();
+            private readonly List<TrackableId> _removed = new();
 
             public override void Start() { }
-            public override void Stop() { }
+            public override void Stop()
+            {
+                _activeIds.Clear();
+                _added.Clear();
+                _updated.Clear();
+                _removed.Clear();
+                _currentPacket = null;
+            }
+
             public override void Destroy()
             {
                 foreach (var mesh in _cachedMeshes.Values)
@@ -66,15 +72,14 @@ namespace ARFoundationReplay
                 return _currentPacket.AsTrackableChanges(allocator);
             }
 
-            public override bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh)
+            public override bool TryGetMesh(TrackableId trackableId, out Mesh mesh)
             {
                 if (_cachedMeshes.TryGetValue(trackableId, out mesh))
                 {
                     return true;
                 }
 
-                if (_currentPacket == null ||
-                    !_currentPacket.meshes.TryGetValue(trackableId, out SerializedMesh serializedMesh))
+                if (!_currentPacket.meshes.TryGetValue(trackableId, out SerializedMesh serializedMesh))
                 {
                     mesh = default;
                     return false;
@@ -83,7 +88,6 @@ namespace ARFoundationReplay
                 mesh = new Mesh();
                 serializedMesh.CopyToMesh(mesh);
                 mesh.UploadMeshData(false);
-
 
                 _cachedMeshes.Add(trackableId, mesh);
 
