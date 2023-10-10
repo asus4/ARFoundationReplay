@@ -4,7 +4,7 @@
 
 PoC of Recording AR Foundation session into a single mp4 with a binary timeline track / Replaying it in Editor on AR Foundation without any extra settings.
 
-## Supported platforms
+## Tested platform
 
 - Only iOS ARKit + macOS Editor for now. Android ARCore is planned.
 - Tested with the latest Unity2022 LTS
@@ -27,6 +27,10 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 - [x] XROcclusionSubsystem
 - [ ] XRParticipantSubsystem
 - [ ] XRMeshSubsystem
+- ARCore Extensions
+  - [x] Earth Manager
+  - [ ] Cloud Anchors
+  - [x] Streetscape Geometry
 
 ## How to use
 
@@ -45,6 +49,10 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 - Record AR on the device.
 - Move your recorded file to the PC and set the file path at the `Project Settings/XR Plug-in Management/AR Foundation Replay` setting.
 - Play the AR in the Editor.
+
+## ARCore Extensions Support
+
+It supports replaying ARCore Geospatial. To test it, please use the [forked version of the arcore-unity-extensions](https://github.com/asus4/arcore-unity-extensions) and refer to the [ARFoundationReplayGeospatial](https://github.com/asus4/ARFoundationReplayGeospatial) example project.
 
 ## Dependencies
 

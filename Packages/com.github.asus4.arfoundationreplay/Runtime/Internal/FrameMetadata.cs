@@ -24,6 +24,13 @@ namespace ARFoundationReplay
         private static readonly ArrayBufferWriter<byte> bufferWriter = new(512);
         private static FrameMetadata deserialized = null;
 
+        // Register custom formatter at startup
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        static void Register()
+        {
+            MemoryPackFormatterProvider.Register(new MeshFormatter());
+        }
+
         public ReadOnlySpan<byte> Serialize()
         {
             bufferWriter.Clear();

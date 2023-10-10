@@ -7,8 +7,6 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     public struct XRStreetscapeGeometrySubsystemSubsystemCinfo
     {
         public string id;
@@ -42,7 +40,7 @@ namespace ARFoundationReplay
             return provider.GetChanges(default, allocator);
         }
 
-        public bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh)
+        public bool TryGetMesh(TrackableId trackableId, out Mesh mesh)
         {
             return provider.TryGetMesh(trackableId, out mesh);
         }
@@ -53,7 +51,7 @@ namespace ARFoundationReplay
                 StreetscapeGeometry defaultGeometry,
                 Allocator allocator);
 
-            public abstract bool TryGetMesh(NativeTrackableId trackableId, out Mesh mesh);
+            public abstract bool TryGetMesh(TrackableId trackableId, out Mesh mesh);
         }
     }
 }

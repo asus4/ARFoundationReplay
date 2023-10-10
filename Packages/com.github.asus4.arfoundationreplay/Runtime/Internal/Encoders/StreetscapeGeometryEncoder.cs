@@ -41,7 +41,7 @@ namespace ARFoundationReplay
     [MemoryPackable]
     internal sealed partial class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
-        public Dictionary<TrackableId, SerializedMesh> meshes = new();
+        public Dictionary<TrackableId, Mesh> meshes = new();
 
         public override void Reset()
         {
@@ -138,7 +138,7 @@ namespace ARFoundationReplay
             {
                 return;
             }
-            meshes.Add(arGeometry.trackableId, SerializedMesh.FromMesh(arGeometry.mesh));
+            meshes.Add(arGeometry.trackableId, arGeometry.mesh);
             _sentMeshes.Add(arGeometry.trackableId);
         }
 

@@ -167,28 +167,29 @@ namespace ARFoundationReplay
             updated.Clear();
             removed.Clear();
             using var rawChanges = packet.AsTrackableChanges(Allocator.Temp);
+
             // Added
             for (int i = 0; i < rawChanges.added.Length; i++)
             {
-                T plane = rawChanges.added[i];
-                if (!activeIds.Contains(plane.trackableId))
+                T trackable = rawChanges.added[i];
+                if (!activeIds.Contains(trackable.trackableId))
                 {
-                    activeIds.Add(plane.trackableId);
-                    added.Add(plane);
+                    activeIds.Add(trackable.trackableId);
+                    added.Add(trackable);
                 }
             }
             // Updated
             for (int i = 0; i < rawChanges.updated.Length; i++)
             {
-                T plane = rawChanges.updated[i];
-                if (activeIds.Contains(plane.trackableId))
+                T trackable = rawChanges.updated[i];
+                if (activeIds.Contains(trackable.trackableId))
                 {
-                    updated.Add(plane);
+                    updated.Add(trackable);
                 }
                 else
                 {
-                    activeIds.Add(plane.trackableId);
-                    added.Add(plane);
+                    activeIds.Add(trackable.trackableId);
+                    added.Add(trackable);
                 }
             }
             // Removed
