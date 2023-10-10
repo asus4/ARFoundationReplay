@@ -30,24 +30,21 @@ namespace ARFoundationReplay
             }
         }
 
-        public new EarthState EarthState => _useReplay
+        public override EarthState EarthState => _useReplay
             ? _subsystem.EarthState
             : base.EarthState;
 
-        public new TrackingState EarthTrackingState => _useReplay
+        public override TrackingState EarthTrackingState => _useReplay
             ? _subsystem.EarthTrackingState
             : base.EarthTrackingState;
 
-        public new GeospatialPose CameraGeospatialPose => _useReplay
+        public override GeospatialPose CameraGeospatialPose => _useReplay
             ? _subsystem.CameraGeospatialPose
             : base.CameraGeospatialPose;
 
-        public new FeatureSupported IsGeospatialModeSupported(GeospatialMode mode)
-        {
-            return _useReplay
-                ? FeatureSupported.Supported
-                : base.IsGeospatialModeSupported(mode);
-        }
+        public override FeatureSupported IsGeospatialModeSupported(GeospatialMode mode) => _useReplay
+            ? FeatureSupported.Supported
+            : base.IsGeospatialModeSupported(mode);
     }
 }
 #endif // ARCORE_EXTENSIONS_ENABLED
