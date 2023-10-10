@@ -40,7 +40,7 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
     }
 
     // At the moment, we only support one metadata track.
-    NSLog(@"Found %i tracks", (int)tracks.count);
+    NSLog(@"Found %lu tracks", (unsigned long)tracks.count);
     AVAssetTrack* track = tracks[0];
 
     // Create a reader output for the metadata track.
@@ -55,30 +55,26 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
 
     // Read all metadata from the adaptor 
     AVTimedMetadataGroup* group;
-    int i = 0;
     while(true) {
         group = [_metadataAdaptor nextTimedMetadataGroup];
         if(group == nil) {
             break;
         }
-     
+
         CMTimeRange timeRange = group.timeRange;
         for(AVMetadataItem* item in group.items) {
             if ([item.identifier isEqualToString:kMETADATA_ID_RAW]) {
                 RawMetadata* rawMetadata = [[RawMetadata alloc] init];
                 rawMetadata.time = timeRange.start;
                 rawMetadata.data = [NSData dataWithData:(NSData*) item.value];
-                // rawMetadata.data = (NSData*) item.value;
                 [_metadataBuffer addObject:rawMetadata];
             }
         }
-
-        i++;
     }
 
     [_reader cancelReading];
 
-    NSLog(@"Avfi_LoadMetadata: %@, Found %i metadata", url, i);
+    NSLog(@"Avfi_LoadMetadata: %@, Found %lu metadata", url, (unsigned long)_metadataBuffer.count);
     return true;
 }
 
