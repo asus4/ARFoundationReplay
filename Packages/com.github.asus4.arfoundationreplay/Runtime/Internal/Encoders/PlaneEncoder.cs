@@ -6,16 +6,15 @@ using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     /// <summary>
     /// Serializable version of each frame of ARPlanes.
     /// </summary>
-    [Serializable]
-    internal class PlanePacket : TrackableChangesPacket<BoundedPlane>
+    [MemoryPackable]
+    internal partial class PlanePacket : TrackableChangesPacket<BoundedPlane>
     {
         public PlaneDetectionMode currentDetectionMode;
         public Dictionary<TrackableId, byte[]> boundaries; // NativeArray<Vector2>
@@ -32,7 +31,7 @@ namespace ARFoundationReplay
         }
 
         public unsafe void GetBoundary(
-            NativeTrackableId trackableId,
+            TrackableId trackableId,
             Allocator allocator,
             ref NativeArray<Vector2> boundary)
         {
@@ -64,8 +63,6 @@ namespace ARFoundationReplay
         private ARPlaneManager _planeManager;
         private readonly PlanePacket _packet = new();
 
-        public TrackID ID => TrackID.Plane;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _planeManager = origin.GetComponentInChildren<ARPlaneManager>();
@@ -83,10 +80,9 @@ namespace ARFoundationReplay
             _planeManager = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            data = _packet.IsAvailable ? _packet : null;
-            return _packet.IsAvailable;
+            metadata.plane = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode()
@@ -141,7 +137,7 @@ namespace ARFoundationReplay
                 trackableId: plane.trackableId,
                 subsumedBy: plane.subsumedBy != null
                     ? plane.subsumedBy.trackableId
-                    : NativeTrackableId.invalidId,
+                    : TrackableId.invalidId,
                 pose: plane.transform.GetLocalPose(),
                 center: plane.centerInPlaneSpace,
                 size: plane.size,

@@ -10,6 +10,7 @@
         "Unity.XR.ARSubsystems",
         "Unity.XR.CoreUtils",
         "Unity.XR.Management",
+        "MemoryPack",
         "Google.XR.ARCoreExtensions"
     ],
     "includePlatforms": [],

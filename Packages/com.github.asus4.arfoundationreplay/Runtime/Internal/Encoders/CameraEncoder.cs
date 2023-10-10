@@ -15,8 +15,6 @@ namespace ARFoundationReplay
         private Camera _camera;
         private XRCameraFrame _cameraFrame;
 
-        public TrackID ID => TrackID.Camera;
-
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
             _muxMaterial = muxMaterial;
@@ -39,10 +37,9 @@ namespace ARFoundationReplay
             _muxMaterial = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            data = _cameraFrame.ToByteArray();
-            return true;
+            metadata.camera = _cameraFrame;
         }
 
         public void PostEncode()

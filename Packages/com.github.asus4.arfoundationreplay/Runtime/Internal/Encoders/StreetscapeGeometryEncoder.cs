@@ -6,15 +6,14 @@ using Unity.XR.CoreUtils;
 using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
+using MemoryPack;
 
 namespace ARFoundationReplay
 {
-    using NativeTrackableId = UnityEngine.XR.ARSubsystems.TrackableId;
-
     public struct StreetscapeGeometry : ITrackable
     {
-        private NativeTrackableId _trackableId;
-        public NativeTrackableId trackableId
+        private TrackableId _trackableId;
+        public TrackableId trackableId
         {
             readonly get => _trackableId;
             set => _trackableId = value;
@@ -39,8 +38,8 @@ namespace ARFoundationReplay
         public StreetscapeGeometryQuality quality;
     }
 
-    [Serializable]
-    internal sealed class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
+    [MemoryPackable]
+    internal sealed partial class StreetscapeGeometryPacket : TrackableChangesPacket<StreetscapeGeometry>
     {
         public Dictionary<TrackableId, SerializedMesh> meshes = new();
 
@@ -55,9 +54,7 @@ namespace ARFoundationReplay
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
-        private readonly HashSet<NativeTrackableId> _sentMeshes = new();
-
-        public TrackID ID => TrackID.ARCoreStreetscapeGeometry;
+        private readonly HashSet<TrackableId> _sentMeshes = new();
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
@@ -81,18 +78,9 @@ namespace ARFoundationReplay
             }
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
-            if (_packet.IsAvailable)
-            {
-                data = _packet;
-                return true;
-            }
-            else
-            {
-                data = null;
-                return false;
-            }
+            metadata.streetscapeGeometry = _packet.IsAvailable ? _packet : null;
         }
 
         public void PostEncode()

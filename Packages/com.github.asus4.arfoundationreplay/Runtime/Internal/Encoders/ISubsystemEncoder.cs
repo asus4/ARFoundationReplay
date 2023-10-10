@@ -11,12 +11,6 @@ namespace ARFoundationReplay
     internal interface ISubsystemEncoder : IDisposable
     {
         /// <summary>
-        /// Track ID used as a key of track
-        /// </summary>
-        /// <value>A track ID</value>
-        TrackID ID { get; }
-
-        /// <summary>
         /// Initialize and check availability of Subsystem.
         /// </summary>
         /// <param name="origin">An XROrigin</param>
@@ -25,11 +19,10 @@ namespace ARFoundationReplay
         bool Initialize(XROrigin origin, Material muxMaterial);
 
         /// <summary>
-        /// Encode subsystem state.
+        /// Encode subsystem state into Metadata.
         /// </summary>
-        /// <param name="data">The encoded data</param>
-        /// <returns>Whether succeeded or not</returns>
-        bool TryEncode(out object data);
+        /// <param name="metadata">The encoded metadata</param>
+        void Encode(FrameMetadata metadata);
 
         /// <summary>
         /// Called after Encode() is called for all subsystems.

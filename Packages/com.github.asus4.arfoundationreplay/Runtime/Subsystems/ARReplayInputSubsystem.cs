@@ -14,12 +14,10 @@ namespace ARFoundationReplay
         // - input.cpp native plugin
         public const string ID = "ARReplay-Input";
 
-        static internal void Update(FrameMetadata packet)
+        static internal void Update(FrameMetadata metadata)
         {
-            if (packet.TryGetByteStruct(TrackID.Input, out Pose pose))
-            {
-                ARReplayInputUpdate(pose);
-            }
+            Pose pose = metadata.input;
+            ARReplayInputUpdate(pose);
         }
 
 #if !UNITY_EDITOR && UNITY_IOS

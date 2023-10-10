@@ -56,11 +56,8 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                if (!replay.Metadata.TryGetObject(TrackID.ARCoreStreetscapeGeometry, out _currentPacket))
-                {
-                    return default;
-                }
-                if (!_currentPacket.IsAvailable)
+                _currentPacket = replay.Metadata.streetscapeGeometry;
+                if (_currentPacket == null || !_currentPacket.IsAvailable)
                 {
                     return default;
                 }

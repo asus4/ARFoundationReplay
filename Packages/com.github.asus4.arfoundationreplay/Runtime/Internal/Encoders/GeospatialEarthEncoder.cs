@@ -8,8 +8,6 @@ using Google.XR.ARCoreExtensions;
 
 namespace ARFoundationReplay
 {
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
     internal struct GeospatialEarthPacket
     {
         public EarthState earthState;
@@ -24,8 +22,6 @@ namespace ARFoundationReplay
     internal sealed class GeospatialEarthEncoder : ISubsystemEncoder
     {
         private AREarthManager _earthManager;
-
-        public TrackID ID => TrackID.ARCoreGeospatialEarth;
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
@@ -42,7 +38,7 @@ namespace ARFoundationReplay
             _earthManager = null;
         }
 
-        public bool TryEncode(out object data)
+        public void Encode(FrameMetadata metadata)
         {
             var packet = new GeospatialEarthPacket
             {
@@ -50,8 +46,7 @@ namespace ARFoundationReplay
                 trackingState = _earthManager.EarthTrackingState,
                 geospatialPose = _earthManager.CameraGeospatialPose,
             };
-            data = packet.ToByteArray();
-            return true;
+            metadata.geospatialEarth = packet;
         }
 
         public void PostEncode()

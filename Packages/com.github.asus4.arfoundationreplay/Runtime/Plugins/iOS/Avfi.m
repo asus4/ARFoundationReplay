@@ -11,7 +11,7 @@
 // Internal objects
 static AVAssetWriter* _writer;
 static AVAssetWriterInput* _writerVideoInput;
-static AVAssetWriterInputPixelBufferAdaptor* _bufferAdaptor;
+static AVAssetWriterInputPixelBufferAdaptor* _pixelBufferAdaptor;
 static AVAssetWriterInput* _writerMetadataInput;
 static AVAssetWriterInputMetadataAdaptor* _metadataAdaptor;
 static double _frameCount;
@@ -70,7 +70,7 @@ extern void Avfi_StartRecording(const char* filePath, int width, int height)
         (NSString*)kCVPixelBufferHeightKey: @(height),
     };
 
-    _bufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput: _writerVideoInput
+    _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput: _writerVideoInput
                                                                                       sourcePixelBufferAttributes: attribs];
     
     // Metadata adaptor setup
@@ -123,7 +123,7 @@ extern void Avfi_AppendFrame(
     // Buffer allocation
     CVPixelBufferRef buffer;
     CVReturn ret = CVPixelBufferPoolCreatePixelBuffer
-      (NULL, _bufferAdaptor.pixelBufferPool, &buffer);
+      (NULL, _pixelBufferAdaptor.pixelBufferPool, &buffer);
 
     if (ret != kCVReturnSuccess)
     {
@@ -142,7 +142,7 @@ extern void Avfi_AppendFrame(
     CVPixelBufferUnlockBaseAddress(buffer, 0);
 
     // Buffer submission
-    BOOL success = [_bufferAdaptor appendPixelBuffer:buffer
+    BOOL success = [_pixelBufferAdaptor appendPixelBuffer:buffer
                                 withPresentationTime:CMTimeMakeWithSeconds(time, kTIMESCALE)];
     if (!success) {
         NSLog(@"Warning: Unable to write buffer to video");
@@ -164,6 +164,23 @@ extern void Avfi_AppendFrame(
                                                                                 timeRange:metadataTime];
         [_metadataAdaptor appendTimedMetadataGroup:metadataGroup];
     }    
+}
+
+extern void Avfi_AddMetadata(const char* key, const char* value)
+{
+    if (!_writer)
+    {
+        NSLog(@"Recording hasn't been initiated.");
+        return;
+    }
+    // Create metadata from JSON value
+    AVMutableMetadataItem* metadataItem = [AVMutableMetadataItem metadataItem];
+    metadataItem.identifier = [NSString stringWithUTF8String:key];
+    metadataItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_JSON;
+    metadataItem.value = [NSString stringWithUTF8String:key];
+
+    _writer.metadata = @[metadataItem];
+    NSLog(@"Set metadta");
 }
 
 extern void Avfi_EndRecording(bool isSave)
@@ -191,7 +208,7 @@ extern void Avfi_EndRecording(bool isSave)
 
     _writer = NULL;
     _writerVideoInput = NULL;
-    _bufferAdaptor = NULL;
+    _pixelBufferAdaptor = NULL;
     _writerMetadataInput = NULL;
     _metadataAdaptor = NULL;
 }
