@@ -12,7 +12,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.xr.arfoundation": "5.1.0"
+        "com.unity.xr.arfoundation": "5.1.0",
+        "com.cysharp.memorypack": "1.9.16"
       }
     },
     "com.unity.burst": {
