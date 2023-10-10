@@ -79,15 +79,11 @@ namespace ARFoundationReplay
                     return true;
                 }
 
-                if (!_currentPacket.meshes.TryGetValue(trackableId, out SerializedMesh serializedMesh))
+                if (!_currentPacket.meshes.TryGetValue(trackableId, out mesh))
                 {
                     mesh = default;
                     return false;
                 }
-
-                mesh = new Mesh();
-                serializedMesh.CopyToMesh(mesh);
-                mesh.UploadMeshData(false);
 
                 _cachedMeshes.Add(trackableId, mesh);
 

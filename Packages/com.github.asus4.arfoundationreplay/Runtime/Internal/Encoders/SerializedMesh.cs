@@ -7,9 +7,13 @@ using MemoryPack;
 
 namespace ARFoundationReplay
 {
+    /// <summary>
+    /// Serialize/Deserialize Mesh
+    /// </summary>
     [MemoryPackable]
     internal partial class SerializedMesh : IDisposable
     {
+        // TODO: consider using Memory<byte> instead of byte[]
         public byte[] indices;
         public byte[] vertices;
         public byte[] uvs;
@@ -93,6 +97,42 @@ namespace ARFoundationReplay
                 mesh.SetTangents(tangents.AsNativeArray<Vector4>(allocator));
             if (colors != null)
                 mesh.SetColors(colors.AsNativeArray<Color>(allocator));
+        }
+    }
+
+    /// <summary>
+    /// MemoryPack Wrapper to encode Mesh
+    /// </summary>
+    internal sealed class MeshFormatter : MemoryPackFormatter<Mesh>
+    {
+        public override void Serialize(ref MemoryPackWriter writer, ref Mesh value)
+        {
+            if (value == null)
+            {
+                writer.WriteNullObjectHeader();
+                return;
+            }
+
+            using var wrapped = SerializedMesh.FromMesh(value);
+            writer.WritePackable(wrapped);
+        }
+
+        public override void Deserialize(ref MemoryPackReader reader, ref Mesh value)
+        {
+            if (reader.PeekIsNull())
+            {
+                reader.Advance(1); // skip null block
+                value = null;
+                return;
+            }
+
+            using var wrapped = reader.ReadPackable<SerializedMesh>();
+            if (value == null)
+            {
+                value = new Mesh();
+            }
+            wrapped.CopyToMesh(value);
+            value.UploadMeshData(false);
         }
     }
 }
