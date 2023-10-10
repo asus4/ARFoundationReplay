@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -60,15 +61,24 @@ namespace ARFoundationReplay
         public void WarmUp()
         {
             var path = GetTemporaryFilePath();
-            Avfi.StartRecording(path, _source.width, _source.height);
+            Avfi.PrepareRecording(path, _source.width, _source.height);
+            Avfi.StartRecording();
             Avfi.EndRecording(false);
         }
 
-        public void StartRecording()
+        public void StartRecording(Dictionary<string, string> metadata)
         {
             var path = GetTemporaryFilePath();
             _metadataQueue.Clear();
-            Avfi.StartRecording(path, _source.width, _source.height);
+            Avfi.PrepareRecording(path, _source.width, _source.height);
+            if (metadata != null)
+            {
+                foreach (var (key, value) in metadata)
+                {
+                    Avfi.SetMetadata(key, value);
+                }
+            }
+            Avfi.StartRecording();
             IsRecording = true;
             _frameCount = 0;
         }

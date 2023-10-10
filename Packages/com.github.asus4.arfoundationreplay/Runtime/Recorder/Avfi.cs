@@ -20,17 +20,25 @@ namespace ARFoundationReplay
         const string DllName = "Avfi";
 #endif
 
+        [DllImport(DllName, EntryPoint = "Avfi_PrepareRecording")]
+        public static extern void PrepareRecording(string filePath, int width, int height);
+
+        [DllImport(DllName, EntryPoint = "Avfi_SetMetadata")]
+        public static extern void SetMetadata(string key, string value);
+
         [DllImport(DllName, EntryPoint = "Avfi_StartRecording")]
-        public static extern void StartRecording(string filePath, int width, int height);
+        public static extern void StartRecording();
 
         [DllImport(DllName, EntryPoint = "Avfi_AppendFrame")]
         public unsafe static extern void AppendFrame(
             void* pointer, uint size, void* metadata, uint metadataSize, double time);
 
+
         [DllImport(DllName, EntryPoint = "Avfi_EndRecording")]
         public static extern void EndRecording(bool isSave);
 
-        #region Metadata
+
+        #region Metadata Playback
         [DllImport(DllName, EntryPoint = "Avfi_LoadMetadata")]
         public static extern void LoadMetadata(string filePath);
 

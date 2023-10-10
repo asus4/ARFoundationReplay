@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Unity.Profiling;
 using Unity.XR.CoreUtils;
+using System.Collections.Generic;
 
 namespace ARFoundationReplay
 {
@@ -34,6 +35,7 @@ namespace ARFoundationReplay
 
         private FrameMetadata _metadata;
         private ISubsystemEncoder[] _encoders;
+        private int _maxMetadataBytes = 0;
         public bool IsRecording => _videoRecorder.IsRecording;
 
         private static bool _needWarmedUp = Application.platform == RuntimePlatform.IPhonePlayer;
@@ -60,6 +62,7 @@ namespace ARFoundationReplay
             Assert.IsNotNull(shader);
             _muxMaterial = new Material(shader);
             _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate);
+            _maxMetadataBytes = 0;
             if (_needWarmedUp)
             {
                 _videoRecorder.WarmUp();
@@ -99,6 +102,7 @@ namespace ARFoundationReplay
             kSerializeMarker.End();
 
             _videoRecorder.Update(metadata);
+            _maxMetadataBytes = Mathf.Max(_maxMetadataBytes, metadata.Length);
         }
 
         public void StartRecording()
@@ -106,7 +110,6 @@ namespace ARFoundationReplay
             if (IsRecording) { return; }
 
             _metadata = new FrameMetadata();
-            _videoRecorder.StartRecording();
 
             // Initialize encoders and filter unavailable out
             _encoders = CreateAllEncoders()
@@ -120,6 +123,8 @@ namespace ARFoundationReplay
                     return available;
                 })
                 .ToArray();
+
+            _videoRecorder.StartRecording(MakeFileMetadata());
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("ARRecorder.StartRecording - active encoders:");
@@ -146,6 +151,22 @@ namespace ARFoundationReplay
                 }
                 _encoders = null;
             }
+        }
+
+        private Dictionary<string, string> MakeFileMetadata()
+        {
+            var metadata = new FileMetadata()
+            {
+                version = Config.VERSION,
+                modelName = SystemInfo.deviceModel,
+                screenWidth = Screen.width,
+                screenHeight = Screen.height,
+                encoders = _encoders.Select(encoder => encoder.GetType().Name).ToArray(),
+            };
+            return new Dictionary<string, string>()
+            {
+                { FileMetadata.KEY,  metadata.Serialize() },
+            };
         }
 
         private static ISubsystemEncoder[] CreateAllEncoders()

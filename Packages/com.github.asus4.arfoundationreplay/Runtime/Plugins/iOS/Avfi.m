@@ -1,3 +1,8 @@
+/**
+ Based on  https://github.com/keijiro/Avfi
+ Modified to support metadata
+ */
+
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CMMetadata.h>
 
@@ -16,7 +21,7 @@ static AVAssetWriterInput* _writerMetadataInput;
 static AVAssetWriterInputMetadataAdaptor* _metadataAdaptor;
 static double _frameCount;
 
-extern void Avfi_StartRecording(const char* filePath, int width, int height)
+extern void Avfi_PrepareRecording(const char* filePath, int width, int height)
 {
     if (_writer)
     {
@@ -91,7 +96,38 @@ extern void Avfi_StartRecording(const char* filePath, int width, int height)
     
     [_writerMetadataInput addTrackAssociationWithTrackOfInput:_writerVideoInput type:AVTrackAssociationTypeMetadataReferent];
     [_writer addInput:_writerMetadataInput];
-    
+}
+
+extern void Avfi_SetMetadata(const char* key, const char* value)
+{
+    if (!_writer)
+    {
+        NSLog(@"Recording hasn't been initiated.");
+        return;
+    }
+
+    NSString* keyStr = [NSString stringWithUTF8String:key];
+    NSString* jsonStr =[NSString stringWithUTF8String:value];
+
+    // Create metadata from JSON value
+    AVMutableMetadataItem* item = [AVMutableMetadataItem metadataItem];
+    item.identifier = [NSString stringWithFormat: @"%@/%@", AVMetadataKeySpaceCommon, keyStr];
+    item.dataType = (__bridge NSString *)kCMMetadataBaseDataType_JSON;
+    item.value = jsonStr;
+
+    _writer.metadata = @[item];
+    NSLog(@"Set metadta, %@", item);
+    NSLog(@"JSON, %@", jsonStr);
+}
+
+extern void Avfi_StartRecording()
+{
+    if (!_writer)
+    {
+        NSLog(@"Recording hasn't been initiated.");
+        return;
+    }
+
     // Recording start
     if (![_writer startWriting])
     {
@@ -164,23 +200,6 @@ extern void Avfi_AppendFrame(
                                                                                 timeRange:metadataTime];
         [_metadataAdaptor appendTimedMetadataGroup:metadataGroup];
     }    
-}
-
-extern void Avfi_AddMetadata(const char* key, const char* value)
-{
-    if (!_writer)
-    {
-        NSLog(@"Recording hasn't been initiated.");
-        return;
-    }
-    // Create metadata from JSON value
-    AVMutableMetadataItem* metadataItem = [AVMutableMetadataItem metadataItem];
-    metadataItem.identifier = [NSString stringWithUTF8String:key];
-    metadataItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_JSON;
-    metadataItem.value = [NSString stringWithUTF8String:key];
-
-    _writer.metadata = @[metadataItem];
-    NSLog(@"Set metadta");
 }
 
 extern void Avfi_EndRecording(bool isSave)
