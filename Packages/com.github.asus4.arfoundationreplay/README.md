@@ -4,6 +4,9 @@
 
 PoC of Recording AR Foundation session into a single mp4 with a binary timeline track / Replaying it in Editor on AR Foundation without any extra settings.
 
+https://github.com/asus4/ARFoundationReplay/assets/357497/8e77ee45-6f2c-442e-a47a-f35f044b8181
+
+
 ## Tested platform
 
 - Only iOS ARKit + macOS Editor for now. Android ARCore is planned.
@@ -35,7 +38,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 ## How to use
 
 - Download [System.Runtime.CompilerServices.Unsafe](https://www.nuget.org/packages/System.Runtime.CompilerServices.Unsafe/6.0.0) NuGet package and rename to zip to extract. Locate `lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll` to `Assets/Plugins/` directory.
-- Add following line to `Packages/manifest.json` to install AR Foundation Replay package via UPM:
+- Add the following line to `Packages/manifest.json` to install AR Foundation Replay package via UPM:
 
 ```json
 "dependencies": {
