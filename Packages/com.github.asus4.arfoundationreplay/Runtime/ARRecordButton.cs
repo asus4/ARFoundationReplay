@@ -11,7 +11,7 @@ namespace ARFoundationReplay
     public sealed class ARRecordButton : MonoBehaviour
     {
         [SerializeField]
-        private ARRecorder.Options _options = new()
+        private ARKitRecorder.Options _options = new()
         {
             width = 1920,
             height = 1080,
@@ -28,7 +28,7 @@ namespace ARFoundationReplay
         [SerializeField]
         private Sprite _iconStop;
 
-        private ARRecorder _recorder;
+        private IRecorder _recorder;
         private Button _button;
 
         private void Awake()
@@ -41,10 +41,20 @@ namespace ARFoundationReplay
                 return;
             }
 
-            _recorder = AddOrGetComponent<ARRecorder>();
-            _recorder.options = _options;
-            bool needHidden = _hideInReleaseBuild && !Debug.isDebugBuild;
-            gameObject.SetActive(!needHidden);
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    _recorder = AddOrGetComponent<ARCoreRecorder>();
+                    break;
+                case RuntimePlatform.IPhonePlayer:
+                    var recorder = AddOrGetComponent<ARKitRecorder>();
+                    recorder.options = _options;
+                    _recorder = recorder;
+                    break;
+                default:
+                    Debug.LogWarning($"Recording is not supported on {Application.platform}");
+                    return;
+            }
         }
 
         private void OnDestroy()
@@ -67,6 +77,11 @@ namespace ARFoundationReplay
 
         private void OnRecordButtonClicked()
         {
+            if (_recorder == null)
+            {
+                return;
+            }
+
             if (_recorder.IsRecording)
             {
                 _recorder.StopRecording();

@@ -9,7 +9,7 @@ namespace ARFoundationReplay
     /// <summary>
     /// Records video file with timeline metadata.
     /// </summary>
-    public sealed class ARRecorder : MonoBehaviour
+    public sealed class ARKitRecorder : MonoBehaviour, IRecorder
     {
         [System.Serializable]
         public struct Options
