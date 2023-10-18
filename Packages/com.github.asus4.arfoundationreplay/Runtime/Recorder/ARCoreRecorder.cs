@@ -103,7 +103,7 @@ namespace ARFoundationReplay
             }
 
             Debug.Log($"ARCore session saved to {_recordingFilePath}");
-            ShareVideoWithAndroidIntent(_recordingFilePath);
+            // ShareVideoWithAndroidIntent(_recordingFilePath);
         }
 
         private static string GetFilePath()
