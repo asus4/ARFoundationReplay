@@ -33,6 +33,12 @@ namespace ARFoundationReplay
 
         private void Awake()
         {
+            if (_hideInReleaseBuild && !Debug.isDebugBuild)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
             var origin = FindObjectOfType<XROrigin>();
             if (origin == null)
             {
