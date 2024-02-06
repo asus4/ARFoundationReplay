@@ -10,7 +10,7 @@
     "xreditorsubsystem"
   ],
   "dependencies": {
-    "com.unity.xr.arfoundation": "5.1.0",
-    "com.cysharp.memorypack": "1.9.16"
+    "com.unity.xr.arfoundation": "5.1.2",
+    "com.cysharp.memorypack": "1.10.0"
   }
 }

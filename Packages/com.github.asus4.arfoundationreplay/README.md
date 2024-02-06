@@ -1,14 +1,14 @@
 # AR Foundation Replay
 
-**🚧 Working in progress 🏗️**
+**🚧 Work in progress 🏗️**
 
 PoC of Recording AR Foundation session into a single mp4 with a binary timeline track / Replaying it in Editor on AR Foundation without any extra settings.
 
-https://github.com/asus4/ARFoundationReplay/assets/357497/8e77ee45-6f2c-442e-a47a-f35f044b8181
+<https://github.com/asus4/ARFoundationReplay/assets/357497/8e77ee45-6f2c-442e-a47a-f35f044b8181>
 
 ↓ Check out the complete project [WorldEnsambe](https://github.com/asus4/WorldEnsemble) utilizing ARFoundationReplay.
 
-https://github.com/asus4/WorldEnsemble/assets/357497/1ff03fd4-01cf-41a6-8aef-42e11f7a67a2
+<https://github.com/asus4/WorldEnsemble/assets/357497/1ff03fd4-01cf-41a6-8aef-42e11f7a67a2>
 
 ## Tested platform
 
@@ -42,6 +42,7 @@ https://github.com/asus4/WorldEnsemble/assets/357497/1ff03fd4-01cf-41a6-8aef-42e
 
 - Download [System.Runtime.CompilerServices.Unsafe](https://www.nuget.org/packages/System.Runtime.CompilerServices.Unsafe/6.0.0) NuGet package and rename to zip to extract. Locate `lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll` to `Assets/Plugins/` directory. Or you can copy it from this repository.
 - Add the following line to `Packages/manifest.json` to install AR Foundation Replay package via UPM:
+
   ```json
   "dependencies": {
       "com.cysharp.memorypack": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack#1.9.16",
@@ -49,6 +50,7 @@ https://github.com/asus4/WorldEnsemble/assets/357497/1ff03fd4-01cf-41a6-8aef-42e
       ... other dependencies
   }
   ```
+
 - Simulation on the Unity Editor is supported only on iOS. Open Build Settings and switch the platform to iOS.
   ![fig-switch-platform](https://github.com/asus4/WorldEnsemble/assets/357497/2bbcb90a-5f6f-4d2a-87a1-65db73f74a36)
 - Activate AR Foundation Replay for Unity Editor:
