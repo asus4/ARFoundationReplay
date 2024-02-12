@@ -19,6 +19,9 @@ RWTexture2D<float> _HumanDepth;
 RWTexture2D<float> _EnvironmentDepth;
 float2 _DepthRange;
 
+// Offset depth value might be affected by _DepthRange(Config.DepthRange)
+static const float DepthPadding = 0.08;
+
 // Inverse matrix of s_YCbCrToSRGB
 static const float4x4 s_SRGBToYCbCr = float4x4(
     0.298993, 0.587016, 0.1139911, 2.112563E-08,
@@ -62,6 +65,6 @@ void DecodeOcclusion (uint2 id : SV_DispatchThreadID)
     rgb_depth.xyz = FastLinearToSRGB(rgb_depth.xyz);
 #endif
     _HumanStencil[id] = RGB2Brightness(rgb_human.rgb);
-    _HumanDepth[id] = DecodeDepth(rgb_human.rgb, _DepthRange);
-    _EnvironmentDepth[id] = DecodeDepth(rgb_depth.rgb, _DepthRange);
+    _HumanDepth[id] = DecodeDepth(rgb_human.rgb, _DepthRange) + DepthPadding;
+    _EnvironmentDepth[id] = DecodeDepth(rgb_depth.rgb, _DepthRange) + DepthPadding;
 }
