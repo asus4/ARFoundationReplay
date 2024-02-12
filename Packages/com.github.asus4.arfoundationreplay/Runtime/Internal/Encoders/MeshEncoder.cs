@@ -55,8 +55,11 @@ namespace ARFoundationReplay
 
         public void Dispose()
         {
-            _meshManager.meshesChanged -= OnMeshesChanged;
-            _meshManager = null;
+            if (_meshManager != null)
+            {
+                _meshManager.meshesChanged -= OnMeshesChanged;
+                _meshManager = null;
+            }
         }
 
         public void Encode(FrameMetadata metadata)
