@@ -72,9 +72,9 @@ float DecodeDepth(float3 rgb, float2 range)
 // UV coordinate remapping functions
 //
 // +-----+-----+  C: Color
-// |  Z  |     |  Z: Hue-encoded depth
-// +-----+  C  |  S: Human stencil
-// | S/M |     |  M: Metadata
+// |  S  |     |  S: Human stencil
+// +-----+  C  |  Z: Hue-encoded depth
+// |  Z  |     |  
 // +-----+-----+
 //
 
