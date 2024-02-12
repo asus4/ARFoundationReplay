@@ -157,8 +157,9 @@ namespace ARFoundationReplay
                 new PlaneEncoder(),
                 // Working in progress
                 // new MeshEncoder(),
+
+                // Optional encoders for ARCore Geospatial, enabled when it's installed.
 #if ARCORE_EXTENSIONS_ENABLED
-                // Optional encoders for ARCore Geospatial
                 new GeospatialEarthEncoder(),
                 new StreetscapeGeometryEncoder(),
 #endif // ARCORE_EXTENSIONS_ENABLED

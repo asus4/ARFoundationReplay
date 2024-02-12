@@ -142,6 +142,8 @@ namespace ARFoundationReplay
 
     internal static class TrackableChangesPacketExtension
     {
+        public delegate bool TrackableFilter<T>(ref T trackable);
+
         /// <summary>
         /// Used while replaying packets.
         /// 
@@ -160,7 +162,8 @@ namespace ARFoundationReplay
             HashSet<TrackableId> activeIds,
             List<T> added,
             List<T> updated,
-            List<TrackableId> removed)
+            List<TrackableId> removed,
+            TrackableFilter<T> filter = null)
             where T : struct, ITrackable
         {
             added.Clear();
@@ -168,10 +171,16 @@ namespace ARFoundationReplay
             removed.Clear();
             using var rawChanges = packet.AsTrackableChanges(Allocator.Temp);
 
+            bool useFilter = filter != null;
+
             // Added
             for (int i = 0; i < rawChanges.added.Length; i++)
             {
                 T trackable = rawChanges.added[i];
+                if (useFilter && !filter(ref trackable))
+                {
+                    continue;
+                }
                 if (!activeIds.Contains(trackable.trackableId))
                 {
                     activeIds.Add(trackable.trackableId);
@@ -182,6 +191,10 @@ namespace ARFoundationReplay
             for (int i = 0; i < rawChanges.updated.Length; i++)
             {
                 T trackable = rawChanges.updated[i];
+                if (useFilter && !filter(ref trackable))
+                {
+                    continue;
+                }
                 if (activeIds.Contains(trackable.trackableId))
                 {
                     updated.Add(trackable);

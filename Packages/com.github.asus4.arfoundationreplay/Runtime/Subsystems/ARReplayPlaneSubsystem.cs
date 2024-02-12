@@ -94,9 +94,31 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
+
+                if (_currentPacket.currentDetectionMode == requestedPlaneDetectionMode)
+                {
+                    _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
+                }
+                else
+                {
+                    // Filter out trackable
+                    _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed,
+                        TrackableFilter);
+                }
 
                 return _currentPacket.AsTrackableChanges(allocator);
+            }
+
+            private bool TrackableFilter(ref BoundedPlane plane)
+            {
+                return plane.alignment switch
+                {
+                    PlaneAlignment.HorizontalUp or PlaneAlignment.HorizontalDown
+                        => requestedPlaneDetectionMode.HasFlag(PlaneDetectionMode.Horizontal),
+                    PlaneAlignment.Vertical
+                        => requestedPlaneDetectionMode.HasFlag(PlaneDetectionMode.Vertical),
+                    _ => true,
+                };
             }
 
         }
