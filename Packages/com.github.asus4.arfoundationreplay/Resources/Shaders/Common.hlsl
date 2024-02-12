@@ -99,7 +99,7 @@ float2 UV_FullToColor(float2 uv)
 float2 UV_StencilToFull(float2 uv)
 {
     return float2(
-        lerp(0.5, 0.0, uv.x),
+        lerp(0.0, 0.5, uv.x),
         lerp(1.0, 0.5, uv.y)
     );
 }
