@@ -76,8 +76,11 @@ namespace ARFoundationReplay
 
         public void Dispose()
         {
-            _planeManager.planesChanged -= OnPlanesChanged;
-            _planeManager = null;
+            if (_planeManager != null)
+            {
+                _planeManager.planesChanged -= OnPlanesChanged;
+                _planeManager = null;
+            }
         }
 
         public void Encode(FrameMetadata metadata)
