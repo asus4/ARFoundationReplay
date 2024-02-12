@@ -142,7 +142,8 @@ namespace ARFoundationReplay
 
     internal static class TrackableChangesPacketExtension
     {
-        public delegate bool TrackableFilter<T>(ref T trackable);
+        public delegate bool TrackableFilter<T>(ref T trackable)
+            where T : struct, ITrackable;
 
         /// <summary>
         /// Used while replaying packets.
