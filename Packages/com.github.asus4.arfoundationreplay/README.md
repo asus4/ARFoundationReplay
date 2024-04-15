@@ -1,12 +1,11 @@
 # AR Foundation Replay
 
-**🚧 Work in progress 🏗️**
-
+**🚧 Work in progress 🏗️**  
 PoC of Recording AR Foundation session into a single mp4 with a binary timeline track / Replaying it in Editor on AR Foundation without any extra settings.
 
 <https://github.com/asus4/ARFoundationReplay/assets/357497/8e77ee45-6f2c-442e-a47a-f35f044b8181>
 
-↓ Check out the complete project [WorldEnsambe](https://github.com/asus4/WorldEnsemble) utilizing ARFoundationReplay.
+↓ Check out the [complete project](https://github.com/asus4/WorldEnsemble) utilizing ARFoundationReplay.
 
 <https://github.com/asus4/WorldEnsemble/assets/357497/1ff03fd4-01cf-41a6-8aef-42e11f7a67a2>
 
@@ -40,13 +39,15 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
 ## How to use
 
-- Download [System.Runtime.CompilerServices.Unsafe](https://www.nuget.org/packages/System.Runtime.CompilerServices.Unsafe/6.0.0) NuGet package and rename to zip to extract. Locate `lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll` to `Assets/Plugins/` directory. Or you can copy it from this repository.
+- Install MemoryPack from NuGet using NuGetForUnity
+  - `openupm add com.github-glitchenzo.nugetforunity`
+  - Open Window from NuGet -> Manage NuGet Packages, Search "MemoryPack" and Press Install.
+  ![screenshot](https://github.com/Cysharp/MemoryPack/assets/727159/599ff1ed-6cca-4724-be67-3edddb5e62ee)
 - Add the following line to `Packages/manifest.json` to install AR Foundation Replay package via UPM:
 
   ```json
   "dependencies": {
-      "com.cysharp.memorypack": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack#1.10.0",
-      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay",
+      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay#0.2.0",
       ... other dependencies
   }
   ```
