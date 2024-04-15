@@ -11,14 +11,15 @@
         "Unity.XR.ARSubsystems",
         "Unity.XR.CoreUtils",
         "Unity.XR.Management",
-        "MemoryPack",
         "Google.XR.ARCoreExtensions"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "MemoryPack.Core.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [

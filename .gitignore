@@ -75,5 +75,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 
+# NugetForUnity generated folder
+Assets/[Pp]ackages
 # Custom for this project
 *.mp4

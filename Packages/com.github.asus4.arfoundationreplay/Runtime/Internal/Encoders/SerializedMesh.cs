@@ -105,7 +105,9 @@ namespace ARFoundationReplay
     /// </summary>
     internal sealed class MeshFormatter : MemoryPackFormatter<Mesh>
     {
-        public override void Serialize(ref MemoryPackWriter writer, ref Mesh value)
+        // Since Unity doesn't support C# 9.0 by default
+#pragma warning disable CS9074 // The 'scoped' modifier of parameter doesn't match overridden or implemented member.
+        public override void Serialize<TBufferWriter>(ref MemoryPackWriter<TBufferWriter> writer, ref Mesh value)
         {
             if (value == null)
             {
@@ -134,5 +136,6 @@ namespace ARFoundationReplay
             wrapped.CopyToMesh(value);
             value.UploadMeshData(false);
         }
+#pragma warning restore CS9074 // The 'scoped' modifier of parameter doesn't match overridden or implemented member.
     }
 }
