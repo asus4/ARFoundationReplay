@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.cysharp.memorypack": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack#1.10.0",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.inputsystem": "1.7.0",
     "com.unity.render-pipelines.universal": "14.0.10",
@@ -25,6 +24,16 @@
     "com.unity.modules.umbra": "1.0.0",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.modules.video": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
-  }
+    "com.unity.modules.xr": "1.0.0",
+    "com.github-glitchenzo.nugetforunity": "4.1.0"
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.github-glitchenzo.nugetforunity"
+      ]
+    }
+  ]
 }

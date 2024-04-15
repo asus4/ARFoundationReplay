@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "2554e81f0315ddf835026940ccc4ba8175edfda3"
     },
+    "com.github-glitchenzo.nugetforunity": {
+      "version": "4.1.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.github.asus4.arfoundationreplay": {
       "version": "file:com.github.asus4.arfoundationreplay",
       "depth": 0,
