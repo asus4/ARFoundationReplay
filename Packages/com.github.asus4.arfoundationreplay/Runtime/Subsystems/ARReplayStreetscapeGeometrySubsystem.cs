@@ -68,6 +68,12 @@ namespace ARFoundationReplay
                     return default;
                 }
 
+                // Cache meshes
+                foreach (var kv in _currentPacket.meshes)
+                {
+                    _cachedMeshes[kv.Key] = kv.Value;
+                }
+
                 _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
                 return _currentPacket.AsTrackableChanges(allocator);
             }
