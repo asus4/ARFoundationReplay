@@ -16,8 +16,7 @@ namespace ARFoundationReplay
     {
         private bool _useReplay = false;
         private XRStreetscapeGeometrySubsystem _subsystem;
-
-        private Action<ARStreetscapeGeometriesChangedEventArgs>[] _updateHandlers;
+        private MulticastDelegate _updateDelegates;
 
         private readonly Dictionary<TrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
 
@@ -102,23 +101,20 @@ namespace ARFoundationReplay
 
         private void InvokeChangedEvent(ARStreetscapeGeometriesChangedEventArgs args)
         {
-            // Using cache to speed up invoke time
-            if (_updateHandlers != null)
+            if (_updateDelegates == null)
             {
-                foreach (var handler in _updateHandlers)
-                {
-                    handler?.Invoke(args);
-                }
+                const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                var field = typeof(ARStreetscapeGeometryManager).GetField("StreetscapeGeometriesChanged", bindingFlags)
+                    ?? throw new InvalidOperationException("Not found ARStreetscapeGeometryManager.StreetscapeGeometriesChanged");
+                _updateDelegates = (MulticastDelegate)field.GetValue(this);
             }
 
-            var field = typeof(ARStreetscapeGeometryManager)
-                .GetField("StreetscapeGeometriesChanged", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var eventDelegate = (MulticastDelegate)field.GetValue(this);
-            if (eventDelegate != null)
+            // Using cache to speed up invoke time
+            var handlers = _updateDelegates.GetInvocationList()
+                .Cast<Action<ARStreetscapeGeometriesChangedEventArgs>>();
+            foreach (var handler in handlers)
             {
-                _updateHandlers = eventDelegate.GetInvocationList()
-                    .Select(x => x as Action<ARStreetscapeGeometriesChangedEventArgs>)
-                    .ToArray();
+                handler?.Invoke(args);
             }
         }
     }
