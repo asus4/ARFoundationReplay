@@ -12,6 +12,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
+        "com.unity.modules.video": "1.0.0",
         "com.unity.xr.arfoundation": "5.1.4"
       }
     },
