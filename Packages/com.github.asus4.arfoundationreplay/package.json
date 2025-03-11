@@ -1,8 +1,8 @@
 {
   "name": "com.github.asus4.arfoundationreplay",
   "displayName": "AR Foundation Replay",
-  "version": "0.2.3",
-  "unity": "2022.3",
+  "version": "0.3.0",
+  "unity": "6000.0",
   "description": "Record AR and Playback in Editor on AR Foundation",
   "keywords": [
     "ar",
