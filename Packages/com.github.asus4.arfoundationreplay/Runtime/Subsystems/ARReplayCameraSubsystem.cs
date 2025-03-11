@@ -22,7 +22,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
+            var cameraSubsystemCinfo = new XRCameraSubsystemDescriptor.Cinfo
             {
                 id = ID,
                 providerType = typeof(ARReplayProvider),
@@ -32,12 +32,10 @@ namespace ARFoundationReplay
                 supportsTimestamp = true,
                 supportsCameraConfigurations = true,
                 supportsCameraImage = false,
+                // TODO: update more properties
             };
 
-            if (!Register(cameraSubsystemCinfo))
-            {
-                Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
-            }
+            XRCameraSubsystemDescriptor.Register(cameraSubsystemCinfo);
         }
 
         class ARReplayProvider : Provider

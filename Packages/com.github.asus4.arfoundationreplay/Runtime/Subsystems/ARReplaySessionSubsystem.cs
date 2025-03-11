@@ -16,7 +16,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            XRSessionSubsystemDescriptor.RegisterDescriptor(new XRSessionSubsystemDescriptor.Cinfo
+            XRSessionSubsystemDescriptor.Register(new XRSessionSubsystemDescriptor.Cinfo
             {
                 id = ID,
                 providerType = typeof(ARReplayProvider),

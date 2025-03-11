@@ -11,6 +11,6 @@
   ],
   "dependencies": {
     "com.unity.modules.video": "1.0.0",
-    "com.unity.xr.arfoundation": "5.1.4"
+    "com.unity.xr.arfoundation": "6.1.0"
   }
 }

@@ -18,7 +18,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Register()
         {
-            var info = new XROcclusionSubsystemCinfo()
+            var info = new XROcclusionSubsystemDescriptor.Cinfo()
             {
                 id = ID,
                 providerType = typeof(ARReplayProvider),
@@ -29,7 +29,7 @@ namespace ARFoundationReplay
                 environmentDepthConfidenceImageSupportedDelegate = DummySupported,
                 environmentDepthTemporalSmoothingSupportedDelegate = DummySupported,
             };
-            Register(info);
+            XROcclusionSubsystemDescriptor.Register(info);
         }
 
         // TODO: Encode supported info into the packet?
