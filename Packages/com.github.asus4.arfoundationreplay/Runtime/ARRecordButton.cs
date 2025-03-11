@@ -39,7 +39,7 @@ namespace ARFoundationReplay
                 return;
             }
 
-            var origin = FindObjectOfType<XROrigin>();
+            var origin = FindAnyObjectByType<XROrigin>();
             if (origin == null)
             {
                 Debug.LogError("ARRecorder requires ARSessionOrigin in the scene");
