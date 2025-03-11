@@ -8,7 +8,7 @@ namespace ARFoundationReplay
     internal static class NativeArrayExtensions
     {
         public static byte[] ToByteArray<T>(in this NativeArray<T> arr)
-            where T : struct
+            where T : unmanaged
         {
             var slice = new NativeSlice<T>(arr).SliceConvert<byte>();
             var bytes = new byte[slice.Length];
@@ -17,7 +17,7 @@ namespace ARFoundationReplay
         }
 
         public static NativeArray<T> AsNativeArray<T>(this byte[] bytes, Allocator allocator)
-            where T : struct
+            where T : unmanaged
         {
             int stride = UnsafeUtility.SizeOf<T>();
             Assert.AreEqual(0, bytes.Length % stride);
