@@ -50,19 +50,32 @@ namespace ARFoundationReplay
 
             const string k_HumanEnabledMaterialKeyword = "ARKIT_HUMAN_SEGMENTATION_ENABLED";
             const string k_EnvironmentDepthEnabledMaterialKeyword = "ARKIT_ENVIRONMENT_DEPTH_ENABLED";
-            static readonly List<string> m_AllDisabledMaterialKeywords = new()
+            static readonly List<string> k_AllDisabledShaderKeywords = new()
             {
                 k_HumanEnabledMaterialKeyword,
                 k_EnvironmentDepthEnabledMaterialKeyword,
             };
-            static readonly List<string> m_HumanEnabledMaterialKeywords = new()
+            static readonly List<string> k_HumanEnabledMaterialKeywords = new()
             {
                 k_HumanEnabledMaterialKeyword,
             };
-            static readonly List<string> m_EnvironmentDepthEnabledMaterialKeywords = new()
+            static readonly List<string> k_EnvironmentDepthEnabledMaterialKeywords = new()
             {
                 k_EnvironmentDepthEnabledMaterialKeyword,
             };
+
+            static readonly XRShaderKeywords k_DepthDisabledShaderKeywords = new(
+                null,
+                new (k_AllDisabledShaderKeywords));
+
+            static readonly XRShaderKeywords k_EnvironmentDepthKeywords = new(
+                new(k_EnvironmentDepthEnabledMaterialKeywords),
+                new(k_HumanEnabledMaterialKeywords));
+
+            static readonly XRShaderKeywords k_HumanSegmentationKeywords = new(
+                new (k_HumanEnabledMaterialKeywords), 
+                new (k_EnvironmentDepthEnabledMaterialKeywords));
+
             #endregion // Keywords
 
             ComputeShader _computeShader;
@@ -199,30 +212,62 @@ namespace ARFoundationReplay
                 return new NativeArray<XRTextureDescriptor>(_descriptors.ToArray(), allocator);
             }
 
-
+            [System.Obsolete("GetMaterialKeywords(out List<string>, out List<string>) has been deprecated in AR Foundation version 6.0. Use GetShaderKeywords2() instead.")]
             public override void GetMaterialKeywords(out List<string> enabledKeywords, out List<string> disabledKeywords)
             {
                 bool isEnvDepthEnabled = currentEnvironmentDepthMode != EnvironmentDepthMode.Disabled;
                 bool isHumanDepthEnabled = currentHumanDepthMode != HumanSegmentationDepthMode.Disabled;
 
-                if ((currentOcclusionPreferenceMode == OcclusionPreferenceMode.NoOcclusion) || (!isEnvDepthEnabled && !isHumanDepthEnabled))
+                if (ShouldUseDepthDisabledKeywords(isEnvDepthEnabled, isHumanDepthEnabled))
                 {
                     // No occlusion
                     enabledKeywords = null;
-                    disabledKeywords = m_AllDisabledMaterialKeywords;
+                    disabledKeywords = k_AllDisabledShaderKeywords;
                 }
-                else if (isEnvDepthEnabled && (!isHumanDepthEnabled || (currentOcclusionPreferenceMode == OcclusionPreferenceMode.PreferEnvironmentOcclusion)))
+                else if (ShouldUseEnvironmentDepthEnabledKeywords(isEnvDepthEnabled, isHumanDepthEnabled))
                 {
                     // Environment depth only
-                    enabledKeywords = m_EnvironmentDepthEnabledMaterialKeywords;
-                    disabledKeywords = m_HumanEnabledMaterialKeywords;
+                    enabledKeywords = k_EnvironmentDepthEnabledMaterialKeywords;
+                    disabledKeywords = k_HumanEnabledMaterialKeywords;
                 }
                 else
                 {
                     // Human depth only
-                    enabledKeywords = m_HumanEnabledMaterialKeywords;
-                    disabledKeywords = m_EnvironmentDepthEnabledMaterialKeywords;
+                    enabledKeywords = k_HumanEnabledMaterialKeywords;
+                    disabledKeywords = k_EnvironmentDepthEnabledMaterialKeywords;
                 }
+            }
+            
+            public override XRShaderKeywords GetShaderKeywords2()
+            {
+                bool isEnvDepthEnabled = currentEnvironmentDepthMode != EnvironmentDepthMode.Disabled;
+                bool isHumanDepthEnabled = currentHumanDepthMode != HumanSegmentationDepthMode.Disabled;
+
+                if (ShouldUseDepthDisabledKeywords(isEnvDepthEnabled, isHumanDepthEnabled))
+                {
+                    // No occlusion
+                    return k_DepthDisabledShaderKeywords;
+                }
+                else if (ShouldUseEnvironmentDepthEnabledKeywords(isEnvDepthEnabled, isHumanDepthEnabled))
+                {
+                    // Environment depth only
+                    return k_EnvironmentDepthKeywords;
+                }
+                else
+                {
+                    // Human depth only
+                    return k_HumanSegmentationKeywords;
+                }
+            }
+
+            bool ShouldUseDepthDisabledKeywords(bool isEnvDepthEnabled, bool isHumanDepthEnabled)
+            {
+                return currentOcclusionPreferenceMode == OcclusionPreferenceMode.NoOcclusion || (!isEnvDepthEnabled && !isHumanDepthEnabled);
+            }
+
+            bool ShouldUseEnvironmentDepthEnabledKeywords(bool isEnvDepthEnabled, bool isHumanDepthEnabled)
+            {
+                return isEnvDepthEnabled && (!isHumanDepthEnabled || currentOcclusionPreferenceMode == OcclusionPreferenceMode.PreferEnvironmentOcclusion);
             }
         }
     }
