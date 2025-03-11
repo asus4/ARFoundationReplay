@@ -46,10 +46,9 @@ namespace ARFoundationReplay
         private void OnOcclusionFrameReceived(AROcclusionFrameEventArgs args)
         {
             // Set texture
-            var count = args.textures.Count;
-            for (int i = 0; i < count; i++)
+            foreach(var exTex in args.externalTextures)
             {
-                _muxMaterial.SetTexture(args.propertyNameIds[i], args.textures[i]);
+                _muxMaterial.SetTexture(exTex.propertyId, exTex.texture);
             }
             // TODO: calc min/max depth using compute shader
             _muxMaterial.SetVector(k_DepthRange, _depthRange);
