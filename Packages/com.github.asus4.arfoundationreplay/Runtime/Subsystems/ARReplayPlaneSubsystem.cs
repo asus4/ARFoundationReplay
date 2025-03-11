@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
@@ -76,7 +77,20 @@ namespace ARFoundationReplay
                 {
                     return;
                 }
-                _currentPacket.GetBoundary(trackableId, allocator, ref boundary);
+
+                if (_currentPacket.boundaries.TryGetValue(trackableId, out var bytes))
+                {
+                    int length = bytes.Length / UnsafeUtility.SizeOf<Vector2>();
+                    CreateOrResizeNativeArrayIfNecessary(length, allocator, ref boundary);
+                    fixed (byte* bytesPtr = bytes)
+                    {
+                        UnsafeUtility.MemCpy(boundary.GetUnsafePtr(), bytesPtr, bytes.Length);
+                    }
+                }
+                else
+                {
+                    CreateOrResizeNativeArrayIfNecessary(0, allocator, ref boundary);
+                }
             }
 
             public override unsafe TrackableChanges<BoundedPlane> GetChanges(

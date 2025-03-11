@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CoreUtils;
 using MemoryPack;
 
@@ -30,29 +29,6 @@ namespace ARFoundationReplay
             boundaries.Clear();
         }
 
-        public unsafe void GetBoundary(
-            TrackableId trackableId,
-            Allocator allocator,
-            ref NativeArray<Vector2> boundary)
-        {
-            if (boundaries.TryGetValue(trackableId, out var bytes))
-            {
-                int stride = UnsafeUtility.SizeOf<Vector2>();
-                int length = bytes.Length / stride;
-                NativeArrayExtensions.EnsureSize(length, allocator, ref boundary);
-                fixed (byte* bytesPtr = bytes)
-                {
-                    UnsafeUtility.MemCpy(boundary.GetUnsafePtr(), bytesPtr, bytes.Length);
-                }
-            }
-            else
-            {
-                if (boundary.IsCreated)
-                {
-                    boundary.Dispose();
-                }
-            }
-        }
     }
 
     /// <summary>
