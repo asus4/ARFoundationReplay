@@ -22,7 +22,7 @@ namespace ARFoundationReplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
+            var cameraSubsystemCinfo = new XRCameraSubsystemDescriptor.Cinfo
             {
                 id = ID,
                 providerType = typeof(ARReplayProvider),
@@ -32,12 +32,10 @@ namespace ARFoundationReplay
                 supportsTimestamp = true,
                 supportsCameraConfigurations = true,
                 supportsCameraImage = false,
+                // TODO: update more properties
             };
 
-            if (!Register(cameraSubsystemCinfo))
-            {
-                Debug.LogErrorFormat("Cannot register the {0} subsystem", ID);
-            }
+            XRCameraSubsystemDescriptor.Register(cameraSubsystemCinfo);
         }
 
         class ARReplayProvider : Provider
@@ -46,7 +44,8 @@ namespace ARFoundationReplay
             static readonly int k_TextureY = Shader.PropertyToID("_textureY");
             static readonly int k_TextureCbCr = Shader.PropertyToID("_textureCbCr");
             static readonly int k_TextureSize = Shader.PropertyToID("_TextureSize");
-            static readonly List<string> k_URPEnabledMaterialKeywords = new() { "ARKIT_BACKGROUND_URP" };
+            static readonly List<string> k_URPEnabledKeywordList = new() { "ARKIT_BACKGROUND_URP" };
+            static readonly XRShaderKeywords k_URPShaderKeywords = new(new(k_URPEnabledKeywordList), null);
 
             Material _beforeOpaquesCameraMaterial;
             Material _afterOpaquesCameraMaterial;
@@ -135,7 +134,7 @@ namespace ARFoundationReplay
                 XRCameraFrame receivedFrame = replay.Metadata.camera;
 
                 // Skip if timestamp is not set
-                if (receivedFrame.timestampNs == 0)
+                if (!receivedFrame.TryGetTimestamp(out long timestamp) || timestamp == 0)
                 {
                     cameraFrame = default;
                     return false;
@@ -202,12 +201,13 @@ namespace ARFoundationReplay
                 return arr;
             }
 
+            [Obsolete("GetShaderKeywords is deprecated as of AR Foundation 6.1. Use GetShaderKeywords2 instead.")]
             public override void GetMaterialKeywords(out List<string> enabledKeywords, out List<string> disabledKeywords)
             {
                 // Only supports URP for now
                 if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset)
                 {
-                    enabledKeywords = k_URPEnabledMaterialKeywords;
+                    enabledKeywords = k_URPEnabledKeywordList;
                     disabledKeywords = null;
                 }
                 else
@@ -216,6 +216,15 @@ namespace ARFoundationReplay
                     enabledKeywords = null;
                     disabledKeywords = null;
                 }
+            }
+
+            public override XRShaderKeywords GetShaderKeywords2()
+            {
+                if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset)
+                {
+                    return k_URPShaderKeywords;
+                }
+                return default;
             }
 
             public override void OnBeforeBackgroundRender(int id)
@@ -227,28 +236,45 @@ namespace ARFoundationReplay
             private static XRCameraFrame CopyOnlySafeFrame(in XRCameraFrame input)
             {
                 XRCameraFrameProperties properties = input.properties;
+                // Override unsupported properties
                 properties &= ~XRCameraFrameProperties.CameraGrain;
                 properties &= ~XRCameraFrameProperties.ExifData;
 
+
+                input.TryGetTimestamp(out var timestamp);
+                input.TryGetAverageBrightness(out var averageBrightness);
+                input.TryGetAverageColorTemperature(out var averageColorTemperature);
+                input.TryGetColorCorrection(out var colorCorrection);
+                input.TryGetProjectionMatrix(out var projectionMatrix);
+                input.TryGetDisplayMatrix(out var displayMatrix);
+                input.TryGetAverageIntensityInLumens(out var averageIntensityInLumens);
+                input.TryGetExposureDuration(out double exposureDuration);
+                input.TryGetExposureOffset(out var exposureOffset);
+                input.TryGetMainLightIntensityLumens(out var mainLightIntensityLumens);
+                input.TryGetMainLightColor(out var mainLightColor);
+                input.TryGetMainLightDirection(out var mainLightDirection);
+                input.TryGetAmbientSphericalHarmonics(out var ambientSphericalHarmonics);
+                input.TryGetNoiseIntensity(out var noiseIntensity);
+
                 return new XRCameraFrame(
-                    timestamp: input.timestampNs,
-                    averageBrightness: input.averageBrightness,
-                    averageColorTemperature: input.averageColorTemperature,
-                    colorCorrection: input.colorCorrection,
-                    projectionMatrix: input.projectionMatrix,
-                    displayMatrix: input.displayMatrix,
+                    timestamp: timestamp,
+                    averageBrightness: averageBrightness,
+                    averageColorTemperature: averageColorTemperature,
+                    colorCorrection: colorCorrection,
+                    projectionMatrix: projectionMatrix,
+                    displayMatrix: displayMatrix,
                     trackingState: input.trackingState,
                     nativePtr: IntPtr.Zero,
                     properties: properties,
-                    averageIntensityInLumens: input.averageIntensityInLumens,
-                    exposureDuration: input.exposureDuration,
-                    exposureOffset: input.exposureOffset,
-                    mainLightIntensityInLumens: input.mainLightIntensityLumens,
-                    mainLightColor: input.mainLightColor,
-                    mainLightDirection: input.mainLightDirection,
-                    ambientSphericalHarmonics: input.ambientSphericalHarmonics,
+                    averageIntensityInLumens: averageIntensityInLumens,
+                    exposureDuration: exposureDuration,
+                    exposureOffset: exposureOffset,
+                    mainLightIntensityInLumens: mainLightIntensityLumens,
+                    mainLightColor: mainLightColor,
+                    mainLightDirection: mainLightDirection,
+                    ambientSphericalHarmonics: ambientSphericalHarmonics,
                     cameraGrain: default,
-                    noiseIntensity: input.noiseIntensity,
+                    noiseIntensity: noiseIntensity,
                     exifData: default
                 );
             }

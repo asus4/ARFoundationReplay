@@ -70,7 +70,7 @@ namespace ARFoundationReplay
             {
                 return false;
             }
-            _planeManager.planesChanged += OnPlanesChanged;
+            _planeManager.trackablesChanged.AddListener(OnPlanesChanged);
             return true;
         }
 
@@ -78,7 +78,7 @@ namespace ARFoundationReplay
         {
             if (_planeManager != null)
             {
-                _planeManager.planesChanged -= OnPlanesChanged;
+                _planeManager.trackablesChanged.RemoveListener(OnPlanesChanged);
                 _planeManager = null;
             }
         }
@@ -93,7 +93,7 @@ namespace ARFoundationReplay
             _packet.Reset();
         }
 
-        private void OnPlanesChanged(ARPlanesChangedEventArgs args)
+        private void OnPlanesChanged(ARTrackablesChangedEventArgs<ARPlane> args)
         {
             if (_packet.IsAvailable)
             {
@@ -126,7 +126,7 @@ namespace ARFoundationReplay
             }
             for (int i = 0; i < args.removed.Count; i++)
             {
-                dstRemoved[i] = args.removed[i].trackableId;
+                dstRemoved[i] = args.removed[i].Key;
             }
             // Serialize TrackableChanges into Packet:
             _packet.CopyFrom(changes);
@@ -147,7 +147,7 @@ namespace ARFoundationReplay
                 alignment: plane.alignment,
                 trackingState: plane.trackingState,
                 nativePtr: IntPtr.Zero,
-                classification: plane.classification
+                classifications: plane.classifications
             );
         }
     }

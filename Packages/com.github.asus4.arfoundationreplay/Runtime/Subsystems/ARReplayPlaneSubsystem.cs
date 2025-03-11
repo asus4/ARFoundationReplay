@@ -25,7 +25,7 @@ namespace ARFoundationReplay
                 supportsBoundaryVertices = true,
                 supportsClassification = true,
             };
-            XRPlaneSubsystemDescriptor.Create(cinfo);
+            XRPlaneSubsystemDescriptor.Register(cinfo);
         }
 
         class ARReplayProvider : Provider

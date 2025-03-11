@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 
@@ -34,7 +32,8 @@ namespace ARFoundationReplay
                 tex is Texture2D tex2D ? tex2D.format : TextureFormat.ARGB32,
                 propertyNameId,
                 tex is RenderTexture rt ? rt.depth : 0,
-                tex.dimension);
+                tex.dimension.ToXRTextureType()
+            );
         }
     }
 }

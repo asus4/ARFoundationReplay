@@ -12,7 +12,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 ## Tested platform
 
 - Only iOS ARKit + macOS Editor for now. Android ARCore is planned.
-- Tested with the latest Unity2022 LTS.
+- Tested with the latest Unity6 LTS.
 - Supported only URP. Built-in is not supported for now.
 
 ## Implemented Subsystems
@@ -47,7 +47,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
   ```json
   "dependencies": {
-      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay#v0.2.3",
+      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay#v0.3.0",
       ... other dependencies
   }
   ```
