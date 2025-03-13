@@ -70,7 +70,7 @@ namespace ARFoundationReplay
 
             using var config = new ArRecordingConfig(session);
             _recordingFilePath = GetFilePath();
-            config.SetMp4DatasetFilePath(session, _recordingFilePath);
+            config.SetMp4DatasetUri(session, $"file://{_recordingFilePath}");
             config.SetRecordingRotation(session, rotation);
             config.SetAutoStopOnPause(session, true);
             var status = _subsystem.StartRecording(config);
