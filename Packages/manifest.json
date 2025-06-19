@@ -5,8 +5,8 @@
     "com.unity.render-pipelines.universal": "17.0.4",
     "com.unity.test-framework": "1.5.1",
     "com.unity.ugui": "2.0.0",
-    "com.unity.xr.arcore": "6.1.0",
-    "com.unity.xr.arkit": "6.1.0"
+    "com.unity.xr.arcore": "6.1.1",
+    "com.unity.xr.arkit": "6.1.1"
   },
   "scopedRegistries": [
     {
