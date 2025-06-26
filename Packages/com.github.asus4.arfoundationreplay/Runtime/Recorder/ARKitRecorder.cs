@@ -34,7 +34,7 @@ namespace ARFoundationReplay
 
         private FrameMetadata _metadata;
         private ISubsystemEncoder[] _encoders;
-        public bool IsRecording => _videoRecorder.IsRecording;
+        public bool IsRecording => _videoRecorder?.IsRecording ?? false;
 
         private static bool _needWarmedUp = Application.platform == RuntimePlatform.IPhonePlayer;
 
