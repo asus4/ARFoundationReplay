@@ -58,7 +58,7 @@ namespace ARFoundationReplay
                     _recorder = recorder;
                     break;
                 default:
-                    Debug.LogWarning($"Recording is not supported on {Application.platform}");
+                    Debug.Log($"Recording is not supported on this platform: {Application.platform}");
                     return;
             }
         }
