@@ -30,7 +30,7 @@ namespace ARFoundationReplay
     [MemoryPackable]
     internal partial class PointCloudPacket : TrackableChangesPacket<XRPointCloud>
     {
-        public Dictionary<TrackableId, PointCloudData> data; // NativeArray<ulong>
+        public Dictionary<TrackableId, PointCloudData> data;
 
         public PointCloudPacket() : base()
         {
