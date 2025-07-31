@@ -20,7 +20,7 @@ namespace ARFoundationReplay
 
         public PlanePacket() : base()
         {
-            boundaries = new Dictionary<TrackableId, byte[]>();
+            boundaries = new();
         }
 
         public override void Reset()
@@ -46,7 +46,7 @@ namespace ARFoundationReplay
             {
                 return false;
             }
-            _planeManager.trackablesChanged.AddListener(OnPlanesChanged);
+            _planeManager.trackablesChanged.AddListener(OnTrackablesChanged);
             return true;
         }
 
@@ -54,7 +54,7 @@ namespace ARFoundationReplay
         {
             if (_planeManager != null)
             {
-                _planeManager.trackablesChanged.RemoveListener(OnPlanesChanged);
+                _planeManager.trackablesChanged.RemoveListener(OnTrackablesChanged);
                 _planeManager = null;
             }
         }
@@ -69,7 +69,7 @@ namespace ARFoundationReplay
             _packet.Reset();
         }
 
-        private void OnPlanesChanged(ARTrackablesChangedEventArgs<ARPlane> args)
+        private void OnTrackablesChanged(ARTrackablesChangedEventArgs<ARPlane> args)
         {
             if (_packet.IsAvailable)
             {

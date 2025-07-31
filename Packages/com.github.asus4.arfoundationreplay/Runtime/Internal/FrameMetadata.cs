@@ -15,6 +15,7 @@ namespace ARFoundationReplay
         public Pose input;
         public XRCameraFrame camera;
         public PlanePacket plane;
+        public PointCloudPacket pointCloud;
 
 #if ARCORE_EXTENSIONS_ENABLED
         public GeospatialEarthPacket geospatialEarth;

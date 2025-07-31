@@ -28,13 +28,7 @@ namespace ARFoundationReplay
         /// Check if any changes are available
         /// </summary>
         /// <value>True if available</value>
-        public virtual bool IsAvailable
-        {
-            get
-            {
-                return added.Length > 0 || updated.Length > 0 || removed.Length > 0;
-            }
-        }
+        public virtual bool IsAvailable => added.Length > 0 || updated.Length > 0 || removed.Length > 0;
 
         public virtual void Reset()
         {
