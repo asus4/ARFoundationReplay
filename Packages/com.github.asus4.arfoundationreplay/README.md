@@ -19,7 +19,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
 - [x] XRSessionSubsystem
 - [x] XRCameraSubsystem
-- [ ] XRPointCloudSubsystem
+- [x] XRPointCloudSubsystem
 - [x] XRPlaneSubsystem
 - [ ] XRAnchorSubsystem
 - [ ] XRRaycastSubsystem
