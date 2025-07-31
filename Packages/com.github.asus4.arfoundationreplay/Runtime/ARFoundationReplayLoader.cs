@@ -20,6 +20,7 @@ namespace ARFoundationReplay
             // Optional subsystems
             CreateSubsystem<XROcclusionSubsystemDescriptor, XROcclusionSubsystem>(new(), ARReplayOcclusionSubsystem.ID);
             CreateSubsystem<XRPlaneSubsystemDescriptor, XRPlaneSubsystem>(new(), ARReplayPlaneSubsystem.ID);
+            CreateSubsystem<XRPointCloudSubsystemDescriptor, XRPointCloudSubsystem>(new(), ARReplayPointCloudSubsystem.ID);
 
             // Optional ARCore extensions
 #if ARCORE_EXTENSIONS_ENABLED

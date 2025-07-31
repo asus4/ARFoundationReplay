@@ -117,7 +117,7 @@ namespace ARFoundationReplay
             // Serialize TrackableChanges into Packet:
             _packet.CopyFrom(changes);
 
-            Debug.Log($"Point Cloud changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
+            // Debug.Log($"Point Cloud changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
         }
 
         private static XRPointCloud ToXRPointCloud(ARPointCloud arPointCloud)
