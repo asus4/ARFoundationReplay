@@ -155,7 +155,9 @@ namespace ARFoundationReplay
                 new InputEncoder(),
                 new OcclusionEncoder(),
                 new PlaneEncoder(),
+
                 // Working in progress
+                new PointCloudEncoder(),
                 // new MeshEncoder(),
 
                 // Optional encoders for ARCore Geospatial, enabled when it's installed.

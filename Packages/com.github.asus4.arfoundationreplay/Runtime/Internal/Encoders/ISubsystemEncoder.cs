@@ -25,7 +25,7 @@ namespace ARFoundationReplay
         void Encode(FrameMetadata metadata);
 
         /// <summary>
-        /// Called after Encode() is called for all subsystems.
+        /// Called after all subsystems finished Encode().
         /// </summary>
         void PostEncode();
     }
