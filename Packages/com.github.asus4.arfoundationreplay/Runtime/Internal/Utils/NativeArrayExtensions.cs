@@ -7,13 +7,19 @@ namespace ARFoundationReplay
 {
     internal static class NativeArrayExtensions
     {
-        public static byte[] ToByteArray<T>(in this NativeArray<T> arr)
+        public static byte[] ToByteArray<T>(in this NativeSlice<T> arr)
             where T : unmanaged
         {
-            var slice = new NativeSlice<T>(arr).SliceConvert<byte>();
+            var slice = arr.SliceConvert<byte>();
             var bytes = new byte[slice.Length];
             slice.CopyTo(bytes);
             return bytes;
+        }
+
+        public static byte[] ToByteArray<T>(in this NativeArray<T> arr)
+            where T : unmanaged
+        {
+            return ToByteArray(new NativeSlice<T>(arr));
         }
 
         public static NativeArray<T> AsNativeArray<T>(this byte[] bytes, Allocator allocator)

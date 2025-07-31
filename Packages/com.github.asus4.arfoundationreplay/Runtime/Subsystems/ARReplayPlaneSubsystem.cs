@@ -93,9 +93,7 @@ namespace ARFoundationReplay
                 }
             }
 
-            public override unsafe TrackableChanges<BoundedPlane> GetChanges(
-                BoundedPlane defaultPlane,
-                Allocator allocator)
+            public override TrackableChanges<BoundedPlane> GetChanges(BoundedPlane defaultPlane, Allocator allocator)
             {
                 if (!ARReplay.TryGetReplay(out var replay))
                 {
