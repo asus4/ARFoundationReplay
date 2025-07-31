@@ -134,6 +134,23 @@ namespace ARFoundationReplay
         }
     }
 
+    internal class TrackableChangesPacketModifier<T> : IDisposable
+        where T : struct, ITrackable
+    {
+        internal readonly HashSet<TrackableId> activeIds = new();
+        internal readonly List<T> added = new();
+        internal readonly List<T> updated = new();
+        internal readonly List<TrackableId> removed = new();
+
+        public void Dispose()
+        {
+            activeIds.Clear();
+            added.Clear();
+            updated.Clear();
+            removed.Clear();
+        }
+    }
+
     internal static class TrackableChangesPacketExtension
     {
         public delegate bool TrackableFilter<T>(ref T trackable)
@@ -152,7 +169,7 @@ namespace ARFoundationReplay
         /// <param name="updated">A cache of updated</param>
         /// <param name="removed">A cache of removed</param>
         /// <typeparam name="T">ITrackable struct</typeparam>
-        public static void CorrectTrackable<T>(
+        private static void CorrectTrackable<T>(
             this TrackableChangesPacket<T> packet,
             HashSet<TrackableId> activeIds,
             List<T> added,
@@ -211,6 +228,27 @@ namespace ARFoundationReplay
                 }
             }
             packet.CopyFrom(added, updated, removed);
+        }
+
+
+        /// <summary>
+        /// Used while replaying packets.
+        /// 
+        /// Trackable need to be corrected inconsistencies of tracked IDs
+        /// since the recording will start in the middle of the session,
+        /// and the video is looped.
+        /// </summary>
+        /// <param name="packet">A TrackableChangesPacket</param>
+        /// <param name="modifier">A TrackableChangesPacketModifier</param>
+        /// <param name="filter">A filter to apply on each trackable</param>
+        /// <typeparam name="T">ITrackable struct</typeparam>
+        public static void CorrectTrackable<T>(
+            this TrackableChangesPacket<T> packet,
+            TrackableChangesPacketModifier<T> modifier,
+            TrackableFilter<T> filter = null)
+          where T : struct, ITrackable
+        {
+            packet.CorrectTrackable(modifier.activeIds, modifier.added, modifier.updated, modifier.removed, filter);
         }
     }
 }

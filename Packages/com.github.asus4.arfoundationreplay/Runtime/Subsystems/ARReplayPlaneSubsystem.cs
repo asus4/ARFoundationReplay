@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -34,19 +33,13 @@ namespace ARFoundationReplay
             private PlanePacket _currentPacket;
             private PlaneDetectionMode _requestedPlaneDetectionMode;
 
-            private readonly HashSet<TrackableId> _activeIds = new();
-            private readonly List<BoundedPlane> _added = new();
-            private readonly List<BoundedPlane> _updated = new();
-            private readonly List<TrackableId> _removed = new();
+            private readonly TrackableChangesPacketModifier<BoundedPlane> _modifier = new();
 
             public override void Start() { }
 
             public override void Stop()
             {
-                _activeIds.Clear();
-                _added.Clear();
-                _updated.Clear();
-                _removed.Clear();
+                _modifier.Dispose();
                 _currentPacket = null;
             }
 
@@ -106,16 +99,14 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-
                 if (_currentPacket.currentDetectionMode == requestedPlaneDetectionMode)
                 {
-                    _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
+                    _currentPacket.CorrectTrackable(_modifier);
                 }
                 else
                 {
                     // Filter out trackable
-                    _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed,
-                        TrackableFilter);
+                    _currentPacket.CorrectTrackable(_modifier, TrackableFilter);
                 }
 
                 return _currentPacket.AsTrackableChanges(allocator);
@@ -129,6 +120,8 @@ namespace ARFoundationReplay
                         => requestedPlaneDetectionMode.HasFlag(PlaneDetectionMode.Horizontal),
                     PlaneAlignment.Vertical
                         => requestedPlaneDetectionMode.HasFlag(PlaneDetectionMode.Vertical),
+                    PlaneAlignment.NotAxisAligned
+                        => requestedPlaneDetectionMode.HasFlag(PlaneDetectionMode.NotAxisAligned),
                     _ => true,
                 };
             }

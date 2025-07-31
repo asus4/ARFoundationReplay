@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
@@ -27,20 +26,13 @@ namespace ARFoundationReplay
         class ARReplayProvider : Provider
         {
             private PointCloudPacket _currentPacket;
-
-            private readonly HashSet<TrackableId> _activeIds = new();
-            private readonly List<XRPointCloud> _added = new();
-            private readonly List<XRPointCloud> _updated = new();
-            private readonly List<TrackableId> _removed = new();
+            private readonly TrackableChangesPacketModifier<XRPointCloud> _modifier = new();
 
             public override void Start() { }
 
             public override void Stop()
             {
-                _activeIds.Clear();
-                _added.Clear();
-                _updated.Clear();
-                _removed.Clear();
+                _modifier.Dispose();
                 _currentPacket = null;
             }
 
@@ -59,7 +51,7 @@ namespace ARFoundationReplay
                     return default;
                 }
 
-                _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
+                _currentPacket.CorrectTrackable(_modifier);
                 return _currentPacket.AsTrackableChanges(allocator);
             }
 
