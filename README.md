@@ -1,5 +1,7 @@
 # AR Foundation Replay
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/asus4/ARFoundationReplay)
+
 **🚧 Work in progress 🏗️**  
 PoC of Recording AR Foundation session into a single mp4 with a binary timeline track / Replaying it in Editor on AR Foundation without any extra settings.
 
