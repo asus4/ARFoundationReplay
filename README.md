@@ -62,7 +62,8 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
   3. Activate `AR Foundation Replay`
   ![activate-xr-plugin-for-editor](https://github.com/asus4/ARFoundationReplay/assets/357497/1889a55a-132a-4c31-8a98-c4b22f2bdf22)
 - Put the ARRecordButton prefab into the Scene which is located at `Packages/com.github.asus4.arfoundationreplay/Prefabs/ARRecordButton.prefab`.
-- Record AR on the device.
+- Record AR on the device and send it to the Unity Editor.
+  - An example video is available on [the Release page](https://github.com/asus4/ARFoundationReplay/releases/tag/v0.4.0)
 - You can change the replay file from `Project Settings/XR Plug-in Management/AR Foundation Replay.`
   ![replay-file](https://github.com/asus4/WorldEnsemble/assets/357497/35f3c0c9-fd72-4b0c-bf39-11132874a259)
 - Play the AR in the Editor.
