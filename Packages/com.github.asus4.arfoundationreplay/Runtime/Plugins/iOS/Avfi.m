@@ -139,8 +139,6 @@ extern void Avfi_AppendFrame(
     size_t buffer_size = CVPixelBufferGetDataSize(buffer);
     memcpy(pointer, source, MIN(size, buffer_size));
 
-    CVPixelBufferUnlockBaseAddress(buffer, 0);
-
     // Buffer submission
     BOOL success = [_pixelBufferAdaptor appendPixelBuffer:buffer
                                 withPresentationTime:CMTimeMakeWithSeconds(time, kTIMESCALE)];
@@ -177,10 +175,10 @@ extern void Avfi_AddMetadata(const char* key, const char* value)
     AVMutableMetadataItem* metadataItem = [AVMutableMetadataItem metadataItem];
     metadataItem.identifier = [NSString stringWithUTF8String:key];
     metadataItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_JSON;
-    metadataItem.value = [NSString stringWithUTF8String:key];
+    metadataItem.value = [NSString stringWithUTF8String:value];
 
-    _writer.metadata = @[metadataItem];
-    NSLog(@"Set metadta");
+    _writer.metadata = [_writer.metadata arrayByAddingObject:metadataItem];
+    NSLog(@"Set metadata");
 }
 
 extern void Avfi_EndRecording(bool isSave)
@@ -192,6 +190,7 @@ extern void Avfi_EndRecording(bool isSave)
     }
 
     [_writerVideoInput markAsFinished];
+    [_writerMetadataInput markAsFinished];
 
     if (isSave)
     {
