@@ -102,7 +102,7 @@ namespace ARFoundationReplay
 
                 foreach (var raycastFunc in raycastFunctions)
                 {
-                    using var hits = raycastFunc(rayWS, trackableTypeMask, allocator);
+                    using var hits = raycastFunc(rayWS, trackableTypeMask, Allocator.Temp);
                     if (hits.Length > 0)
                     {
                         allHits.AddRange(hits);
