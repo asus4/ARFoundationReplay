@@ -2,6 +2,7 @@
     "name": "ARFoundationReplay",
     "rootNamespace": "",
     "references": [
+        "Unity.Collections",
         "Unity.InputSystem",
         "Unity.Mathematics",
         "Unity.RenderPipelines.Core.Runtime",

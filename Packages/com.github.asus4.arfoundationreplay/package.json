@@ -10,6 +10,7 @@
     "xreditorsubsystem"
   ],
   "dependencies": {
+    "com.unity.collections": "2.5.1",
     "com.unity.modules.video": "1.0.0",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.arfoundation": "6.2.0"
