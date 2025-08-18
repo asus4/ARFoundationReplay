@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -14,7 +15,8 @@ sealed class RaycastVisualizer : MonoBehaviour
     ARRaycastManager raycastManager;
 
     readonly List<ARRaycastHit> hits = new();
-
+    readonly StringBuilder sb = new();
+    Vector3 startPosition;
 
     void OnEnable()
     {
@@ -38,7 +40,6 @@ sealed class RaycastVisualizer : MonoBehaviour
         EnhancedTouchSupport.Disable();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Mouse mouse = Mouse.current;
@@ -48,11 +49,34 @@ sealed class RaycastVisualizer : MonoBehaviour
 
             if (raycastManager.Raycast(position, hits, trackableType))
             {
-                Vector3 startPos = targetCamera.transform.position;
-                var ray = hits[0];
-                Vector3 dir = ray.pose.position - startPos;
-                Debug.DrawRay(startPos, dir, Color.green, 1f);
+                startPosition = targetCamera.transform.position;
+
+                sb.Clear();
+                sb.AppendLine($"Raycast Hits: {hits.Count}");
+                int i = 1;
+                foreach (var hit in hits)
+                {
+                    sb.AppendLine($"{i}: {hit.hitType} = {hit.pose.position}");
+                    i++;
+                }
+                Debug.Log(sb);
             }
         }
     }
+
+#if UNITY_EDITOR
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+
+        int i = 1;
+        foreach (var hit in hits)
+        {
+            Vector3 dir = hit.pose.position - startPosition;
+            Gizmos.DrawRay(startPosition, dir);
+            Gizmos.DrawWireSphere(hit.pose.position, 0.005f);
+            i++;
+        }
+    }
+#endif // UNITY_EDITOR
 }

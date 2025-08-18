@@ -41,6 +41,7 @@ namespace ARFoundationReplay
                 {
                     xrOrigin = Object.FindAnyObjectByType<XROrigin>();
                 }
+                Assert.IsNotNull(xrOrigin, "XROrigin not found");
                 return xrOrigin;
             }
 
@@ -57,7 +58,6 @@ namespace ARFoundationReplay
                 // HACK: Registers Raycast() as delegate functions
                 // Since unable to access internal UnityEngine.XR.ARFoundation.IRaycaster...
                 var origin = GetXrOrigin();
-                Assert.IsNotNull(origin, "XROrigin not found. ARReplayRaycastSubsystem requires XROrigin in the scene.");
 
                 if (origin.TryGetComponent(out ARPlaneManager planeManager))
                 {
@@ -80,29 +80,32 @@ namespace ARFoundationReplay
                 xrOrigin = null;
             }
 
+            ///<inheritdoc/>
             public override NativeArray<XRRaycastHit> Raycast(XRRaycastHit defaultRaycastHit,
                 Ray ray, TrackableType trackableTypeMask, Allocator allocator)
             {
                 var origin = GetXrOrigin();
-                var rayWS = origin.TrackablesParent.TransformRay(ray);
-                return RaycastWS(rayWS, trackableTypeMask, allocator);
+                var raySS = origin.TrackablesParent.InverseTransformRay(ray);
+                return RaycastTrackableSpace(raySS, trackableTypeMask, allocator);
             }
 
+            ///<inheritdoc/>
             public override NativeArray<XRRaycastHit> Raycast(XRRaycastHit defaultRaycastHit,
-                Vector2 viewportPoint, TrackableType trackableTypeMask, Allocator allocator)
+                Vector2 screenPoint, TrackableType trackableTypeMask, Allocator allocator)
             {
                 var origin = GetXrOrigin();
-                var rayWS = origin.Camera.ViewportPointToRay(viewportPoint);
-                return RaycastWS(rayWS, trackableTypeMask, allocator);
+                var rayWS = origin.Camera.ViewportPointToRay(screenPoint);
+                var raySS = origin.TrackablesParent.InverseTransformRay(rayWS);
+                return RaycastTrackableSpace(raySS, trackableTypeMask, allocator);
             }
 
-            NativeArray<XRRaycastHit> RaycastWS(Ray rayWS, TrackableType trackableTypeMask, Allocator allocator)
+            NativeArray<XRRaycastHit> RaycastTrackableSpace(Ray raySS, TrackableType trackableTypeMask, Allocator allocator)
             {
                 allHits.Clear();
 
                 foreach (var raycastFunc in raycastFunctions)
                 {
-                    using var hits = raycastFunc(rayWS, trackableTypeMask, Allocator.Temp);
+                    using var hits = raycastFunc(raySS, trackableTypeMask, Allocator.Temp);
                     if (hits.Length > 0)
                     {
                         allHits.AddRange(hits);

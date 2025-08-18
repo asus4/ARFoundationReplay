@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8877aef3e3124a24a45883e3b62689c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  raycastManager: {fileID: 921967161}
+  trackableType: 507
 --- !u!4 &374522931
 Transform:
   m_ObjectHideFlags: 0
