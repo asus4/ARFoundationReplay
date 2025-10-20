@@ -43,7 +43,17 @@ namespace ARFoundationReplay
             data.Clear();
         }
 
-        public override bool IsAvailable => base.IsAvailable || data.Count > 0;
+        public override bool IsAvailable
+        {
+            get
+            {
+                if (data == null)
+                {
+                    return false;
+                }
+                return base.IsAvailable || data.Count > 0;
+            }
+        }
     }
 
     internal sealed class PointCloudEncoder : ISubsystemEncoder
