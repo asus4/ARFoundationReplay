@@ -29,18 +29,13 @@ namespace ARFoundationReplay
             private StreetscapeGeometryPacket _currentPacket;
             private readonly Dictionary<TrackableId, Mesh> _cachedMeshes = new();
 
-            private readonly HashSet<TrackableId> _activeIds = new();
-            private readonly List<StreetscapeGeometry> _added = new();
-            private readonly List<StreetscapeGeometry> _updated = new();
-            private readonly List<TrackableId> _removed = new();
+            private readonly TrackableChangesPacketModifier<StreetscapeGeometry> _modifier = new();
 
             public override void Start() { }
+
             public override void Stop()
             {
-                _activeIds.Clear();
-                _added.Clear();
-                _updated.Clear();
-                _removed.Clear();
+                _modifier.Dispose();
                 _currentPacket = null;
             }
 
@@ -74,7 +69,7 @@ namespace ARFoundationReplay
                     _cachedMeshes[kv.Key] = kv.Value;
                 }
 
-                _currentPacket.CorrectTrackable(_activeIds, _added, _updated, _removed);
+                _currentPacket.CorrectTrackable(_modifier);
                 return _currentPacket.AsTrackableChanges(allocator);
             }
 
