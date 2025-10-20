@@ -49,7 +49,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
   ```json
   "dependencies": {
-      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay#v0.4.1",
+      "com.github.asus4.arfoundationreplay": "https://github.com/asus4/ARFoundationReplay.git?path=Packages/com.github.asus4.arfoundationreplay#v0.4.2",
       ... other dependencies
   }
   ```
