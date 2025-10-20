@@ -42,6 +42,12 @@ sealed class RaycastVisualizer : MonoBehaviour
 
     void Update()
     {
+        // Supported only editor for now
+        if (Application.isMobilePlatform)
+        {
+            return;
+        }
+
         Mouse mouse = Mouse.current;
         if (mouse.leftButton.wasPressedThisFrame)
         {
