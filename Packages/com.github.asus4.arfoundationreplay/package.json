@@ -1,7 +1,7 @@
 {
   "name": "com.github.asus4.arfoundationreplay",
   "displayName": "AR Foundation Replay",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "unity": "6000.0",
   "description": "Record AR and Playback in Editor on AR Foundation",
   "keywords": [
@@ -10,9 +10,9 @@
     "xreditorsubsystem"
   ],
   "dependencies": {
-    "com.unity.collections": "2.5.1",
+    "com.unity.collections": "2.5.7",
     "com.unity.modules.video": "1.0.0",
     "com.unity.ugui": "1.0.0",
-    "com.unity.xr.arfoundation": "6.2.0"
+    "com.unity.xr.arfoundation": "6.3.0"
   }
 }
