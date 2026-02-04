@@ -147,6 +147,10 @@ namespace ARFoundationReplay
     /// </summary>
     public class ARCoreRecorder : MonoBehaviour, IRecorder
     {
+        // Keep same serialized fields as Android version for Unity serialization compatibility
+        [SerializeField]
+        private ARSession _session = null;
+
         public bool IsRecording => false;
 
         public void StartRecording()
