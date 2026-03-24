@@ -36,7 +36,6 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 - [ ] XRMeshSubsystem
 - ARCore Extensions
   - [x] Earth Manager
-  - [ ] Cloud Anchors
   - [x] Streetscape Geometry
 
 ## How to use
