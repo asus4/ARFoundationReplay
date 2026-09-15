@@ -15,7 +15,7 @@
         "com.unity.collections": "2.5.7",
         "com.unity.modules.video": "1.0.0",
         "com.unity.ugui": "1.0.0",
-        "com.unity.xr.arfoundation": "6.3.0"
+        "com.unity.xr.arfoundation": "6.3.4"
       }
     },
     "com.unity.burst": {
@@ -55,7 +55,7 @@
       "dependencies": {}
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.27",
+      "version": "2.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -164,20 +164,20 @@
       }
     },
     "com.unity.xr.arcore": {
-      "version": "6.3.4",
+      "version": "6.3.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.xr.core-utils": "2.2.2",
         "com.unity.xr.management": "4.4.0",
-        "com.unity.xr.arfoundation": "6.3.4",
+        "com.unity.xr.arfoundation": "6.3.5",
         "com.unity.modules.androidjni": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.arfoundation": {
-      "version": "6.3.4",
+      "version": "6.3.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -195,13 +195,13 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.arkit": {
-      "version": "6.3.4",
+      "version": "6.3.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.xr.core-utils": "2.2.2",
         "com.unity.xr.management": "4.4.0",
-        "com.unity.xr.arfoundation": "6.3.4",
+        "com.unity.xr.arfoundation": "6.3.5",
         "com.unity.editorcoroutines": "1.0.0"
       },
       "url": "https://packages.unity.com"
