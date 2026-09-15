@@ -20,6 +20,8 @@ namespace ARFoundationReplay
             public int height;
             [Range(10, 60)]
             public int targetFrameRate;
+            [Tooltip("Optional audio track: the native microphone or the audio Unity plays")]
+            public AudioCaptureMode audio;
         }
 
         public Options options;
@@ -59,7 +61,12 @@ namespace ARFoundationReplay
             var shader = Shader.Find("Hidden/ARFoundationReplay/ARKitEncoder");
             Assert.IsNotNull(shader);
             _muxMaterial = new Material(shader);
-            _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate);
+            _videoRecorder = new VideoRecorder(_muxTexture, options.targetFrameRate, options.audio);
+            if (options.audio == AudioCaptureMode.NativeMicrophone)
+            {
+                // Show the permission dialog before the first tap on the record button
+                Avfi.RequestMicrophonePermission();
+            }
             if (_needWarmedUp)
             {
                 _videoRecorder.WarmUp();
@@ -122,6 +129,7 @@ namespace ARFoundationReplay
                 .ToArray();
 
             var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"ARRecorder.StartRecording - audio: {options.audio} (requested), {_videoRecorder.ActiveAudioMode} (active)");
             sb.AppendLine("ARRecorder.StartRecording - active encoders:");
             foreach (var encoder in _encoders)
             {

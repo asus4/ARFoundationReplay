@@ -12,6 +12,7 @@ static AVAssetReader* _reader;
 static AVAssetReaderTrackOutput* _readerMetadataOutput;
 static AVAssetReaderOutputMetadataAdaptor* _metadataAdaptor;
 static NSMutableArray<RawMetadata*>* _metadataBuffer = nil;
+static bool _hasAudioTrack = false;
 
 #define kMETADATA_ID_RAW @"mdta/com.github.asus4.avfi.raw"
 #define kTIMESCALE 240
@@ -24,6 +25,9 @@ extern bool Avfi_LoadMetadata(const char* filePath) {
     NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:filePath]];
     NSLog(@"Avfi_LoadMetadata  (%@)", url);
     AVAsset* asset = [AVAsset assetWithURL:url];
+
+    // Optional audio track: the Editor routes it through an AudioSource when present.
+    _hasAudioTrack = [asset tracksWithMediaType:AVMediaTypeAudio].count > 0;
 
     // Ensure the asset has at leaset one metadata track.
     NSArray* tracks = [asset tracksWithMediaType:AVMediaTypeMetadata];
@@ -87,6 +91,12 @@ extern void Avfi_UnloadMetadata(void)
         [_metadataBuffer removeAllObjects];
         _metadataBuffer = nil;
     }
+    _hasAudioTrack = false;
+}
+
+extern bool Avfi_HasAudioTrack(void)
+{
+    return _hasAudioTrack;
 }
 
 extern uint32_t Avfi_GetBufferSize(void)
