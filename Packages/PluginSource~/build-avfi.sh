@@ -19,4 +19,6 @@ gcc -target  arm64-apple-macos10.13 $CFLAGS $MAC_ARGS $SRC/Avfi.m $SRC/AvfiMetaP
 
 lipo -create -output Avfi.bundle x86_64.so arm64.so
 
-cp Avfi.bundle $DST
+# Install by rename, never by overwriting in place: a running Editor keeps the old bundle
+# mapped, and overwriting that inode gets the Editor killed (Code Signature Invalid) on its next load.
+mv -f Avfi.bundle $DST/Avfi.bundle

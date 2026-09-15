@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace ARFoundationReplay
 {
@@ -6,9 +7,18 @@ namespace ARFoundationReplay
     {
         private byte[] _buffer;
 
+        /// <summary>
+        /// Whether the loaded video file has an audio track.
+        /// </summary>
+        public bool HasAudioTrack { get; }
+
         public MetadataPlayer(string path)
         {
-            Avfi.LoadMetadata(path);
+            if (!Avfi.LoadMetadata(path))
+            {
+                Debug.LogWarning($"MetadataPlayer: No metadata track found in {path}");
+            }
+            HasAudioTrack = Avfi.HasAudioTrack();
             // Get max size of metadata
             uint size = Avfi.GetBufferSize();
             _buffer = new byte[size];

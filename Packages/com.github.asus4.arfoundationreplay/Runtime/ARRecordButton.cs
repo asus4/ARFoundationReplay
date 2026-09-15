@@ -16,6 +16,7 @@ namespace ARFoundationReplay
             width = 1920,
             height = 1080,
             targetFrameRate = 60,
+            audio = AudioCaptureMode.None,
         };
 
         [SerializeField]

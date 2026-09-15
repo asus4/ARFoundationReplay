@@ -8,10 +8,12 @@ namespace ARFoundationReplay
     public class ARFoundationReplaySettingsEditor : Editor
     {
         private SerializedProperty _recordPath;
+        private SerializedProperty _enableAudio;
 
         private void OnEnable()
         {
             _recordPath = serializedObject.FindProperty("_recordPath");
+            _enableAudio = serializedObject.FindProperty("_enableAudio");
         }
 
         public override void OnInspectorGUI()
@@ -26,6 +28,9 @@ namespace ARFoundationReplay
                     _recordPath.stringValue = path;
                 }
             }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(_enableAudio);
             serializedObject.ApplyModifiedProperties();
         }
 
