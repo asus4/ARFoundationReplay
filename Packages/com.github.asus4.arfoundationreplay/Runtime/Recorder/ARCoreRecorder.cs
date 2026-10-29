@@ -147,6 +147,11 @@ namespace ARFoundationReplay
     /// </summary>
     public class ARCoreRecorder : MonoBehaviour, IRecorder
     {
+#pragma warning disable CS0414
+        [SerializeField]
+        private ARSession _session = null;
+#pragma warning restore CS0414
+
         public bool IsRecording => false;
 
         public void StartRecording()
