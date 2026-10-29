@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.XR.ARSubsystems;
@@ -22,8 +23,8 @@ namespace ARFoundationReplay
                 supportsHorizontalPlaneDetection = true,
                 supportsVerticalPlaneDetection = true,
                 supportsArbitraryPlaneDetection = false,
-                supportsBoundaryVertices = true,
-                supportsClassification = true,
+                supportsBoundaryVerticesDelegate = () => true,
+                supportsClassificationDelegate = () => true,
             };
             XRPlaneSubsystemDescriptor.Register(cinfo);
         }
@@ -71,10 +72,15 @@ namespace ARFoundationReplay
                     return;
                 }
 
+                if (!boundary.IsCreated)
+                {
+                    boundary = new NativeArray<Vector2>(0, allocator);
+                }
+
                 if (_currentPacket.boundaries.TryGetValue(trackableId, out var bytes))
                 {
                     int length = bytes.Length / UnsafeUtility.SizeOf<Vector2>();
-                    CreateOrResizeNativeArrayIfNecessary(length, allocator, ref boundary);
+                    NativeArrayUtils.EnsureExactSize(ref boundary, length, allocator);
                     fixed (byte* bytesPtr = bytes)
                     {
                         UnsafeUtility.MemCpy(boundary.GetUnsafePtr(), bytesPtr, bytes.Length);
@@ -82,7 +88,7 @@ namespace ARFoundationReplay
                 }
                 else
                 {
-                    CreateOrResizeNativeArrayIfNecessary(0, allocator, ref boundary);
+                    NativeArrayUtils.EnsureExactSize(ref boundary, 0, allocator);
                 }
             }
 

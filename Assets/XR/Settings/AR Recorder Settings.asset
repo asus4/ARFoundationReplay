@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: AR Recorder Settings
   m_EditorClassIdentifier: 
   _recordPath: record-001.mp4
+  _enableAudio: 1

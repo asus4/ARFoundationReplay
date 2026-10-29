@@ -18,6 +18,12 @@ namespace ARFoundationReplay
         [SerializeField]
         private string _recordPath;
 
+        [SerializeField]
+        [Tooltip("Play the audio track of the recording, if it has one, through an AudioSource")]
+        private bool _enableAudio = true;
+
+        internal bool EnableAudio => _enableAudio;
+
         public static string ProjectRootPath
             => Path.GetDirectoryName(Application.dataPath);
 

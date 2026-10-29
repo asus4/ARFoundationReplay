@@ -22,7 +22,7 @@ namespace ARFoundationReplay
                 providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplayRaycastSubsystem),
                 supportsViewportBasedRaycast = true,
-                supportedTrackableTypes = TrackableType.FeaturePoint | TrackableType.Planes,
+                supportedTrackableTypesDelegate = () => TrackableType.FeaturePoint | TrackableType.Planes,
                 supportsTrackedRaycasts = false,
             });
         }

@@ -12,7 +12,7 @@ namespace ARFoundationReplay
         private readonly int _targetFrameRate;
 
         private double _start;
-        private double _last;
+        private int _lastBucket = -1;
 
         public int Count => _times.Count;
 
@@ -26,6 +26,16 @@ namespace ARFoundationReplay
             Clear();
         }
 
+        /// <summary>
+        /// Start the recording clock.
+        /// Call right after the native recorder starts so the video and audio tracks share the same origin.
+        /// </summary>
+        public void Start(double now)
+        {
+            Clear();
+            _start = now;
+        }
+
         public void Clear()
         {
             while (_buffers.Count > 0)
@@ -35,6 +45,7 @@ namespace ARFoundationReplay
             _buffers.Clear();
             _times.Clear();
             _start = 0;
+            _lastBucket = -1;
         }
 
         public (double, NativeArray<byte>) Dequeue()
@@ -42,35 +53,23 @@ namespace ARFoundationReplay
             return (_times.Dequeue(), _buffers.Dequeue());
         }
 
-        public unsafe bool TryEnqueueNow(ReadOnlySpan<byte> metadata)
+        public bool TryEnqueueNow(ReadOnlySpan<byte> metadata)
         {
-            // Copy native array
-            var buffer = metadata.CopyToNativeArray(Allocator.Persistent);
+            double elapsed = Time.realtimeSinceStartupAsDouble - _start;
+            int bucket = (int)(elapsed * _targetFrameRate);
 
-            var time = Time.unscaledTimeAsDouble - _start;
-
-            if (_start == 0)
+            // Reject it if it falls into the same frame slot as the previous one.
+            if (bucket <= _lastBucket)
             {
-                _times.Enqueue(0);
-                _buffers.Enqueue(buffer);
-                _start = Time.unscaledTimeAsDouble;
-                _last = 0;
-                return true;
+                return false;
             }
-            else
-            {
-                // Reject it if it falls into the same frame.
-                if ((int)(time * _targetFrameRate) == (int)(_last * _targetFrameRate))
-                {
-                    buffer.Dispose();
-                    return false;
-                }
 
-                _times.Enqueue(time);
-                _buffers.Enqueue(buffer);
-                _last = time;
-                return true;
-            }
+            // Snap the time to the frame grid: constant frame duration, gaps when frames drop,
+            // so the video stays aligned with the wall clock (and the audio track).
+            _times.Enqueue(bucket / (double)_targetFrameRate);
+            _buffers.Enqueue(metadata.CopyToNativeArray(Allocator.Persistent));
+            _lastBucket = bucket;
+            return true;
         }
     }
 }

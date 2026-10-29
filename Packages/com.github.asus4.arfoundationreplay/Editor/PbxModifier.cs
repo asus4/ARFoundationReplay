@@ -20,14 +20,18 @@ namespace ARFoundationReplay
             var plist = new PlistDocument();
             plist.ReadFromFile(plistPath);
 
-            const string key = "NSPhotoLibraryAddUsageDescription";
-            const string desc = "Adds recorded videos to the library.";
+            AddUsageDescription(plist, "NSPhotoLibraryAddUsageDescription", "Adds recorded videos to the library.");
+            // Required by AudioCaptureMode.NativeMicrophone
+            AddUsageDescription(plist, "NSMicrophoneUsageDescription", "Records ambient audio with the AR session.");
+            plist.WriteToFile(plistPath);
+        }
 
+        private static void AddUsageDescription(PlistDocument plist, string key, string description)
+        {
             if (!plist.root.values.ContainsKey(key))
             {
-                plist.root.SetString(key, desc);
+                plist.root.SetString(key, description);
             }
-            plist.WriteToFile(plistPath);
         }
     }
 

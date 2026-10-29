@@ -50,8 +50,9 @@ namespace ARFoundationReplay
             }
 
             string path = settings.GetRecordPath();
-            _video = CreateVideoPlayer(path);
             _metadata = new MetadataPlayer(path);
+            bool withAudio = settings.EnableAudio && _metadata.HasAudioTrack;
+            _video = CreateVideoPlayer(path, withAudio);
 
             _sharedInstance = this;
         }
@@ -61,13 +62,14 @@ namespace ARFoundationReplay
             _metadata?.Dispose();
             if (_video != null)
             {
+                var gameObject = _video.gameObject;
                 if (Application.isEditor)
                 {
-                    Object.DestroyImmediate(_video);
+                    Object.DestroyImmediate(gameObject);
                 }
                 else
                 {
-                    Object.Destroy(_video);
+                    Object.Destroy(gameObject);
                 }
             }
             _sharedInstance = null;
@@ -112,21 +114,35 @@ namespace ARFoundationReplay
             ARReplayInputSubsystem.Update(Metadata);
         }
 
-        private static VideoPlayer CreateVideoPlayer(string path)
+        private static VideoPlayer CreateVideoPlayer(string path, bool withAudio)
         {
             var gameObject = new GameObject(typeof(ARReplay).ToString());
 
             var player = gameObject.AddComponent<VideoPlayer>();
+            player.playOnAwake = false;
             player.source = VideoSource.Url;
             player.url = $"file://{path}";
-            player.playOnAwake = true;
             player.isLooping = true;
             player.skipOnDrop = true;
             player.renderMode = VideoRenderMode.APIOnly;
-            player.audioOutputMode = VideoAudioOutputMode.None;
-            player.SetDirectAudioMute(0, true);
             player.playbackSpeed = 1;
 
+            if (withAudio)
+            {
+                // Route the audio track through Unity's audio system
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                player.audioOutputMode = VideoAudioOutputMode.AudioSource;
+                player.controlledAudioTrackCount = 1;
+                player.EnableAudioTrack(0, true);
+                player.SetTargetAudioSource(0, audioSource);
+            }
+            else
+            {
+                player.audioOutputMode = VideoAudioOutputMode.None;
+            }
+
+            player.Play();
             return player;
         }
     }
