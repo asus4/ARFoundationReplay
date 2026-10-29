@@ -32,7 +32,7 @@ namespace ARFoundationReplay
         {
             if (_session == null)
             {
-                _session = FindFirstObjectByType<ARSession>();
+                _session = FindAnyObjectByType<ARSession>();
             }
             if (_session == null)
             {

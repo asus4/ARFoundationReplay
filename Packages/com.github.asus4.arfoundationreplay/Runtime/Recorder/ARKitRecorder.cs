@@ -44,7 +44,7 @@ namespace ARFoundationReplay
         {
             if (_origin == null)
             {
-                _origin = FindFirstObjectByType<XROrigin>();
+                _origin = FindAnyObjectByType<XROrigin>();
             }
             if (_origin == null)
             {

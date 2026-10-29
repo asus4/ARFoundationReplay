@@ -49,7 +49,7 @@ namespace ARFoundationReplay
                 Debug.LogError("ARMeshManager is not found");
                 return false;
             }
-            _meshManager.meshesChanged += OnMeshesChanged;
+            _meshManager.meshInfosChanged.AddListener(OnMeshInfosChanged);
             return true;
         }
 
@@ -57,7 +57,7 @@ namespace ARFoundationReplay
         {
             if (_meshManager != null)
             {
-                _meshManager.meshesChanged -= OnMeshesChanged;
+                _meshManager.meshInfosChanged.RemoveListener(OnMeshInfosChanged);
                 _meshManager = null;
             }
         }
@@ -73,9 +73,9 @@ namespace ARFoundationReplay
             _packet.Reset();
         }
 
-        private void OnMeshesChanged(ARMeshesChangedEventArgs args)
+        private void OnMeshInfosChanged(ARMeshInfosChangedEventArgs args)
         {
-            Debug.Log($"OnMeshesChanged added={args.added.Count} updated={args.updated.Count} removed={args.removed.Count}");
+            Debug.Log($"OnMeshInfosChanged added={args.added.Count} updated={args.updated.Count} removed={args.removed.Count}");
             _packet.Reset();
 
             // _packet.Added = args.added;

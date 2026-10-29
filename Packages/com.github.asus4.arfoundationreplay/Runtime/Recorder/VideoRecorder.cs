@@ -123,7 +123,7 @@ namespace ARFoundationReplay
                     return AudioCaptureMode.NativeMicrophone;
 
                 case AudioCaptureMode.UnityAudioOutput:
-                    listener = UnityEngine.Object.FindFirstObjectByType<AudioListener>();
+                    listener = UnityEngine.Object.FindAnyObjectByType<AudioListener>();
                     if (listener == null)
                     {
                         Debug.LogWarning("VideoRecorder: No AudioListener found in the scene, recording without audio.");
