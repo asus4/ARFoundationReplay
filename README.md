@@ -14,7 +14,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 ## Tested platform
 
 - Only iOS ARKit + macOS Editor for now. Android ARCore is planned.
-- Tested with the latest Unity6 LTS.
+- Tested with Unity 6.6.
 - Supported only URP. Built-in is not supported for now.
 
 ## Implemented Subsystems
@@ -24,7 +24,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 - [x] XRPointCloudSubsystem
 - [x] XRPlaneSubsystem
 - [ ] XRAnchorSubsystem
-- [ ] XRRaycastSubsystem
+- [x] XRRaycastSubsystem
 - [ ] XRHumanBodySubsystem
 - [ ] XREnvironmentProbeSubsystem
 - [x] XRInputSubsystem
@@ -36,6 +36,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 - [ ] XRMeshSubsystem
 - ARCore Extensions
   - [x] Earth Manager
+  - [ ] Cloud Anchors
   - [x] Streetscape Geometry
 
 ## How to use
@@ -53,7 +54,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
   }
   ```
 
-- Simulation on the Unity Editor is supported only on iOS. Open Build Settings and switch the platform to iOS.
+- Simulation on the Unity Editor is supported only on iOS. Open `File > Build Profiles` and switch the platform to iOS.
   ![fig-switch-platform](https://github.com/asus4/WorldEnsemble/assets/357497/2bbcb90a-5f6f-4d2a-87a1-65db73f74a36)
 - Activate AR Foundation Replay for Unity Editor:
   1. Open `Project Settings/XR Plug-in Management`.
@@ -70,7 +71,7 @@ PoC of Recording AR Foundation session into a single mp4 with a binary timeline 
 
 ## ARCore Extensions Support
 
-It supports replaying ARCore Geospatial. To test it, please use the [forked version of the arcore-unity-extensions](https://github.com/asus4/arcore-unity-extensions) and refer to the [ARFoundationReplayGeospatial](https://github.com/asus4/ARFoundationReplayGeospatial) example project.
+It supports replaying ARCore Geospatial. To test it, please use the `replay` branch of the [forked arcore-unity-extensions](https://github.com/asus4/arcore-unity-extensions/tree/replay) and refer to the [ARFoundationReplayGeospatial](https://github.com/asus4/ARFoundationReplayGeospatial) example project.
 
 ## Dependencies
 
