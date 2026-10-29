@@ -21,7 +21,6 @@ namespace ARFoundationReplay
                 id = ID,
                 providerType = typeof(ARReplayProvider),
                 subsystemTypeOverride = typeof(ARReplaySessionSubsystem),
-                supportsInstall = false,
                 supportsMatchFrameRate = false
             });
         }
@@ -29,12 +28,6 @@ namespace ARFoundationReplay
         class ARReplayProvider : Provider
         {
             private ARReplay _replay;
-
-            public override Promise<SessionAvailability> GetAvailabilityAsync()
-            {
-                var flag = SessionAvailability.Supported | SessionAvailability.Installed;
-                return Promise<SessionAvailability>.CreateResolvedPromise(flag);
-            }
 
             public override void Start()
             {
