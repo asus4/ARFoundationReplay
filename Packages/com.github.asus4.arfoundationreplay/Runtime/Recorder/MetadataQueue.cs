@@ -16,6 +16,13 @@ namespace ARFoundationReplay
 
         public int Count => _times.Count;
 
+        /// <summary>
+        /// Whether the current time falls into a new frame slot.
+        /// </summary>
+        public bool IsFrameDue => CurrentBucket > _lastBucket;
+
+        private int CurrentBucket => (int)((Time.realtimeSinceStartupAsDouble - _start) * _targetFrameRate);
+
         public MetadataQueue(int targetFrameRate = 60)
         {
             _targetFrameRate = targetFrameRate;
@@ -55,8 +62,7 @@ namespace ARFoundationReplay
 
         public bool TryEnqueueNow(ReadOnlySpan<byte> metadata)
         {
-            double elapsed = Time.realtimeSinceStartupAsDouble - _start;
-            int bucket = (int)(elapsed * _targetFrameRate);
+            int bucket = CurrentBucket;
 
             // Reject it if it falls into the same frame slot as the previous one.
             if (bucket <= _lastBucket)

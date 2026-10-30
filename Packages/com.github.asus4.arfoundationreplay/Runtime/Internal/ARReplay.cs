@@ -26,7 +26,7 @@ namespace ARFoundationReplay
 
         private readonly VideoPlayer _video;
         private readonly MetadataPlayer _metadata;
-        private long _lastFrame = long.MinValue;
+        private long _lastFrame = -1;
 
         /// <summary>
         /// Whether the video frame was updated in this frame
@@ -84,31 +84,38 @@ namespace ARFoundationReplay
                 return;
             }
 
-            // Skip the same frame
+            // Skip the same frame, and the time before the first one
             long frame = _video.frame;
-            if (frame == _lastFrame)
+            if (frame == _lastFrame || frame < 0)
             {
                 DidUpdateThisFrame = false;
                 DidLoopThisFrame = false;
                 return;
             }
 
-            double time = _video.time;
-            var metadata = _metadata.PeekMetadata(time);
+            // By the frame, not VideoPlayer.time: it is the frame divided by a constant frame rate,
+            // which drifts from the recorded time after a dropped frame
+            var metadata = _metadata.ReadFrame((int)frame);
             if (metadata.IsEmpty)
             {
-                Debug.LogWarning($"Metadata not found, time:{time}");
+                Debug.LogWarning($"Metadata not found, frame:{frame}");
                 DidUpdateThisFrame = false;
                 return;
             }
 
             kDeserializeMarker.Begin();
             Metadata = FrameMetadata.Deserialize(metadata);
+            // Each frame has only the changes since the previous one,
+            // so keep the changes of the frames that the video player skipped
+            for (long i = frame - 1; i > _lastFrame; i--)
+            {
+                Metadata.MergeEarlier(_metadata.ReadFrame((int)i));
+            }
             kDeserializeMarker.End();
 
             DidUpdateThisFrame = true;
             DidLoopThisFrame = _lastFrame > frame;
-            _lastFrame = _video.frame;
+            _lastFrame = frame;
 
             // Forward to the input native plugin
             ARReplayInputSubsystem.Update(Metadata);

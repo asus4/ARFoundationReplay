@@ -128,9 +128,116 @@ namespace ARFoundationReplay
             }
         }
 
+        /// <summary>
+        /// Merge the changes of an earlier packet into this one.
+        /// </summary>
+        protected void MergeEarlierChanges(TrackableChangesPacket<T> earlier)
+        {
+            var changes = new TrackableChangesAccumulator<T>();
+            changes.Append(earlier);
+            changes.Append(this);
+            changes.CopyTo(this);
+        }
+
         public override string ToString()
         {
             return $"added:{added.Length} updated:{updated.Length} removed:{removed.Length}";
+        }
+    }
+
+    /// <summary>
+    /// Merges trackable changes so that the last change of each trackable wins.
+    /// A trackable added and then updated stays added.
+    /// </summary>
+    /// <remarks>
+    /// An added and then removed trackable is kept as removed:
+    /// in playback, it may exist already as old recordings repeat changes and the video loops.
+    /// </remarks>
+    internal sealed class TrackableChangesAccumulator<T>
+        where T : struct, ITrackable
+    {
+        private readonly Dictionary<TrackableId, T> _added = new();
+        private readonly Dictionary<TrackableId, T> _updated = new();
+        private readonly HashSet<TrackableId> _removed = new();
+
+        public bool IsEmpty => _added.Count == 0 && _updated.Count == 0 && _removed.Count == 0;
+
+        public void Add(T trackable)
+        {
+            var id = trackable.trackableId;
+            _updated.Remove(id);
+            _removed.Remove(id);
+            _added[id] = trackable;
+        }
+
+        public void Update(T trackable)
+        {
+            var id = trackable.trackableId;
+            if (_added.ContainsKey(id))
+            {
+                _added[id] = trackable;
+                return;
+            }
+            _removed.Remove(id);
+            _updated[id] = trackable;
+        }
+
+        public void Remove(TrackableId id)
+        {
+            _added.Remove(id);
+            _updated.Remove(id);
+            _removed.Add(id);
+        }
+
+        public void Append(TrackableChangesPacket<T> packet)
+        {
+            using var changes = packet.AsTrackableChanges(Allocator.Temp);
+            foreach (var trackable in changes.added)
+            {
+                Add(trackable);
+            }
+            foreach (var trackable in changes.updated)
+            {
+                Update(trackable);
+            }
+            foreach (var id in changes.removed)
+            {
+                Remove(id);
+            }
+        }
+
+        public void Clear()
+        {
+            _added.Clear();
+            _updated.Clear();
+            _removed.Clear();
+        }
+
+        public void CopyTo(TrackableChangesPacket<T> packet)
+        {
+            using var changes = new TrackableChanges<T>(
+                _added.Count, _updated.Count, _removed.Count, Allocator.Temp);
+
+            var added = changes.added;
+            var updated = changes.updated;
+            var removed = changes.removed;
+
+            int i = 0;
+            foreach (var trackable in _added.Values)
+            {
+                added[i++] = trackable;
+            }
+            i = 0;
+            foreach (var trackable in _updated.Values)
+            {
+                updated[i++] = trackable;
+            }
+            i = 0;
+            foreach (var id in _removed)
+            {
+                removed[i++] = id;
+            }
+            packet.CopyFrom(changes);
         }
     }
 
@@ -193,10 +300,14 @@ namespace ARFoundationReplay
                 {
                     continue;
                 }
-                if (!activeIds.Contains(trackable.trackableId))
+                if (activeIds.Add(trackable.trackableId))
                 {
-                    activeIds.Add(trackable.trackableId);
                     added.Add(trackable);
+                }
+                else
+                {
+                    // Added again by a repeated or merged change, or after the loop
+                    updated.Add(trackable);
                 }
             }
             // Updated

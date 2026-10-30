@@ -41,13 +41,15 @@ namespace ARFoundationReplay
             _track = null;
         }
 
-        public ReadOnlySpan<byte> PeekMetadata(double time)
+        /// <param name="frame">The index of the video frame, which has a metadata sample of the same index</param>
+        /// <returns>The metadata, valid until the next read, or empty if there is none</returns>
+        public ReadOnlySpan<byte> ReadFrame(int frame)
         {
             if (_track == null)
             {
                 return ReadOnlySpan<byte>.Empty;
             }
-            return _track.ReadSample(_file, time, _buffer);
+            return _track.ReadSample(_file, frame, _buffer);
         }
     }
 }

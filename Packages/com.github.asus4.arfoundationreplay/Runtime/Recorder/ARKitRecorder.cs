@@ -87,7 +87,8 @@ namespace ARFoundationReplay
 
         private void LateUpdate()
         {
-            if (!IsRecording) { return; }
+            // The encoders keep merging changes until a frame is recorded
+            if (!IsRecording || !_videoRecorder.IsFrameDue) { return; }
 
             foreach (var encoder in _encoders)
             {
@@ -106,6 +107,11 @@ namespace ARFoundationReplay
             kSerializeMarker.End();
 
             _videoRecorder.Update(metadata);
+
+            foreach (var encoder in _encoders)
+            {
+                encoder.PostEncode();
+            }
         }
 
         public void StartRecording()

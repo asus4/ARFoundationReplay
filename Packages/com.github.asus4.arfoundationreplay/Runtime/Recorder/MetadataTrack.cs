@@ -15,18 +15,14 @@ namespace ARFoundationReplay
     /// </remarks>
     internal sealed class MetadataTrack
     {
-        private readonly int _timescale;
-        private readonly long[] _times; // In _timescale units
         private readonly long[] _offsets;
         private readonly int[] _sizes;
         private readonly uint _localKeyId;
 
         public int MaxSampleSize { get; }
 
-        private MetadataTrack(int timescale, long[] times, long[] offsets, int[] sizes, uint localKeyId)
+        private MetadataTrack(long[] offsets, int[] sizes, uint localKeyId)
         {
-            _timescale = timescale;
-            _times = times;
             _offsets = offsets;
             _sizes = sizes;
             _localKeyId = localKeyId;
@@ -76,22 +72,12 @@ namespace ARFoundationReplay
             return track;
         }
 
-        /// <summary>
-        /// Read the metadata of the first sample at or after the time.
-        /// </summary>
         /// <param name="stream">The file that the track was read from</param>
         /// <param name="buffer">At least <see cref="MaxSampleSize"/> bytes</param>
-        /// <returns>A slice of the buffer, or empty if there is no sample</returns>
-        public ReadOnlySpan<byte> ReadSample(Stream stream, double time, byte[] buffer)
+        /// <returns>A slice of the buffer, or empty if there is no such sample</returns>
+        public ReadOnlySpan<byte> ReadSample(Stream stream, int index, byte[] buffer)
         {
-            // Floored so that a time a hair past a sample still finds that sample
-            long ticks = (long)Math.Floor(time * _timescale);
-            int index = Array.BinarySearch(_times, ticks);
-            if (index < 0)
-            {
-                index = ~index;
-            }
-            if (index == _times.Length)
+            if ((uint)index >= (uint)_sizes.Length)
             {
                 return ReadOnlySpan<byte>.Empty;
             }
@@ -118,12 +104,10 @@ namespace ARFoundationReplay
 
         private static MetadataTrack ReadSampleTable(ReadOnlySpan<byte> mdia, uint keySpace, byte[] key)
         {
-            if (!TryFindBox(mdia, "mdhd", out var mdhd)
-                || !TryFindBox(mdia, "minf", out var minf)
+            if (!TryFindBox(mdia, "minf", out var minf)
                 || !TryFindBox(minf, "stbl", out var stbl)
                 || !TryFindBox(stbl, "stsd", out var stsd)
                 || !TryFindLocalKeyId(stsd, keySpace, key, out uint localKeyId)
-                || !TryFindBox(stbl, "stts", out var stts)
                 || !TryFindBox(stbl, "stsc", out var stsc)
                 || !TryFindBox(stbl, "stsz", out var stsz))
             {
@@ -135,9 +119,6 @@ namespace ARFoundationReplay
                 return null;
             }
 
-            // mdhd: version and flags, creation and modification times (64-bit in version 1), then the timescale
-            int timescale = (int)ReadUInt32(mdhd, mdhd[0] == 1 ? 20 : 12);
-
             // stsz: version and flags, a fixed sample size or 0, the sample count, then each size if not fixed
             int fixedSize = (int)ReadUInt32(stsz, 4);
             int count = (int)ReadUInt32(stsz, 8);
@@ -147,29 +128,12 @@ namespace ARFoundationReplay
                 sizes[i] = fixedSize != 0 ? fixedSize : (int)ReadUInt32(stsz, 12 + i * 4);
             }
 
-            // stts: runs of (sample count, duration). Avfi writes each track from time zero
-            // without reordering, so these decode times are also the presentation times.
-            var times = new long[count];
-            int sample = 0;
-            long time = 0;
-            int runs = (int)ReadUInt32(stts, 4);
-            for (int run = 0; run < runs; run++)
-            {
-                int runLength = (int)ReadUInt32(stts, 8 + run * 8);
-                uint duration = ReadUInt32(stts, 12 + run * 8);
-                for (int i = 0; i < runLength && sample < count; i++)
-                {
-                    times[sample++] = time;
-                    time += duration;
-                }
-            }
-
             // stsc: runs of chunks with the same number of samples, from a 1-based first chunk.
             // The samples of a chunk are stored back to back from its stco/co64 offset.
             var offsets = new long[count];
             int chunkCount = (int)ReadUInt32(chunkOffsets, 4);
             int entries = (int)ReadUInt32(stsc, 4);
-            sample = 0;
+            int sample = 0;
             for (int entry = 0; entry < entries; entry++)
             {
                 int firstChunk = (int)ReadUInt32(stsc, 8 + entry * 12) - 1;
@@ -188,7 +152,7 @@ namespace ARFoundationReplay
                     }
                 }
             }
-            return new MetadataTrack(timescale, times, offsets, sizes, localKeyId);
+            return new MetadataTrack(offsets, sizes, localKeyId);
         }
 
         // stsd: version and flags, entry count, then the entries. A 'mebx' entry has 8 bytes of

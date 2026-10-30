@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
@@ -14,9 +13,10 @@ namespace ARFoundationReplay
 
     public sealed class ARStreetscapeGeometryManagerWithReplay : ARStreetscapeGeometryManager
     {
+        private static FieldInfo _changedEventField;
+
         private bool _useReplay = false;
         private XRStreetscapeGeometrySubsystem _subsystem;
-        private MulticastDelegate _updateDelegates;
 
         private readonly Dictionary<TrackableId, ARStreetscapeGeometryWithReplay> _geometries = new();
 
@@ -88,34 +88,25 @@ namespace ARFoundationReplay
                 return arGeometry;
             }
 
-            // Call private constructor using Activator
             arGeometry = new ARStreetscapeGeometryWithReplay(geometry);
-            // Set private field _mesh
             if (_subsystem.TryGetMesh(geometry.trackableId, out Mesh mesh))
             {
                 arGeometry.Mesh = mesh;
             }
+            _geometries.Add(geometry.trackableId, arGeometry);
             return arGeometry;
         }
 
 
         private void InvokeChangedEvent(ARStreetscapeGeometriesChangedEventArgs args)
         {
-            if (_updateDelegates == null)
-            {
-                const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-                var field = typeof(ARStreetscapeGeometryManager).GetField("StreetscapeGeometriesChanged", bindingFlags)
-                    ?? throw new InvalidOperationException("Not found ARStreetscapeGeometryManager.StreetscapeGeometriesChanged");
-                _updateDelegates = (MulticastDelegate)field.GetValue(this);
-            }
-
-            // Using cache to speed up invoke time
-            var handlers = _updateDelegates.GetInvocationList()
-                .Cast<Action<ARStreetscapeGeometriesChangedEventArgs>>();
-            foreach (var handler in handlers)
-            {
-                handler?.Invoke(args);
-            }
+            // Only the base class can raise the event, so invoke its backing field.
+            // Read it every time, as handlers subscribe and unsubscribe at any time.
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            _changedEventField ??= typeof(ARStreetscapeGeometryManager).GetField("StreetscapeGeometriesChanged", bindingFlags)
+                ?? throw new InvalidOperationException("Not found ARStreetscapeGeometryManager.StreetscapeGeometriesChanged");
+            var handler = (Action<ARStreetscapeGeometriesChangedEventArgs>)_changedEventField.GetValue(this);
+            handler?.Invoke(args);
         }
     }
 }

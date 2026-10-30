@@ -29,6 +29,11 @@ namespace ARFoundationReplay
         /// </summary>
         public AudioCaptureMode ActiveAudioMode { get; private set; } = AudioCaptureMode.None;
 
+        /// <summary>
+        /// Whether <see cref="Update"/> would record a frame now, at the target frame rate.
+        /// </summary>
+        public bool IsFrameDue => IsRecording && _metadataQueue.IsFrameDue;
+
         public VideoRecorder(RenderTexture source, int targetFrameRate, AudioCaptureMode audioMode = AudioCaptureMode.None)
         {
             _source = source;

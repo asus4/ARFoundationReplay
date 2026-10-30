@@ -3,7 +3,6 @@ using System;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 using Unity.XR.CoreUtils;
-using Unity.Collections;
 using Google.XR.ARCoreExtensions;
 using System.Collections.Generic;
 using MemoryPack;
@@ -48,12 +47,22 @@ namespace ARFoundationReplay
             base.Reset();
             meshes.Clear();
         }
+
+        public void MergeEarlier(StreetscapeGeometryPacket earlier)
+        {
+            MergeEarlierChanges(earlier);
+            foreach (var (id, mesh) in earlier.meshes)
+            {
+                meshes.TryAdd(id, mesh);
+            }
+        }
     }
 
     internal sealed class StreetscapeGeometryEncoder : ISubsystemEncoder
     {
         private ARStreetscapeGeometryManager _geometryManager;
         private readonly StreetscapeGeometryPacket _packet = new();
+        private readonly TrackableChangesAccumulator<StreetscapeGeometry> _changes = new();
         private readonly HashSet<TrackableId> _sentMeshes = new();
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
@@ -80,49 +89,43 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.streetscapeGeometry = _packet.IsAvailable ? _packet : null;
+            if (_changes.IsEmpty)
+            {
+                metadata.streetscapeGeometry = null;
+                return;
+            }
+            _changes.CopyTo(_packet);
+            metadata.streetscapeGeometry = _packet;
         }
 
         public void PostEncode()
         {
+            _changes.Clear();
             _packet.Reset();
         }
 
         private void OnGeometriesChanged(ARStreetscapeGeometriesChangedEventArgs args)
         {
-            if (_packet.IsAvailable)
-            {
-                _packet.Reset();
-            }
-
-            using var changes = new TrackableChanges<StreetscapeGeometry>(
-                args.Added.Count, args.Updated.Count, args.Removed.Count, Allocator.Temp);
-
-            var dstAdded = changes.added;
-            var dstUpdated = changes.updated;
-            var dstRemoved = changes.removed;
-
-            var meshes = _packet.meshes;
-
             for (int i = 0; i < args.Added.Count; i++)
             {
                 var geometry = args.Added[i];
-                dstAdded[i] = ConvertToSerializable(geometry);
+                _changes.Add(ConvertToSerializable(geometry));
                 AddMeshIfNeeded(geometry);
             }
             for (int i = 0; i < args.Updated.Count; i++)
             {
                 var geometry = args.Updated[i];
-                dstUpdated[i] = ConvertToSerializable(geometry);
+                _changes.Update(ConvertToSerializable(geometry));
                 AddMeshIfNeeded(geometry);
             }
             for (int i = 0; i < args.Removed.Count; i++)
             {
-                dstRemoved[i] = args.Removed[i].trackableId;
+                var id = args.Removed[i].trackableId;
+                _changes.Remove(id);
+                // Sent again if the same ID comes back
+                _packet.meshes.Remove(id);
+                _sentMeshes.Remove(id);
             }
-
-            // Serialize TrackableChanges into Packet:
-            _packet.CopyFrom(changes);
 
             // Debug.Log($"StreetscapeGeometryEncoder: added: {changes.added.Length}, updated: {changes.updated.Length}, removed: {changes.removed.Length}");
         }

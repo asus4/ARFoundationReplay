@@ -54,12 +54,22 @@ namespace ARFoundationReplay
                 return base.IsAvailable || data.Count > 0;
             }
         }
+
+        public void MergeEarlier(PointCloudPacket earlier)
+        {
+            MergeEarlierChanges(earlier);
+            foreach (var (id, pointCloudData) in earlier.data)
+            {
+                data.TryAdd(id, pointCloudData);
+            }
+        }
     }
 
     internal sealed class PointCloudEncoder : ISubsystemEncoder
     {
         private ARPointCloudManager _pointCloudManager;
         private readonly PointCloudPacket _packet = new();
+        private readonly TrackableChangesAccumulator<XRPointCloud> _changes = new();
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
@@ -84,48 +94,43 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.pointCloud = _packet.IsAvailable ? _packet : null;
+            if (_changes.IsEmpty)
+            {
+                metadata.pointCloud = null;
+                return;
+            }
+            _changes.CopyTo(_packet);
+            metadata.pointCloud = _packet;
         }
 
         public void PostEncode()
         {
+            _changes.Clear();
             _packet.Reset();
         }
 
         private void OnTrackablesChanged(ARTrackablesChangedEventArgs<ARPointCloud> args)
         {
-            if (_packet.IsAvailable)
-            {
-                _packet.Reset();
-            }
-
-            using var changes = new TrackableChanges<XRPointCloud>(
-                args.added.Count, args.updated.Count, args.removed.Count, Allocator.Temp);
-
-            var dstAdded = changes.added;
-            var dstUpdated = changes.updated;
-            var dstRemoved = changes.removed;
-
             var data = _packet.data;
 
             for (int i = 0; i < args.added.Count; i++)
             {
                 var arPointCloud = args.added[i];
-                dstAdded[i] = ToXRPointCloud(arPointCloud);
+                _changes.Add(ToXRPointCloud(arPointCloud));
                 data[arPointCloud.trackableId] = ToPointCloudData(arPointCloud);
             }
             for (int i = 0; i < args.updated.Count; i++)
             {
                 var arPointCloud = args.updated[i];
-                dstUpdated[i] = ToXRPointCloud(arPointCloud);
+                _changes.Update(ToXRPointCloud(arPointCloud));
                 data[arPointCloud.trackableId] = ToPointCloudData(arPointCloud);
             }
             for (int i = 0; i < args.removed.Count; i++)
             {
-                dstRemoved[i] = args.removed[i].Key;
+                var id = args.removed[i].Key;
+                _changes.Remove(id);
+                data.Remove(id);
             }
-            // Serialize TrackableChanges into Packet:
-            _packet.CopyFrom(changes);
 
             // Debug.Log($"Point Cloud changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
         }
