@@ -46,24 +46,5 @@ namespace ARFoundationReplay
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool HasMicrophonePermission();
         #endregion // Recording
-
-        #region Metadata
-        [DllImport(DllName, EntryPoint = "Avfi_LoadMetadata")]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool LoadMetadata(string filePath);
-
-        [DllImport(DllName, EntryPoint = "Avfi_UnloadMetadata")]
-        public static extern void UnloadMetadata();
-
-        [DllImport(DllName, EntryPoint = "Avfi_HasAudioTrack")]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool HasAudioTrack();
-
-        [DllImport(DllName, EntryPoint = "Avfi_GetBufferSize")]
-        public static extern uint GetBufferSize();
-
-        [DllImport(DllName, EntryPoint = "Avfi_PeekMetadata")]
-        public unsafe static extern uint PeekMetadata(double time, byte* metadata);
-        #endregion // Metadata
     }
 }
