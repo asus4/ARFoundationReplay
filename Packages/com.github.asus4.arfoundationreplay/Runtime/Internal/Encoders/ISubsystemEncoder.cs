@@ -25,7 +25,7 @@ namespace ARFoundationReplay
         void Encode(FrameMetadata metadata);
 
         /// <summary>
-        /// Called after all subsystems finished Encode().
+        /// Called after the encoded metadata is recorded in a frame.
         /// </summary>
         void PostEncode();
     }

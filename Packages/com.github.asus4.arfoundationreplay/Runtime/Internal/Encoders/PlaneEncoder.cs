@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using Unity.Collections;
 using Unity.XR.CoreUtils;
 using MemoryPack;
 
@@ -29,6 +28,14 @@ namespace ARFoundationReplay
             boundaries.Clear();
         }
 
+        public void MergeEarlier(PlanePacket earlier)
+        {
+            MergeEarlierChanges(earlier);
+            foreach (var (id, boundary) in earlier.boundaries)
+            {
+                boundaries.TryAdd(id, boundary);
+            }
+        }
     }
 
     /// <summary>
@@ -38,6 +45,7 @@ namespace ARFoundationReplay
     {
         private ARPlaneManager _planeManager;
         private readonly PlanePacket _packet = new();
+        private readonly TrackableChangesAccumulator<BoundedPlane> _changes = new();
 
         public bool Initialize(XROrigin origin, Material muxMaterial)
         {
@@ -61,51 +69,45 @@ namespace ARFoundationReplay
 
         public void Encode(FrameMetadata metadata)
         {
-            metadata.plane = _packet.IsAvailable ? _packet : null;
+            if (_changes.IsEmpty)
+            {
+                metadata.plane = null;
+                return;
+            }
+            _changes.CopyTo(_packet);
+            metadata.plane = _packet;
         }
 
         public void PostEncode()
         {
+            _changes.Clear();
             _packet.Reset();
         }
 
         private void OnTrackablesChanged(ARTrackablesChangedEventArgs<ARPlane> args)
         {
-            if (_packet.IsAvailable)
-            {
-                _packet.Reset();
-            }
-
             _packet.currentDetectionMode = _planeManager.currentDetectionMode;
 
-            // Convert ARPlanes into TrackableChanges:
-            using var changes = new TrackableChanges<BoundedPlane>(
-                args.added.Count, args.updated.Count, args.removed.Count, Allocator.Temp);
-
-            var dstAdded = changes.added;
-            var dstUpdated = changes.updated;
-            var dstRemoved = changes.removed;
-
-            var dstBoundaries = _packet.boundaries;
+            var boundaries = _packet.boundaries;
 
             for (int i = 0; i < args.added.Count; i++)
             {
                 var arPlane = args.added[i];
-                dstAdded[i] = ConvertToBoundedPlane(arPlane);
-                dstBoundaries.Add(arPlane.trackableId, arPlane.boundary.ToByteArray());
+                _changes.Add(ConvertToBoundedPlane(arPlane));
+                boundaries[arPlane.trackableId] = arPlane.boundary.ToByteArray();
             }
             for (int i = 0; i < args.updated.Count; i++)
             {
                 var arPlane = args.updated[i];
-                dstUpdated[i] = ConvertToBoundedPlane(arPlane);
-                dstBoundaries.Add(arPlane.trackableId, arPlane.boundary.ToByteArray());
+                _changes.Update(ConvertToBoundedPlane(arPlane));
+                boundaries[arPlane.trackableId] = arPlane.boundary.ToByteArray();
             }
             for (int i = 0; i < args.removed.Count; i++)
             {
-                dstRemoved[i] = args.removed[i].Key;
+                var id = args.removed[i].Key;
+                _changes.Remove(id);
+                boundaries.Remove(id);
             }
-            // Serialize TrackableChanges into Packet:
-            _packet.CopyFrom(changes);
 
             // Debug.Log($"Planes changed: added={args.added.Count}, updated={args.updated.Count}, removed={args.removed.Count}");
         }

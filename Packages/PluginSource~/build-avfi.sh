@@ -14,8 +14,8 @@ DST="../com.github.asus4.arfoundationreplay/Runtime/Plugins/macOS"
 
 rm -f *.so *.bundle
 
-gcc -target x86_64-apple-macos10.13 $CFLAGS $MAC_ARGS $SRC/Avfi.m $SRC/AvfiMetaPlayer.m $LIBS -o x86_64.so
-gcc -target  arm64-apple-macos10.13 $CFLAGS $MAC_ARGS $SRC/Avfi.m $SRC/AvfiMetaPlayer.m $LIBS -o arm64.so
+gcc -target x86_64-apple-macos10.13 $CFLAGS $MAC_ARGS $SRC/Avfi.m $LIBS -o x86_64.so
+gcc -target  arm64-apple-macos10.13 $CFLAGS $MAC_ARGS $SRC/Avfi.m $LIBS -o arm64.so
 
 lipo -create -output Avfi.bundle x86_64.so arm64.so
 
